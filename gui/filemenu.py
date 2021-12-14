@@ -1,4 +1,4 @@
-from ctypes import string_at
+from ctypes import pointer, string_at
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
@@ -10,14 +10,28 @@ class Menu:
     points = []
 
     def __init__(self, master: Frame, canvas: Canvas):
-        self.leftFrame = Frame(master, height=320, width=260)
+        self.leftFrame = Frame(master, width=260)
         self.canvas = canvas
         self.v = IntVar()
         self.v.set(1)
 
+    def plot(self):
+        if(self.file != "[filename]"):
+            file = open(self.file, "r")
+            for line in file:
+                split = line.split(" ")
+                self.points.append([float(split[0]), float(split[1])])
+
+            for point in self.points:
+                x = point[0]
+                y = point[1]
+                r = 1
+                self.canvas.create_oval(x - r, y - r, x + r, y + r)
+
     def selectFile(self):
         print("Selecting file...")
-        filename = askopenfilename(filetypes=[("Object files", ".obj")])
+        filename = askopenfilename(filetypes=[("SuPa framework files", ".supa")])
+
         print("Selected file: ", filename)
         self.file = filename
         self.fileLabel.configure(text=self.file.split("/")[-1])
@@ -44,11 +58,10 @@ class Menu:
         fileSelectionFrame.pack(side="top", padx=20, pady=40, fill='both')
 
     def build(self, side: str):
-        self.leftFrame.pack_propagate(0)
 
         self.assembleFileChooserFrame()
 
-    #    TkinterCustomButton(master=self.leftFrame, text="Compute", command=self.compute,
-    #                        corner_radius=60, height=25, width=140).pack(side="top", pady=20)
+        TkinterCustomButton(master=self.leftFrame, text="Auto plot", command=self.plot,
+                            corner_radius=60, height=25, width=140).pack(side="top", pady=20)
 
         self.leftFrame.pack(side=side, padx=20, pady=(0, 20))
