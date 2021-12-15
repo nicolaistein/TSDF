@@ -1,24 +1,27 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
-from gui.file_menu import Menu as MenuWidget
+from gui.file_menu import FileMenu
+from gui.scale_menu import ScaleMenu
 from gui.gcode_menu import GCodeMenu
 
+mainColor = "#b5cbff"
 root = Tk()
 root.title("SuPa")
-#root.resizable(False, False)
+root.resizable(False, False)
 # root.iconbitmap("Path/to/test.ico")
 root.geometry("1500x840")
-root.configure(bg="#cccccc", padx=20, pady=20)
+root.configure(bg=mainColor, padx=20, pady=20)
 
 canvasSize = 800
 
 canvasFrame = Frame(root, height=canvasSize, width=canvasSize)
 canvas = Canvas(canvasFrame, height=canvasSize, width=canvasSize)
-leftContainer = Frame(root, bg="#cccccc")
+leftContainer = Frame(root, bg=mainColor)
 
-menu = MenuWidget(leftContainer, canvas)
+menu = FileMenu(leftContainer, canvas)
 menu.build("top")
+ScaleMenu(leftContainer).build("top")
 
 
 def export():
@@ -28,9 +31,9 @@ def export():
         file.write(str(x) + " " + str(y) + "\n")
     file.close()
 
-leftContainer.pack(side="left", padx=0, anchor=N)
+leftContainer.pack(side="left", padx=(0, 20), anchor=N)
 canvasFrame.pack(side="left", anchor=N)
-GCodeMenu(root).build("left")
+GCodeMenu(root, mainColor).build("left")
 canvas.pack(side="left")
 
 root.mainloop()

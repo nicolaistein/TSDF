@@ -4,13 +4,13 @@ from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 
 
-class Menu:
+class FileMenu:
     file = "[filename]"
 
     points = []
 
     def __init__(self, master: Frame, canvas: Canvas):
-        self.leftFrame = Frame(master, width=260)
+        self.leftFrame = Frame(master, width=240, height=160)
         self.canvas = canvas
 
     def plot(self):
@@ -54,9 +54,10 @@ class Menu:
 
     def build(self, side: str):
 
+        self.leftFrame.pack_propagate(0)
         self.assembleFileChooserFrame()
 
         TkinterCustomButton(master=self.leftFrame, text="Auto plot", command=self.plot,
                             corner_radius=60, height=25, width=140).pack(side="top", pady=20)
 
-        self.leftFrame.pack(side=side, padx=(0, 20))
+        self.leftFrame.pack(side=side)
