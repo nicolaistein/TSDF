@@ -5,7 +5,7 @@ from gui.file_menu import FileMenu
 from gui.scale_menu import ScaleMenu
 from gui.gcode_menu import GCodeMenu
 
-mainColor = "#b5cbff"
+mainColor = "#b5d4ff"
 root = Tk()
 root.title("SuPa")
 root.resizable(False, False)
