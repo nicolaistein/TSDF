@@ -1,5 +1,5 @@
-# Name=Simple_1
-# Author=Nicolai
+# name=Simple_1
+# author=Nicolai
 # params=l1,l2,r
 
 from patterns.pattern_parent import PatternParent

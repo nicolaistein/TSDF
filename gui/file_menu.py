@@ -28,7 +28,8 @@ class FileMenu:
 
     def selectFile(self):
         print("Selecting file...")
-        filename = askopenfilename(filetypes=[("SuPa framework files", ".supa")])
+        filename = askopenfilename(
+            filetypes=[("SuPa framework files", ".supa")])
 
         print("Selected file: ", filename)
         self.file = filename
