@@ -1,5 +1,6 @@
 # name=Simple_1
 # author=Nicolai
+# version=1.0
 # params=l1,l2,r
 
 from patterns.pattern_parent import PatternParent
