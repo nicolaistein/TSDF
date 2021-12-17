@@ -66,7 +66,7 @@ class GCodeMenu:
             keyVal.pack(side=TOP, anchor=W)
 
         TkinterCustomButton(master=infoFrame, text="Place", command=self.place,
-                            corner_radius=60, height=25, width=120).pack(side="top", pady=(10, 0))
+                            corner_radius=60, height=25, width=80).pack(side=LEFT, pady=(10, 0))
 
         infoFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
         patternFrame.pack(side=TOP, pady=(20, 0), anchor=W)
