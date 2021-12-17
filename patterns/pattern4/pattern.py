@@ -1,6 +1,6 @@
-# name=Simple_1
-# author=Nicolai
-# params=l1,l2,r
+# name=Simple_4
+# author=Nicolai Stein
+# params=l1,l2,r, u
 
 from patterns.pattern_parent import PatternParent
 

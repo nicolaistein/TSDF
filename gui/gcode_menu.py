@@ -32,8 +32,8 @@ class GCodeMenu:
 
     def __init__(self, master: Frame, mainColor: str):
         self.mainFrame = Frame(master, width=400, bg=mainColor)
-        self.content = Frame(self.mainFrame, width=400,
-                             height=730, padx=20, pady=20)
+        self.content = Frame(self.mainFrame, width=340,
+                             height=800, padx=20, pady=20)
 
     def place(self):
         print("Place")
@@ -47,7 +47,7 @@ class GCodeMenu:
         imgFile = Image.open(folderName + "/image.png")
         imgFile.thumbnail([120, 120], Image.ANTIALIAS)
         img = ImageTk.PhotoImage(imgFile)
-        panel = Label(patternFrame, image=img)
+        panel = Label(patternFrame, image=img, width=120, height=120)
         panel.image = img
         panel.pack(side=LEFT, fill="both", expand="yes")
 
@@ -69,14 +69,14 @@ class GCodeMenu:
                             corner_radius=60, height=25, width=120).pack(side="top", pady=(10, 0))
 
         infoFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
-        patternFrame.pack(side=TOP, pady=(0, 0), anchor=W)
+        patternFrame.pack(side=TOP, pady=(20, 0), anchor=W)
 
     def build(self, side: str):
         self.content.pack_propagate(0)
 
         title = Label(self.content, text="All Patterns")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 20))
+        title.pack(fill='both', side=TOP)
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file):
@@ -84,7 +84,4 @@ class GCodeMenu:
                 self.buildPattern("patterns/" + file)
 
         self.content.pack(side=TOP)
-        TkinterCustomButton(master=self.mainFrame, text="Generate GCode",
-                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=20)
-
         self.mainFrame.pack(side=side, padx=(20, 0), anchor=N)
