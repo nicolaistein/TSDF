@@ -7,6 +7,23 @@ from PIL import ImageTk, Image
 import os
 
 
+def getPatternAttributes(pattern):
+    mapping: Mapping = {}
+    mapping["name"] = "NoName"
+    mapping["author"] = "NoAuthor"
+    mapping["params"] = ""
+    for line in pattern:
+        if(line.startswith("#")):
+            while(line.startswith("#") or line.startswith(" ")):
+                line = line[1:]
+                split = line.split("=")
+                if(len(split) == 2):
+                    mapping[split[0]] = split[1]
+        else:
+            break
+    return mapping
+
+
 class GCodeMenu:
 
     def __init__(self, master: Frame, mainColor: str):
@@ -17,25 +34,17 @@ class GCodeMenu:
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.content)
         pattern = open(folderName + "/pattern.py", "r")
-        mapping: Mapping = {}
-        for line in pattern:
-            if(line.startswith("#")):
-                while(line.startswith("#") or line.startswith(" ")):
-                    line = line[1:]
-                    split = line.split("=")
-                    if(len(split) == 2):
-                        mapping[split[0]] = split[1]
-            else:
-                break
+        mapping = getPatternAttributes(pattern)
+
         print("Building pattern frame")
-        img = ImageTk.PhotoImage(Image.open(folderName + "/image.png"))
-        print("image")
-        print(img.height)
+        imgFile = Image.open(folderName + "/image.png")
+        imgFile.thumbnail([120, 120], Image.ANTIALIAS)
+        img = ImageTk.PhotoImage(imgFile)
         panel = Label(patternFrame, image=img)
         panel.image = img
         panel.pack(side=LEFT, fill="both", expand="yes")
 
-        Label(patternFrame, text=mapping["name"]).pack(side=LEFT)
+        Label(patternFrame, text=mapping["name"]).pack(side=TOP)
         patternFrame.pack(side=TOP, pady=(0, 10), anchor=W)
 
     def build(self, side: str):
