@@ -28,13 +28,14 @@ class GCodeMenu:
             else:
                 break
         print("Building pattern frame")
-        Label(patternFrame, text=mapping["name"]).pack(side=LEFT)
-        img = ImageTk.PhotoImage(Image.open(folderName + "/image.jpg"))
+        img = ImageTk.PhotoImage(Image.open(folderName + "/image.png"))
         print("image")
         print(img.height)
         panel = Label(patternFrame, image=img)
+        panel.image = img
         panel.pack(side=LEFT, fill="both", expand="yes")
 
+        Label(patternFrame, text=mapping["name"]).pack(side=LEFT)
         patternFrame.pack(side=TOP, pady=(0, 10), anchor=W)
 
     def build(self, side: str):
