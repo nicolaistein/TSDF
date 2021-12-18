@@ -37,6 +37,7 @@ class TkinterCustomButton(tkinter.Frame):
                  image=None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.deleted = False
 
         if bg_color is None:
             self.bg_color = self.master.cget("bg")
@@ -107,6 +108,9 @@ class TkinterCustomButton(tkinter.Frame):
         self.image_label = None
 
         self.draw()
+
+    def delete(self):
+        self.deleted = True
 
     def draw(self):
         self.canvas.delete("all")
@@ -258,16 +262,17 @@ class TkinterCustomButton(tkinter.Frame):
             self.image_label.configure(bg=self.hover_color)
 
     def on_leave(self, event=0):
-        for part in self.canvas_fg_parts:
-            self.canvas.itemconfig(part, fill=self.fg_color, width=0)
+        if not self.deleted:
+            for part in self.canvas_fg_parts:
+                self.canvas.itemconfig(part, fill=self.fg_color, width=0)
 
-        if self.text_label is not None:
-            # change background color of image_label
-            self.text_label.configure(bg=self.fg_color)
+            if self.text_label is not None:
+                # change background color of image_label
+                self.text_label.configure(bg=self.fg_color)
 
-        if self.image_label is not None:
-            # change background color of image_label
-            self.image_label.configure(bg=self.fg_color)
+            if self.image_label is not None:
+                # change background color of image_label
+                self.image_label.configure(bg=self.fg_color)
 
     def clicked(self, event=0):
         if self.function is not None:

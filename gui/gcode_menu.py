@@ -4,7 +4,7 @@ from tkinter.filedialog import askopenfilename
 from typing import Mapping
 from gui.button import TkinterCustomButton
 from PIL import ImageTk, Image
-from gui.pattern_input_window import PatternInputWindow
+from gui.pattern_input.pattern_input_window import PatternInputWindow
 import os
 
 
@@ -12,7 +12,7 @@ def parsePatternAttributes(pattern):
     mapping: Mapping = {}
     mapping["name"] = "NoName"
     mapping["author"] = "NoAuthor"
-    mapping["params"] = "None"
+    mapping["params"] = ""
     for line in pattern:
         if(line.startswith("#")):
             while(line.startswith("#") or line.startswith(" ")):
@@ -40,7 +40,7 @@ class GCodeMenu:
 
     def place(self, pattern):
         params = pattern["params"].split(",")
-        PatternInputWindow(self.mainFrame, params,
+        PatternInputWindow(self.mainFrame, [x for x in params if x],
                            pattern["name"], self.completed).openWindow()
 
     def buildPattern(self, folderName: str):
@@ -61,7 +61,7 @@ class GCodeMenu:
             keyLabel = Label(keyVal, text=key, width=6, anchor=W)
             keyLabel.configure(font=("Helvetica", 10, "bold"))
             keyLabel.pack(side=LEFT)
-            Label(keyVal, text=value, anchor=S, justify=LEFT
+            Label(keyVal, text=value if value else "-", anchor=S, justify=LEFT
                   ).pack(side=LEFT)
 
             keyLabel.configure(font=("Helvetica", 10, "bold"))
