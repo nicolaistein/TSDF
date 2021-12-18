@@ -32,6 +32,9 @@ class PatternInputLine:
     def cancelInput(self, event):
         return "break"
 
+    def allowInput(self, event):
+        pass
+
     def onKeyPress(self, event):
         if not event.char in "1234567890." and self.isNumeric:
             return "break"
@@ -49,9 +52,10 @@ class PatternInputLine:
         for ele in self.values:
             Label(self.mainContainer, text=ele + "=").pack(side=LEFT)
             text = Text(self.mainContainer, width=textWidth, height=1)
-            text.bind('<KeyPress>', self.onKeyPress)
             text.bind('<Return>', self.cancelInput)
             text.bind('<Tab>', self.cancelInput)
+            text.bind('<BackSpace>', self.allowInput)
+            text.bind('<KeyPress>', self.onKeyPress)
             if self.isNumeric:
                 text.insert(END, "0.0")
             self.texts[ele] = text
