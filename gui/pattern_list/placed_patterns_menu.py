@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
+from gui.pattern_list.placed_patterns_item import PlacedPatternsItem
 import os
 
 
@@ -12,15 +13,24 @@ class PlacedPatternsMenu:
                              height=900, padx=20, pady=20)
         self.patterns = []
 
-    def addPattern(pattern):
+    def addPattern(self, pattern):
         print("add pattern " + str(pattern))
+        self.patterns.append(pattern)
+        self.build()
 
-    def build(self, side: str):
+    def build(self):
+        for widget in self.content.winfo_children():
+            widget.destroy()
         self.content.pack_propagate(0)
 
         title = Label(self.content, text="Placed Patterns")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP)
 
-        self.content.pack(side=TOP)
-        self.mainFrame.pack(side=side, padx=(20, 0), anchor=N)
+        patternContainer = Frame(self.content)
+        for pattern in self.patterns:
+            PlacedPatternsItem(patternContainer, pattern).build()
+
+        patternContainer.pack(side=TOP, anchor=N)
+        self.content.pack(side=TOP, anchor=N)
+        self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

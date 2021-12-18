@@ -10,7 +10,6 @@ class PatternInputWindow:
     def __init__(self, root, args: List, patternName: str, onComplete):
         self.window = Toplevel(root)
         self.args = args
-        print("args: " + str(args))
         self.patternName = patternName
         self.onComplete = onComplete
 
@@ -19,7 +18,6 @@ class PatternInputWindow:
         self.window.destroy()
 
     def deleteButtons(self):
-        self.onComplete()
         self.buttonAccept.delete()
         self.buttonCancel.delete()
         self.nameInput.deleteButton()
@@ -33,10 +31,12 @@ class PatternInputWindow:
         result.update(self.parameterInput.getValues())
         result.update(self.positionInput.getValues())
         result.update(self.rotationInput.getValues())
-        print(result)
 
+        print("result")
+        print(result)
         self.deleteButtons()
         self.window.destroy()
+        self.onComplete(result)
 
     def openWindow(self):
         self.window.title("Place Pattern " + self.patternName)

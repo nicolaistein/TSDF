@@ -17,7 +17,7 @@ class PatternInputLine:
         result = {}
         for key, text in self.texts.items():
             # Remove the /n at the end
-            result[key] = text.get("1.0", END)[:-2]
+            result[key] = text.get("1.0", END)[:-1]
         return result
 
     def reset(self):

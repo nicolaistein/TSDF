@@ -34,8 +34,10 @@ def export():
 
 leftContainer.pack(side="left", padx=(0, 20), anchor=N)
 canvasFrame.pack(side="left", anchor=N)
-GCodeMenu(root, mainColor).build("left")
-PlacedPatternsMenu(root, mainColor).build("left")
+placedPatterns = PlacedPatternsMenu(root, mainColor)
+patternList = GCodeMenu(root, mainColor, placedPatterns)
+patternList.build("left")
+placedPatterns.build()
 canvas.pack(side="left")
 
 root.mainloop()

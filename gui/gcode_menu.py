@@ -5,6 +5,7 @@ from typing import Mapping
 from gui.button import TkinterCustomButton
 from PIL import ImageTk, Image
 from gui.pattern_input.pattern_input_window import PatternInputWindow
+from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
 import os
 
 
@@ -29,19 +30,16 @@ def parsePatternAttributes(pattern):
 
 class GCodeMenu:
 
-    def __init__(self, master: Frame, mainColor: str):
+    def __init__(self, master: Frame, mainColor: str, patternList: PlacedPatternsMenu):
         self.mainFrame = Frame(master, width=300, bg=mainColor)
+        self.patternList = patternList
         self.content = Frame(self.mainFrame, width=300,
                              height=900, padx=20, pady=20)
-
-    def completed(result):
-        print("completed")
-        print(result)
 
     def place(self, pattern):
         params = pattern["params"].split(",")
         PatternInputWindow(self.mainFrame, [x for x in params if x],
-                           pattern["name"], self.completed).openWindow()
+                           pattern["name"], self.patternList.addPattern).openWindow()
 
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.content)
