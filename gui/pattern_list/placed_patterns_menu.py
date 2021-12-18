@@ -10,6 +10,10 @@ class PlacedPatternsMenu:
         self.mainFrame = Frame(master, width=400, bg=mainColor)
         self.content = Frame(self.mainFrame, width=340,
                              height=900, padx=20, pady=20)
+        self.patterns = []
+
+    def addPattern(pattern):
+        print("add pattern " + str(pattern))
 
     def build(self, side: str):
         self.content.pack_propagate(0)

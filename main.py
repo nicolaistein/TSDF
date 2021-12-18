@@ -3,7 +3,7 @@ from tkinter.filedialog import askdirectory
 from gui.file_menu import FileMenu
 from gui.scale_menu import ScaleMenu
 from gui.gcode_menu import GCodeMenu
-from gui.placed_patterns_menu import PlacedPatternsMenu
+from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
 
 mainColor = "#cccccc"
 root = Tk()
