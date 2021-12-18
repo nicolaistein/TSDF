@@ -1,12 +1,14 @@
+from functools import partial
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from typing import Mapping
 from gui.button import TkinterCustomButton
 from PIL import ImageTk, Image
+from gui.pattern_input_window import PatternInputWindow
 import os
 
 
-def getPatternAttributes(pattern):
+def parsePatternAttributes(pattern):
     mapping: Mapping = {}
     mapping["name"] = "NoName"
     mapping["author"] = "NoAuthor"
@@ -15,10 +17,8 @@ def getPatternAttributes(pattern):
         if(line.startswith("#")):
             while(line.startswith("#") or line.startswith(" ")):
                 line = line[1:]
-            print("line befotr: " + line)
             if(line.endswith("\n")):
                 line = line[:len(line)-1]
-            print("line after: " + line)
             split = line.split("=")
             if(len(split) == 2):
                 mapping[split[0]] = split[1]
@@ -30,19 +30,24 @@ def getPatternAttributes(pattern):
 class GCodeMenu:
 
     def __init__(self, master: Frame, mainColor: str):
-        self.mainFrame = Frame(master, width=400, bg=mainColor)
-        self.content = Frame(self.mainFrame, width=340,
-                             height=800, padx=20, pady=20)
+        self.mainFrame = Frame(master, width=300, bg=mainColor)
+        self.content = Frame(self.mainFrame, width=300,
+                             height=900, padx=20, pady=20)
 
-    def place(self):
-        print("Place")
+    def completed(result):
+        print("completed")
+        print(result)
+
+    def place(self, pattern):
+        params = pattern["params"].split(",")
+        PatternInputWindow(self.mainFrame, params,
+                           pattern["name"], self.completed).openWindow()
 
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.content)
         pattern = open(folderName + "/pattern.py", "r")
-        mapping = getPatternAttributes(pattern)
+        mapping = parsePatternAttributes(pattern)
 
-        print("Building pattern frame")
         imgFile = Image.open(folderName + "/image.png")
         imgFile.thumbnail([120, 120], Image.ANTIALIAS)
         img = ImageTk.PhotoImage(imgFile)
@@ -53,7 +58,7 @@ class GCodeMenu:
         infoFrame = Frame(patternFrame)
         for (key, value) in mapping.items():
             keyVal = Frame(infoFrame)
-            keyLabel = Label(keyVal, text=key, width=8, anchor=W)
+            keyLabel = Label(keyVal, text=key, width=6, anchor=W)
             keyLabel.configure(font=("Helvetica", 10, "bold"))
             keyLabel.pack(side=LEFT)
             Label(keyVal, text=value, anchor=S, justify=LEFT
@@ -64,7 +69,7 @@ class GCodeMenu:
 
             keyVal.pack(side=TOP, anchor=W)
 
-        TkinterCustomButton(master=infoFrame, text="Place", command=self.place,
+        TkinterCustomButton(master=infoFrame, text="Place", command=partial(self.place, mapping),
                             corner_radius=60, height=25, width=80).pack(side=LEFT, pady=(10, 0))
 
         infoFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
@@ -79,7 +84,6 @@ class GCodeMenu:
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file):
-                print("isDir: " + file)
                 self.buildPattern("patterns/" + file)
 
         self.content.pack(side=TOP)

@@ -9,7 +9,7 @@ class PlacedPatternsMenu:
     def __init__(self, master: Frame, mainColor: str):
         self.mainFrame = Frame(master, width=400, bg=mainColor)
         self.content = Frame(self.mainFrame, width=340,
-                             height=800, padx=20, pady=20)
+                             height=900, padx=20, pady=20)
 
     def build(self, side: str):
         self.content.pack_propagate(0)

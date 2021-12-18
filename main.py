@@ -7,13 +7,13 @@ from gui.placed_patterns_menu import PlacedPatternsMenu
 
 mainColor = "#cccccc"
 root = Tk()
-root.title("SuPa")
+root.title("GCode Pattern Manager")
 root.resizable(False, False)
 # root.iconbitmap("Path/to/test.ico")
-root.geometry("1700x840")
+root.geometry("1920x1080")
 root.configure(bg=mainColor, padx=20, pady=20)
 
-canvasSize = 800
+canvasSize = 900
 
 canvasFrame = Frame(root, height=canvasSize, width=canvasSize)
 canvas = Canvas(canvasFrame, height=canvasSize, width=canvasSize)
