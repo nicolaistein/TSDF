@@ -10,7 +10,7 @@ class FileMenu:
     points = []
 
     def __init__(self, master: Frame, canvas: Canvas):
-        self.leftFrame = Frame(master, width=240, height=160)
+        self.leftFrame = Frame(master, width=300, height=160)
         self.canvas = canvas
 
     def plot(self):
