@@ -10,8 +10,8 @@ import os
 class PlacedPatternsMenu:
 
     def __init__(self, master: Frame, mainColor: str):
-        self.mainFrame = Frame(master, width=400, bg=mainColor)
-        self.content = Frame(self.mainFrame, width=340,
+        self.mainFrame = Frame(master, bg=mainColor)
+        self.content = Frame(self.mainFrame, width=300,
                              height=835, padx=20, pady=20)
         self.patterns = []
 
