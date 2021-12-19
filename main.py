@@ -23,15 +23,6 @@ menu = FileMenu(leftContainer, canvas)
 menu.build("top")
 ScaleMenu(leftContainer).build("top")
 
-
-def export():
-    filename = askdirectory()
-    file = open(filename + "/result.supa", "w")
-    for x, y in menu.points:
-        file.write(str(x) + " " + str(y) + "\n")
-    file.close()
-
-
 leftContainer.pack(side="left", padx=(0, 20), anchor=N)
 canvasFrame.pack(side="left", anchor=N)
 placedPatterns = PlacedPatternsMenu(root, mainColor)

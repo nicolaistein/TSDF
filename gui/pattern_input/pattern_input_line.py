@@ -6,7 +6,7 @@ from gui.button import TkinterCustomButton
 
 class PatternInputLine:
 
-    def __init__(self, title: str, values: List, isNumeric: bool = True):
+    def __init__(self, title: str, values: Mapping, isNumeric: bool = True):
         self.values = values
         self.title = title
         self.isNumeric = isNumeric
@@ -50,16 +50,17 @@ class PatternInputLine:
 
         self.texts = {}
 
-        for ele in self.values:
-            Label(self.mainContainer, text=ele + "=").pack(side=LEFT)
+        for key, value in self.values.items():
+            Label(self.mainContainer, text=key + "=").pack(side=LEFT)
             text = Text(self.mainContainer, width=textWidth, height=1)
             text.bind('<Return>', self.cancelInput)
             text.bind('<Tab>', self.cancelInput)
             text.bind('<BackSpace>', self.allowInput)
             text.bind('<KeyPress>', self.onKeyPress)
-            if self.isNumeric:
-                text.insert(END, "0.0")
-            self.texts[ele] = text
+            text.insert(END, value)
+    #        if self.isNumeric:
+    #            text.insert(END, "0.0")
+            self.texts[key] = text
             text.pack(side=LEFT, padx=(0, 10))
 
         self.button = TkinterCustomButton(master=self.mainContainer, text="Reset", command=self.reset,

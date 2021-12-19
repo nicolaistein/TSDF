@@ -1,7 +1,5 @@
 from functools import partial
 from tkinter import *
-from tkinter.filedialog import askopenfilename
-from typing import Mapping
 from gui.button import TkinterCustomButton
 from PIL import ImageTk
 from PIL import ImageTk, Image

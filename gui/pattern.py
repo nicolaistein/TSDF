@@ -40,7 +40,10 @@ class Pattern:
         self.rotation = 0.0
         self.params = {}
         for x in [i for i in self.attributes["params"].split(",") if i]:
-            self.params[x] = ""
+            self.params[x] = "0.0"
+
+    def getGcode(self):
+        print("Pattern " + self.name + " generate gcode")
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"
@@ -55,7 +58,7 @@ class Pattern:
     def print(self):
         print("Pattern " + self.name)
         print("Params: " + str(self.params))
-        print("Location(" + self.getPosition())
+        print("Location" + self.getPosition())
         print("Rotation: " + str(self.rotation))
 
     def getPosition(self):

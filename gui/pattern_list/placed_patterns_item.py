@@ -13,8 +13,6 @@ class PlacedPatternsItem:
         self.pattern = pattern
         self.menu = menu
         self.master = master
-        print("placed patterns pattern:")
-        pattern.print()
 
     def delete(self):
         self.menu.delete(self)
@@ -22,13 +20,13 @@ class PlacedPatternsItem:
     def edit(self):
         self.menu.edit(self.pattern)
 
-    def getKeyValueFrame(self, parent: Frame, key: str, value: str):
+    def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 70):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=6,
+        keyLabel = Label(keyValFrame, text=key, width=7,
                          anchor=W, justify=LEFT, wraplength=50)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        Label(keyValFrame, text=value if value else "-", anchor=S, justify=LEFT, wraplength=70
+        Label(keyValFrame, text=value if value else "-", anchor=S, justify=LEFT, wraplength=valueLength
               ).pack(side=LEFT)
 
         keyLabel.configure(font=("Helvetica", 10, "bold"))
@@ -70,13 +68,13 @@ class PlacedPatternsItem:
 
         paramsText = ""
         for key, val in self.pattern.params.items():
-            paramsText += key + "=" + val + ", "
+            paramsText += key + "=" + val + "   "
         if paramsText:
             paramsText = paramsText[:-2]
 
         if len(self.pattern.params) > 0:
-            Label(container, text=paramsText, justify=LEFT, wraplength=240
-                  ).pack(side=TOP, pady=(4, 0), anchor=W)
+            self.getKeyValueFrame(container, "params", paramsText, 200).pack(
+                side=TOP, anchor=W, pady=(0, 0))
 
         buttonContainer = Frame(container)
         self.button1 = TkinterCustomButton(master=buttonContainer, text="Edit", command=self.edit,

@@ -1,4 +1,5 @@
 from logging import error
+from os import name
 from tkinter import *
 from typing import List
 from gui.pattern import Pattern
@@ -35,39 +36,42 @@ class PatternInputWindow:
         loc = self.positionInput.getValues()
         self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
 
-        print("result")
-        self.pattern.print()
         self.deleteButtons()
         self.window.destroy()
 
         self.onComplete(self.pattern)
 
     def openWindow(self):
-        self.pattern.print()
-        self.window.title("Place Pattern " + self.pattern.id)
+        self.window.title(
+            "Place Pattern " + self.pattern.id if not self.pattern.name
+            else "Edit Pattern " + self.pattern.name)
         self.window.resizable(False, False)
 
         mainContainer = Frame(self.window, padx=20, pady=20)
 
+        pattern = self.pattern
         # Name row
-        self.nameInput = PatternInputLine("Name", ["name"], isNumeric=False)
+        self.nameInput = PatternInputLine(
+            "Name", {"name": pattern.name}, isNumeric=False)
         self.nameInput.build(mainContainer, 10, textWidth=10)
         self.nameInput.display()
 
         # Parameter row
         self.parameterInput = PatternInputLine(
-            "Parameters", self.pattern.params.keys())
+            "Parameters", self.pattern.params)
         self.parameterInput.build(mainContainer, 15)
         if len(self.pattern.params) > 0:
             self.parameterInput.display()
 
         # Position row
-        self.positionInput = PatternInputLine("Position", ["x", "y"])
+        self.positionInput = PatternInputLine(
+            "Position", {"x": pattern.x, "y": pattern.y})
         self.positionInput.build(mainContainer, 15)
         self.positionInput.display()
 
         # Rotation row
-        self.rotationInput = PatternInputLine("Rotation", ["degrees"])
+        self.rotationInput = PatternInputLine(
+            "Rotation", {"degrees": pattern.rotation})
         self.rotationInput.build(mainContainer, 15)
         self.rotationInput.display()
 
