@@ -1,5 +1,6 @@
-# name=Simple_3
+# id=Simple_3
 # author=Nicolai Stein
+# attention test info=Attention: Use only once!
 # params=l1,l2,r, u
 
 from patterns.pattern_parent import PatternParent

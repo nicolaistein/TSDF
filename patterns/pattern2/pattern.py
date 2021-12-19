@@ -1,4 +1,4 @@
-# name=Simple_2
+# id=Simple_2
 # author=Nicolai Stein
 # params=l1,l2,r, u
 

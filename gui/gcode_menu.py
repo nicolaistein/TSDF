@@ -3,29 +3,12 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from typing import Mapping
 from gui.button import TkinterCustomButton
+from PIL import ImageTk
 from PIL import ImageTk, Image
+from gui.pattern import Pattern
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
 import os
-
-
-def parsePatternAttributes(pattern):
-    mapping: Mapping = {}
-    mapping["name"] = "NoName"
-    mapping["author"] = "NoAuthor"
-    mapping["params"] = ""
-    for line in pattern:
-        if(line.startswith("#")):
-            while(line.startswith("#") or line.startswith(" ")):
-                line = line[1:]
-            if(line.endswith("\n")):
-                line = line[:len(line)-1]
-            split = line.split("=")
-            if(len(split) == 2):
-                mapping[split[0]] = split[1]
-        else:
-            break
-    return mapping
 
 
 class GCodeMenu:
@@ -36,17 +19,15 @@ class GCodeMenu:
         self.content = Frame(self.mainFrame, width=300,
                              height=900, padx=20, pady=20)
 
-    def place(self, pattern):
-        params = pattern["params"].split(",")
-        PatternInputWindow(self.mainFrame, [x for x in params if x],
-                           pattern["name"], self.patternList.addPattern).openWindow()
+    def place(self, patternFolderName):
+        PatternInputWindow(self.mainFrame, Pattern(patternFolderName),
+                           self.patternList.addPattern).openWindow()
 
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.content)
-        pattern = open(folderName + "/pattern.py", "r")
-        mapping = parsePatternAttributes(pattern)
+        pattern = Pattern(folderName)
 
-        imgFile = Image.open(folderName + "/image.png")
+        imgFile = pattern.img
         imgFile.thumbnail([120, 120], Image.ANTIALIAS)
         img = ImageTk.PhotoImage(imgFile)
         panel = Label(patternFrame, image=img, width=120, height=120)
@@ -54,12 +35,13 @@ class GCodeMenu:
         panel.pack(side=LEFT, fill="both", expand="yes")
 
         infoFrame = Frame(patternFrame)
-        for (key, value) in mapping.items():
+        for (key, value) in pattern.attributes.items():
             keyVal = Frame(infoFrame)
-            keyLabel = Label(keyVal, text=key, width=6, anchor=W)
+            keyLabel = Label(keyVal, text=key, width=6,
+                             anchor=W, justify=LEFT, wraplength=50)
             keyLabel.configure(font=("Helvetica", 10, "bold"))
             keyLabel.pack(side=LEFT)
-            Label(keyVal, text=value if value else "-", anchor=S, justify=LEFT
+            Label(keyVal, text=value if value else "-", anchor=S, justify=LEFT, wraplength=70
                   ).pack(side=LEFT)
 
             keyLabel.configure(font=("Helvetica", 10, "bold"))
@@ -67,7 +49,7 @@ class GCodeMenu:
 
             keyVal.pack(side=TOP, anchor=W)
 
-        TkinterCustomButton(master=infoFrame, text="Place", command=partial(self.place, mapping),
+        TkinterCustomButton(master=infoFrame, text="Place", command=partial(self.place, pattern.folderName),
                             corner_radius=60, height=25, width=80).pack(side=LEFT, pady=(10, 0))
 
         infoFrame.pack(side=LEFT, anchor=N, padx=(10, 0))

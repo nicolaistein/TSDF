@@ -1,6 +1,6 @@
-# name=Simple_5
+# id=Simple_5
 # author=Nicolai Stein
-# params=l1,l2,r, u
+# params=l1,l2,r,u,z,t1,t2,f,e,e2
 
 from patterns.pattern_parent import PatternParent
 

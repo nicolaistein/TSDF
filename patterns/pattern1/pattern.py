@@ -1,4 +1,4 @@
-# name=Simple_1
+# id=Simple_1
 # author=Nicolai
 
 from patterns.pattern_parent import PatternParent

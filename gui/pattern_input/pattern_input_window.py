@@ -1,16 +1,16 @@
 from logging import error
 from tkinter import *
 from typing import List
+from gui.pattern import Pattern
 from gui.button import TkinterCustomButton
 from gui.pattern_input.pattern_input_line import PatternInputLine
 
 
 class PatternInputWindow:
 
-    def __init__(self, root, args: List, patternName: str, onComplete):
+    def __init__(self, root, pattern: Pattern, onComplete):
         self.window = Toplevel(root)
-        self.args = args
-        self.patternName = patternName
+        self.pattern = pattern
         self.onComplete = onComplete
 
     def abort(self):
@@ -26,33 +26,39 @@ class PatternInputWindow:
         self.rotationInput.deleteButton()
 
     def completed(self):
-        result = {}
-        result.update(self.nameInput.getValues())
-        result.update(self.parameterInput.getValues())
-        result.update(self.positionInput.getValues())
-        result.update(self.rotationInput.getValues())
+        self.pattern.updateParams(self.parameterInput.getValues())
+
+        self.pattern.setName(self.nameInput.getValues()["name"])
+        self.pattern.rotation = float(
+            self.rotationInput.getValues()["degrees"])
+
+        loc = self.positionInput.getValues()
+        self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
 
         print("result")
-        print(result)
+        self.pattern.print()
         self.deleteButtons()
         self.window.destroy()
-        self.onComplete(result)
+
+        self.onComplete(self.pattern)
 
     def openWindow(self):
-        self.window.title("Place Pattern " + self.patternName)
+        self.pattern.print()
+        self.window.title("Place Pattern " + self.pattern.id)
         self.window.resizable(False, False)
 
         mainContainer = Frame(self.window, padx=20, pady=20)
 
         # Name row
-        self.nameInput = PatternInputLine("Name/ID", ["name"], isNumeric=False)
+        self.nameInput = PatternInputLine("Name", ["name"], isNumeric=False)
         self.nameInput.build(mainContainer, 10, textWidth=10)
         self.nameInput.display()
 
         # Parameter row
-        self.parameterInput = PatternInputLine("Parameters", self.args)
+        self.parameterInput = PatternInputLine(
+            "Parameters", self.pattern.params.keys())
         self.parameterInput.build(mainContainer, 15)
-        if len(self.args) > 0:
+        if len(self.pattern.params) > 0:
             self.parameterInput.display()
 
         # Position row

@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
+from gui.pattern import Pattern
+from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.pattern_list.placed_patterns_item import PlacedPatternsItem
 import os
 
@@ -10,11 +12,24 @@ class PlacedPatternsMenu:
     def __init__(self, master: Frame, mainColor: str):
         self.mainFrame = Frame(master, width=400, bg=mainColor)
         self.content = Frame(self.mainFrame, width=340,
-                             height=900, padx=20, pady=20)
+                             height=835, padx=20, pady=20)
         self.patterns = []
 
-    def addPattern(self, pattern):
-        print("add pattern " + str(pattern))
+    def delete(self, pattern):
+        pattern.deleteButtons()
+        self.patterns.remove(pattern.pattern)
+        self.build()
+
+    def onEditFinish(self, pattern):
+        self.build()
+
+    def edit(self, pattern: Pattern):
+        PatternInputWindow(self.mainFrame, pattern,
+                           self.onEditFinish).openWindow()
+
+    def addPattern(self, pattern: Pattern):
+        print("add pattern")
+        pattern.print()
         self.patterns.append(pattern)
         self.build()
 
@@ -29,8 +44,12 @@ class PlacedPatternsMenu:
 
         patternContainer = Frame(self.content)
         for pattern in self.patterns:
-            PlacedPatternsItem(patternContainer, pattern).build()
+            PlacedPatternsItem(patternContainer, pattern, self).build()
 
         patternContainer.pack(side=TOP, anchor=N)
         self.content.pack(side=TOP, anchor=N)
+
+        TkinterCustomButton(master=self.mainFrame, text="Generate GCode", command=self.delete,
+                            corner_radius=60, height=25, width=160).pack(pady=(20, 0))
+
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

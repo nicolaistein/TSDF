@@ -17,13 +17,14 @@ class PatternInputLine:
         result = {}
         for key, text in self.texts.items():
             # Remove the /n at the end
-            result[key] = text.get("1.0", END)[:-1]
+            currentValue = text.get("1.0", END)[:-1]
+            result[key] = currentValue if currentValue or not self.isNumeric else "0.0"
         return result
 
     def reset(self):
         for key, textField in self.texts.items():
             textField.delete(1.0, END)
-            textField.insert(END, "")
+            textField.insert(END, "0.0" if self.isNumeric else "")
 
     def deleteButton(self):
         if not self.button is None:
