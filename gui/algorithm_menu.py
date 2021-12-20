@@ -26,7 +26,8 @@ class AlgorithmMenu:
 
     def calculate(self):
         if(self.v.get() == 1):
-            time, self.points = executeBFF(self.file, 10)
+            coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
+            time, self.points = executeBFF(self.file, coneCount)
         if(self.v.get() == 2):
             time, self.points = executeLSCM(self.file)
         if(self.v.get() == 3):
@@ -58,7 +59,7 @@ class AlgorithmMenu:
         chooseFrame = Frame(fileSelectionFrame)
 
         chooseFile = Label(chooseFrame, text="Choose File", anchor=W)
-        chooseFile.configure(font=("Helvetica", 12, "bold"))
+        chooseFile.configure(font=("Helvetica", 11, "bold"))
         chooseFile.pack(fill='both', side=LEFT)
 
         button = TkinterCustomButton(master=chooseFrame, text="Select",
@@ -89,12 +90,22 @@ class AlgorithmMenu:
     def ShowChoice(self):
         print(self.v.get())
 
+    def cancelInput(self, event):
+        return "break"
+
+    def allowInput(self, event):
+        pass
+
+    def onKeyPress(self, event):
+        if not event.char in "1234567890":
+            return "break"
+
     def assembleAlgoChooserFrame(self):
         selectAlgoFrame = Frame(self.mainFrame)
         selectAlgoTitle = Label(selectAlgoFrame,
                                 text="Choose Algorithm")
 
-        selectAlgoTitle.configure(font=("Helvetica", 12, "bold"))
+        selectAlgoTitle.configure(font=("Helvetica", 11, "bold"))
         selectAlgoTitle.pack(side=TOP, anchor=W)
 
         for txt, val in self.algorithms:
@@ -110,6 +121,10 @@ class AlgorithmMenu:
             if(txt == "BFF"):
                 Label(optionFrame, text="with").pack(side=LEFT, anchor=W)
                 self.bffConeInput = Text(optionFrame, height=1, width=3)
+                self.bffConeInput.bind('<Return>', self.cancelInput)
+                self.bffConeInput.bind('<Tab>', self.cancelInput)
+                self.bffConeInput.bind('<BackSpace>', self.allowInput)
+                self.bffConeInput.bind('<KeyPress>', self.onKeyPress)
                 self.bffConeInput.insert(END, "10")
                 self.bffConeInput.pack(side=LEFT, anchor=W, padx=10)
                 Label(optionFrame, text="cones").pack(side=LEFT, anchor=W)
