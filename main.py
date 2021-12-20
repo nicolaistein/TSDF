@@ -1,3 +1,4 @@
+
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from gui.scale_menu import ScaleMenu
