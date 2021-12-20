@@ -1,8 +1,9 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
-from gui.file_menu import FileMenu
 from gui.scale_menu import ScaleMenu
 from gui.gcode_menu import GCodeMenu
+from gui.algorithm_menu import AlgorithmMenu
+from gui.algorithm_menu import AlgorithmMenu
 from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
 
 mainColor = "#cccccc"
@@ -19,8 +20,10 @@ canvasFrame = Frame(root, height=canvasSize, width=canvasSize)
 canvas = Canvas(canvasFrame, height=canvasSize, width=canvasSize)
 leftContainer = Frame(root, bg=mainColor)
 
-menu = FileMenu(leftContainer, canvas)
-menu.build("top")
+#menu = FileMenu(leftContainer, canvas)
+# menu.build("top")
+
+AlgorithmMenu(leftContainer, canvas=canvas).build()
 ScaleMenu(leftContainer).build("top")
 
 leftContainer.pack(side="left", padx=(0, 20), anchor=N)

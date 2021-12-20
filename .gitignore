@@ -1,6 +1,5 @@
 /build
 /dist
-/SuPa-Framework
 
 *.obj
 *.pyc
