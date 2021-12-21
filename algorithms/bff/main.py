@@ -16,7 +16,7 @@ class BFF:
 
         # Execute BFF
         execute_bff = subprocess.run(
-            [commandPath, self.objPath, "./algorithms/bff/result.obj", "--nCones=%s" % (self.coneCount), "--flattenToDisk"])
+            [commandPath, self.objPath, "./algorithms/bff/result.obj", "--nCones=%s" % (self.coneCount)])
 
         resultFile = open("./algorithms/bff/result.obj", "r")
         content = resultFile.read()

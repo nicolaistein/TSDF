@@ -29,9 +29,6 @@ class PlacedPatternsItem:
         Label(keyValFrame, text=value if value else "-", anchor=S, justify=LEFT, wraplength=valueLength
               ).pack(side=LEFT)
 
-        keyLabel.configure(font=("Helvetica", 10, "bold"))
-        keyLabel.pack(side=LEFT)
-
         return keyValFrame
 
     def deleteButtons(self):

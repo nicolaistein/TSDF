@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
-import algorithms.translator as translator
+from gui.plotting.canvas_manager import CanvasManager
 
 
 class AlgorithmMenu:
@@ -17,10 +17,10 @@ class AlgorithmMenu:
         ("ARAP", 3),
     ]
 
-    def __init__(self, master: Frame, canvas: Canvas):
+    def __init__(self, master: Frame, canvasManager: CanvasManager):
         self.mainFrame = Frame(
             master, width=300, height=285, padx=20, pady=20)
-        self.canvas = canvas
+        self.canvasManager = canvasManager
         self.v = IntVar()
         self.v.set(1)
 
@@ -34,18 +34,7 @@ class AlgorithmMenu:
             time, self.points = executeARAP(self.file)
 
         print("time: " + str(time) + ", points: " + str(len(self.points)))
-        self.points = translator.moveToPositiveArea(self.points)
-        scale, self.points = translator.scale(self.points, 900)
-        print("scale: " + str(scale))
-        self.plot()
-
-    def plot(self):
-        self.canvas.delete("all")
-        for point in self.points:
-            x = point[0]
-            y = point[1]
-            r = 1
-            self.canvas.create_oval(x - r, y - r, x + r, y + r)
+        self.canvasManager.plot(self.points)
 
     def selectFile(self):
         filename = askopenfilename(
