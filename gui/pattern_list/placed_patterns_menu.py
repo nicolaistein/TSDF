@@ -17,24 +17,26 @@ class PlacedPatternsMenu:
         self.canvasManager = canvasManager
         self.patterns = []
 
-    def delete(self, pattern):
-        pattern.deleteButtons()
-        self.patterns.remove(pattern.pattern)
+    def delete(self, placedPatternItem):
+        placedPatternItem.deleteButtons()
+        self.patterns.remove(placedPatternItem.pattern)
+        self.canvasManager.deletePattern(placedPatternItem.pattern)
+        self.build()
+
+    def onEditFinished(self, pattern:PatternModel):
+        self.canvasManager.refreshPattern(pattern)
         self.build()
 
     def edit(self, pattern: PatternModel):
         PatternInputWindow(self.mainFrame, pattern,
-                           self.build).openWindow()
+                           self.onEditFinished).openWindow()
 
     def addPattern(self, pattern: PatternModel):
-        print("PlacedPatternsMenu add pattern")
         self.patterns.append(pattern)
-        result, commands = pattern.getGcode()
-        self.canvasManager.addPattern(commands)
+        self.canvasManager.addPattern(pattern)
         self.build()
 
     def generateGCode(self):
-        print("menu generates gcode..")
         filename = askdirectory()
         print("pattern count: " + str(len(self.patterns)))
         file = open(filename + "/result.gcode", "w")
