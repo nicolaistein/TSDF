@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
-from gui.pattern import Pattern
+from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.pattern_list.placed_patterns_item import PlacedPatternsItem
 import os
@@ -23,18 +23,21 @@ class PlacedPatternsMenu:
     def onEditFinish(self, pattern):
         self.build()
 
-    def edit(self, pattern: Pattern):
+    def edit(self, pattern: PatternModel):
         PatternInputWindow(self.mainFrame, pattern,
                            self.onEditFinish).openWindow()
 
-    def addPattern(self, pattern: Pattern):
+    def addPattern(self, pattern: PatternModel):
         self.patterns.append(pattern)
         self.build()
 
     def generateGCode(self):
+        print("menu generates gcode..")
         filename = askdirectory()
+        print("pattern count: " + str(len(self.patterns)))
         file = open(filename + "/result.gcode", "w")
         for pattern in self.patterns:
+            print("# menu generates code of " + pattern.name)
             file.write(pattern.getGcode())
         file.close()
 

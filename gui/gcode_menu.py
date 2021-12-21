@@ -3,7 +3,7 @@ from tkinter import *
 from gui.button import TkinterCustomButton
 from PIL import ImageTk
 from PIL import ImageTk, Image
-from gui.pattern import Pattern
+from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
 import os
@@ -18,12 +18,12 @@ class GCodeMenu:
                              height=900, padx=20, pady=20)
 
     def place(self, patternFolderName):
-        PatternInputWindow(self.mainFrame, Pattern(patternFolderName),
+        PatternInputWindow(self.mainFrame, PatternModel(patternFolderName),
                            self.patternList.addPattern).openWindow()
 
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.content)
-        pattern = Pattern(folderName)
+        pattern = PatternModel(folderName)
 
         imgFile = pattern.img
         imgFile.thumbnail([120, 120], Image.ANTIALIAS)
@@ -61,7 +61,7 @@ class GCodeMenu:
         title.pack(fill='both', side=TOP)
 
         for file in os.listdir("patterns"):
-            if os.path.isdir("patterns/" + file):
+            if os.path.isdir("patterns/" + file) and file.startswith("pattern"):
                 self.buildPattern("patterns/" + file)
 
         self.content.pack(side=TOP)

@@ -2,14 +2,14 @@ from logging import error
 from os import name
 from tkinter import *
 from typing import List
-from gui.pattern import Pattern
+from gui.pattern_model import PatternModel
 from gui.button import TkinterCustomButton
 from gui.pattern_input.pattern_input_line import PatternInputLine
 
 
 class PatternInputWindow:
 
-    def __init__(self, root, pattern: Pattern, onComplete):
+    def __init__(self, root, pattern: PatternModel, onComplete):
         self.window = Toplevel(root)
         self.pattern = pattern
         self.onComplete = onComplete

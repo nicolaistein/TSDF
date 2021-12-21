@@ -1,7 +1,11 @@
-from functools import partial
 from tkinter import *
 from typing import Mapping
 from PIL import ImageTk, Image
+from patterns.pattern1.pattern import Pattern as Pattern1
+from patterns.pattern2.pattern import Pattern as Pattern2
+from patterns.pattern3.pattern import Pattern as Pattern3
+from patterns.pattern4.pattern import Pattern as Pattern4
+from patterns.pattern5.pattern import Pattern as Pattern5
 import os
 
 
@@ -25,7 +29,7 @@ def parsePatternAttributes(folderName: str):
     return mapping
 
 
-class Pattern:
+class PatternModel:
     def __init__(self, folderName: str):
         self.folderName = folderName
         self.attributes = parsePatternAttributes(folderName)
@@ -43,7 +47,13 @@ class Pattern:
             self.params[x] = "0.0"
 
     def getGcode(self):
-        print("Pattern " + self.name + " generate gcode")
+        print("# Pattern " + self.name + " generate gcode")
+        print("# x: " + str(self.x) + ", y: " + str(self.y))
+        print("# rotation: " + str(self.rotation) + " degrees")
+        values = {}
+        for key, val in self.params.items():
+            values[key] = float(val)
+        return Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"

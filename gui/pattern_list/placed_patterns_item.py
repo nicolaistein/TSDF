@@ -3,13 +3,13 @@ from PIL import ImageTk
 from PIL import ImageTk, Image
 from typing import Mapping
 from gui.button import TkinterCustomButton
-from gui.pattern import Pattern
+from gui.pattern_model import PatternModel
 import os
 
 
 class PlacedPatternsItem:
 
-    def __init__(self, master: Frame, pattern: Pattern, menu):
+    def __init__(self, master: Frame, pattern: PatternModel, menu):
         self.pattern = pattern
         self.menu = menu
         self.master = master
