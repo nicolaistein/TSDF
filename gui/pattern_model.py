@@ -53,7 +53,9 @@ class PatternModel:
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
-        return Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+        result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+
+        return result, commands
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"

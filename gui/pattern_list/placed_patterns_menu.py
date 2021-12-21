@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
+from gui.plotting.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.pattern_list.placed_patterns_item import PlacedPatternsItem
@@ -9,10 +10,11 @@ import os
 
 class PlacedPatternsMenu:
 
-    def __init__(self, master: Frame, mainColor: str):
+    def __init__(self, master: Frame, canvasManager:CanvasManager, mainColor: str):
         self.mainFrame = Frame(master, bg=mainColor)
         self.content = Frame(self.mainFrame, width=300,
                              height=835, padx=20, pady=20)
+        self.canvasManager = canvasManager
         self.patterns = []
 
     def delete(self, pattern):
@@ -20,15 +22,15 @@ class PlacedPatternsMenu:
         self.patterns.remove(pattern.pattern)
         self.build()
 
-    def onEditFinish(self, pattern):
-        self.build()
-
     def edit(self, pattern: PatternModel):
         PatternInputWindow(self.mainFrame, pattern,
-                           self.onEditFinish).openWindow()
+                           self.build).openWindow()
 
     def addPattern(self, pattern: PatternModel):
+        print("PlacedPatternsMenu add pattern")
         self.patterns.append(pattern)
+        result, commands = pattern.getGcode()
+        self.canvasManager.addPattern(commands)
         self.build()
 
     def generateGCode(self):
@@ -38,7 +40,8 @@ class PlacedPatternsMenu:
         file = open(filename + "/result.gcode", "w")
         for pattern in self.patterns:
             print("# menu generates code of " + pattern.name)
-            file.write(pattern.getGcode())
+            result, commands = pattern.getGcode()
+            file.write(result)
         file.close()
 
     def build(self):

@@ -2,18 +2,18 @@ from typing import Mapping
 import abc
 import math 
 import numpy as np
+from patterns.gcode_cmd import GCodeCmd
 
 
-def getCmdParam(label: str, val: float):
-    return " " + label + str(round(val, 2)) if val is not None else ""
+
 
 
 class PatternParent:
     def __init__(self, values: Mapping, workHeight:float, freeMoveHeight:float, 
                 startX: float, startY: float, rotation:float):
         self.values = values
-        self.workHeight = workHeight
-        self.freeMoveHeight = freeMoveHeight
+        self.workheight = workHeight
+        self.freemoveHeight = freeMoveHeight
         self.startX = startX
         self.startY = startY
         self.currentX = 0
@@ -22,19 +22,29 @@ class PatternParent:
         rotation = -1 * rotation * math.pi / 180
         self.rotationMatrix =   np.array(   [[math.cos(rotation), math.sin(rotation) * -1], 
                                             [math.sin(rotation), math.cos(rotation)]])
-        self.result = ""
+        self.reset()
+
+    def getCmdParam(self, label: str, val: float):
+        return " " + label + str(round(val, 2)) if val is not None else ""
 
     def reset(self):
         self.result = ""
+        self.commands = []
 
     def add(self, cmd: str):
         self.result += cmd + "\n"
 
-    def addCmd(self, prefix: str, x=None, y=None, z=None, i=None, j=None):
+    def addCmd(self, prefix: str, x:float=None, y:float=None, z:float=None,
+     i:float=None, j:float=None, arcDegrees:int=None):
 
         #x and y are both needed for rotation (even if one of them does not change)
         x = x if not x is None else self.currentX
         y = y if not y is None else self.currentY
+
+        #Save current location
+        previousX, previousY = self.rotate(self.currentX, self.currentY)
+        previousX += self.startX
+        previousY += self.startY
 
         # Refresh current x and y as if translation and rotation were 0
         self.currentX = x
@@ -59,13 +69,15 @@ class PatternParent:
             j = jAbsNew - yRot
 
         cmd: str = ""
-        cmd += getCmdParam("X", xRot)
-        cmd += getCmdParam("Y", yRot)
-        cmd += getCmdParam("Z", z)
-        cmd += getCmdParam("I", i)
-        cmd += getCmdParam("J", j)
+        cmd += self.getCmdParam("X", xRot)
+        cmd += self.getCmdParam("Y", yRot)
+        cmd += self.getCmdParam("Z", z)
+        cmd += self.getCmdParam("I", i)
+        cmd += self.getCmdParam("J", j)
         if(cmd):
             self.add(prefix + cmd)
+            self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
+                arcDegrees=arcDegrees, previousX=previousX, previousY=previousY))
 
     #Set position in plane
     def setCurrentPosition(self, x=None, y=None):
@@ -78,17 +90,23 @@ class PatternParent:
     def printTo(self, x=None, y=None, z=None):
         self.addCmd("G1", x, y, z)
 
-    def clockArc(self, x=None, y=None, i=0.0, j=0.0):
-        self.addCmd("G02", x, y, i=i, j=j)
+    def clockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
+        self.addCmd("G02", x, y, i=i, j=j, arcDegrees=arcDegrees)
 
-    def counterClockArc(self, x=None, y=None, i=0.0, j=0.0):
-        self.addCmd("G03", x, y, i=i, j=j)
+    def counterClockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
+        self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees)
 
     def relativeMode(self):
         self.add("G91")
 
     def absoluteMode(self):
         self.add("G90")
+
+    def workHeight(self):
+        self.moveTo(z=self.workheight)
+
+    def freeMoveHeight(self):
+        self.moveTo(z=self.freemoveHeight)
 
     def rotate(self, x:float, y:float):
         result = self.rotationMatrix.dot(np.array([x, y]))
