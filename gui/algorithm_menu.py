@@ -19,7 +19,7 @@ class AlgorithmMenu:
 
     def __init__(self, master: Frame, canvasManager: CanvasManager):
         self.mainFrame = Frame(
-            master, width=280, height=285, padx=20, pady=20)
+            master, width=220, height=285, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.v = IntVar()
         self.v.set(1)

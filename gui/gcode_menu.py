@@ -12,9 +12,9 @@ import os
 class GCodeMenu:
 
     def __init__(self, master: Frame, mainColor: str, patternList: PlacedPatternsMenu):
-        self.mainFrame = Frame(master, width=320, bg=mainColor)
+        self.mainFrame = Frame(master, width=380, bg=mainColor)
         self.patternList = patternList
-        self.content = Frame(self.mainFrame, width=320,
+        self.content = Frame(self.mainFrame, width=380,
                              height=900, padx=20, pady=20)
 
     def place(self, patternFolderName):
@@ -26,11 +26,11 @@ class GCodeMenu:
         pattern = PatternModel(folderName)
 
         imgFile = pattern.img
-        imgFile.thumbnail([140, 140], Image.ANTIALIAS)
+        imgFile.thumbnail([200, 200], Image.ANTIALIAS)
         img = ImageTk.PhotoImage(imgFile)
-        panel = Label(patternFrame, image=img, width=140, height=140)
+        panel = Label(patternFrame, image=img, width=200, height=130)
         panel.image = img
-        panel.pack(side=LEFT, fill="both", expand="yes")
+        panel.pack(side=LEFT, fill="both", expand="yes", anchor=N)
 
         infoFrame = Frame(patternFrame)
         for (key, value) in pattern.attributes.items():

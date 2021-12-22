@@ -36,15 +36,13 @@ class PlacedPatternsItem:
         self.button2.delete()
         self.button3.delete()
 
-    def mouse_function(self):
+    def onShowClick(self):
         print("mouse click placed patterns item")
         self.menu.onPlacedPatternItemClick(self.pattern)
 
     def build(self):
 
-        container = Frame(self.master, borderwidth=2, relief=SOLID, padx=10, pady=10)
-        container.bind("<Button-1>", self.mouse_function)
-
+        container = Frame(self.master, borderwidth=1, relief=SOLID, padx=10, pady=10)
         topContent = Frame(container)
 
         importantValues = {}
@@ -85,7 +83,7 @@ class PlacedPatternsItem:
                                            corner_radius=60, height=25, width=70)
         self.button1.pack(side=LEFT)
 
-        self.button3 = TkinterCustomButton(master=buttonContainer, text="Show", command=self.mouse_function,
+        self.button3 = TkinterCustomButton(master=buttonContainer, text="Show", command=self.onShowClick,
                                            corner_radius=60, height=25, width=70)
         self.button3.pack(side=LEFT, padx=(10, 0))
 
