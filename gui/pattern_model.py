@@ -60,6 +60,8 @@ class PatternModel:
             result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
         if self.folderName.endswith("pattern2"):
             result, commands = Pattern2(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+        if self.folderName.endswith("pattern3"):
+            result, commands = Pattern3(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
 
         return result, commands
 
