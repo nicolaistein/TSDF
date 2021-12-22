@@ -11,7 +11,7 @@ class ScaleMenu:
         self.mainFrame = Frame(master)
         self.size = initSize
         self.canvasManager = canvasManager
-        self.content = Frame(self.mainFrame, width=300,
+        self.content = Frame(self.mainFrame, width=280,
                              height=150, padx=20, pady=20)
 
     def setNewSize(self):

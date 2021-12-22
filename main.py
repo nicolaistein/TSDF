@@ -13,7 +13,7 @@ root = Tk()
 root.title("GCode Pattern Manager")
 root.resizable(False, False)
 # root.iconbitmap("Path/to/test.ico")
-root.geometry("1900x940")
+root.geometry("1920x940")
 root.configure(bg=mainColor, padx=20, pady=20)
 
 canvasSize = 900

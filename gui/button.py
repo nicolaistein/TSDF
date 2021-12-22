@@ -38,7 +38,7 @@ class TkinterCustomButton(tkinter.Frame):
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.deleted = False
-
+        self.cursor="hand2"
         if bg_color is None:
             self.bg_color = self.master.cget("bg")
         else:

@@ -12,7 +12,7 @@ class PlacedPatternsMenu:
 
     def __init__(self, master: Frame, canvasManager:CanvasManager, mainColor: str):
         self.mainFrame = Frame(master, bg=mainColor)
-        self.content = Frame(self.mainFrame, width=300,
+        self.content = Frame(self.mainFrame, width=320,
                              height=835, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.patterns = []
@@ -22,6 +22,9 @@ class PlacedPatternsMenu:
         self.patterns.remove(placedPatternItem.pattern)
         self.canvasManager.deletePattern(placedPatternItem.pattern)
         self.build()
+
+    def onPlacedPatternItemClick(self, pattern):
+        self.canvasManager.selectPattern(pattern)
 
     def onEditFinished(self, pattern:PatternModel):
         self.canvasManager.refreshPattern(pattern)
@@ -40,10 +43,16 @@ class PlacedPatternsMenu:
         filename = askdirectory()
         print("pattern count: " + str(len(self.patterns)))
         file = open(filename + "/result.gcode", "w")
+        print("G90")
+        print("G0 Z30")
+
+        file.write("G90\n")
+        file.write("G0 Z30\n")
         for pattern in self.patterns:
             print("# menu generates code of " + pattern.name)
             result, commands = pattern.getGcode()
             file.write(result)
+            file.write("\n")
         file.close()
 
     def build(self):

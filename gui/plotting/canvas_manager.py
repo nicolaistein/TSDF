@@ -32,14 +32,25 @@ class CanvasManager:
         self.size = initSize
         self.points = []
         self.patterns = {}
+        self.selectedPattern = None
 
     def resize(self, newSize: int):
-        print("resize: size: " + str(newSize))
         self.show()
 
     def plot(self, points):
         self.points = points
         self.show()
+
+    def selectPattern(self, pattern: PatternModel):
+        selected = self.selectedPattern
+        if selected is None or not selected == pattern:
+            self.selectedPattern = pattern
+
+            if not selected is None:
+                self.refreshPattern(selected)
+        else:
+            self.selectedPattern = None
+        self.refreshPattern(pattern)
 
     def show(self):
         points = translator.moveToPositiveArea(self.points)
@@ -61,49 +72,66 @@ class CanvasManager:
         self.canvas.delete("all")
 
     def deletePattern(self, pattern:PatternModel):
+        self.removePatternFromCanvas(pattern)
+        if self.selectedPattern == pattern:
+            self.selectedPattern = None
+
+    def removePatternFromCanvas(self, pattern:PatternModel):
         for shape in self.patterns[pattern]:
             self.canvas.delete(shape)
         self.patterns[pattern] = []
 
+
     def refreshPattern(self, pattern:PatternModel):
-        self.deletePattern(pattern)
+        self.removePatternFromCanvas(pattern)
         self.addPattern(pattern)
 
     def addPattern(self, pattern:PatternModel):
         result, commands = pattern.getGcode()
+        color = "blue"
+        #Change color to red if selected
+        if not self.selectedPattern is None:
+            color = "red" if self.selectedPattern == pattern else "blue"
+
         shapes = []
         for cmd in commands:
-            cmd.print()
             s = []
             if(cmd.prefix == "G1"):
-                s = self.canvas.create_line(cmd.previousX, 900-cmd.previousY, cmd.x, 900-cmd.y, fill="red", width=2)
+                s = self.canvas.create_line(cmd.previousX, 900-cmd.previousY, cmd.x, 900-cmd.y, fill=color, width=1)
 
             if(cmd.prefix == "G02"):
-                s = self.computeArc(cmd)
+                s = self.computeArc(cmd, color)
 
             if(cmd.prefix == "G03"):
-                s = self.computeArc(cmd)
+                s = self.computeArc(cmd, color)
             shapes.append(s)
 
         self.patterns[pattern] = shapes
 
-    def computeArc(self, cmd:GCodeCmd):
+    def computeArc(self, cmd:GCodeCmd, color:str):
         points = [P(cmd.previousX, cmd.previousY)]
-        if cmd.arcDegrees == 180:
-            ortho1, ortho2 = self.get2Corners(cmd.prefix=="G02", cmd.previousX, cmd.previousY, cmd.x, cmd.y)
-            points.append([ortho1, ortho2])
+
+        cornerPoints = self.getCornerPoints(cmd.prefix=="G02", cmd.arcDegrees, cmd.previousX, cmd.previousY, cmd.x, cmd.y)
+        points.append(cornerPoints)
 
         points.append(P(cmd.x, cmd.y))
-        return self.canvas.create_line(points, smooth=True, fill="red", width=2)
+        return self.canvas.create_line(points, smooth=True, fill=color, width=1)
         
 
-    def get2Corners(self, clockwise:bool, x:float, y:float, x2:float, y2:float):
+    def getCornerPoints(self, clockwise:bool, degrees:float, x:float, y:float, x2:float, y2:float):
         #Compute orthogonal vector to v2-v vector
-        xOrtho = (y2 - y) / 2
-        yOrtho = (x2 - x) / 2
+        xOrtho = halfY = (y2 - y) / 2
+        yOrtho = halfX = (x2 - x) / 2
 
         if clockwise: xOrtho *= -1
         else: yOrtho *= -1
 
-        return P(x + xOrtho, y + yOrtho), P(x2 + xOrtho, y2 + yOrtho)
+    #    halfX = (x2 - x) / 2
+    #    halfY = (y2 - y) / 2
+
+        if degrees == 180:
+            return [P(x + xOrtho, y + yOrtho), P(x2 + xOrtho, y2 + yOrtho)]
+        if degrees == 90:
+            print("canvas manager degrees = 90")
+            return [P(x + + halfX + xOrtho, y + halfY + yOrtho)]
 

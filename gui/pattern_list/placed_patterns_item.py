@@ -34,10 +34,16 @@ class PlacedPatternsItem:
     def deleteButtons(self):
         self.button1.delete()
         self.button2.delete()
+        self.button3.delete()
+
+    def mouse_function(self):
+        print("mouse click placed patterns item")
+        self.menu.onPlacedPatternItemClick(self.pattern)
 
     def build(self):
 
-        container = Frame(self.master)
+        container = Frame(self.master, borderwidth=2, relief=SOLID, padx=10, pady=10)
+        container.bind("<Button-1>", self.mouse_function)
 
         topContent = Frame(container)
 
@@ -58,7 +64,7 @@ class PlacedPatternsItem:
         self.getKeyValueFrame(rightFrame, "position", self.pattern.getPosition()).pack(
             side=TOP, anchor=W)
         self.getKeyValueFrame(rightFrame, "rotation", str(
-            self.pattern.rotation) + " degrees").pack(side=TOP, anchor=W)
+            self.pattern.rotation) + "°").pack(side=TOP, anchor=W)
         rightFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
 
         topContent.pack(side=TOP, anchor=W)
@@ -70,18 +76,23 @@ class PlacedPatternsItem:
             paramsText = paramsText[:-2]
 
         if len(self.pattern.params) > 0:
-            self.getKeyValueFrame(container, "params", paramsText, 200).pack(
+            self.getKeyValueFrame(container, "params", paramsText, 180).pack(
                 side=TOP, anchor=W, pady=(0, 0))
 
         buttonContainer = Frame(container)
         self.button1 = TkinterCustomButton(master=buttonContainer, text="Edit", command=self.edit,
-                                           corner_radius=60, height=25, width=80)
+                                            fg_color="#28a63f", hover_color="#54c76d",
+                                           corner_radius=60, height=25, width=70)
         self.button1.pack(side=LEFT)
+
+        self.button3 = TkinterCustomButton(master=buttonContainer, text="Show", command=self.mouse_function,
+                                           corner_radius=60, height=25, width=70)
+        self.button3.pack(side=LEFT, padx=(10, 0))
 
         self.button2 = TkinterCustomButton(master=buttonContainer, text="Delete", command=self.delete,
                                            fg_color="#a62828", hover_color="#c75454",
-                                           corner_radius=60, height=25, width=80)
-        self.button2.pack(side=RIGHT, padx=(10, 0))
+                                           corner_radius=60, height=25, width=70)
+        self.button2.pack(side=LEFT, padx=(10, 0))
 
         buttonContainer.pack(side=TOP, anchor=N, pady=(10, 0))
 

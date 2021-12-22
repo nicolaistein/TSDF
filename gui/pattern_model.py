@@ -53,7 +53,13 @@ class PatternModel:
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
-        result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+
+        print("folder: " + self.folderName)
+        
+        if self.folderName.endswith("pattern1"):
+            result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+        if self.folderName.endswith("pattern2"):
+            result, commands = Pattern2(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
 
         return result, commands
 
@@ -74,4 +80,4 @@ class PatternModel:
         print("Rotation: " + str(self.rotation))
 
     def getPosition(self):
-        return "(" + str(self.x) + ", " + str(self.y) + ")"
+        return str(self.x) + ", " + str(self.y)

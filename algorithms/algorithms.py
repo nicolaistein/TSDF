@@ -1,4 +1,4 @@
-#from algorithms.bff.main import BFF
+from algorithms.bff.main import BFF
 #from algorithms.arap.arap import ARAP
 #from algorithms.lscm.lscm import LSCM
 import time

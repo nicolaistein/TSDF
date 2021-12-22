@@ -14,10 +14,10 @@ class Pattern(PatternParent):
         r = b/6
 
         self.reset()
-        self.absoluteMode()
 
         #Move to start point
         self.moveTo()
+        
         self.workHeight()
         self.printTo(x=l1-r)
 
@@ -38,5 +38,3 @@ class Pattern(PatternParent):
         print("# ----------------------")
 
         return self.result, self.commands
-
-#Pattern(values={"l1": 33, "l2": 10, "b":12}, workHeight=2.8, freeMoveHeight=30, startX=10, startY=10, rotation=-160).gcode()
