@@ -3,8 +3,8 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
-from gui.plotting.canvas_manager import CanvasManager
-from gui.file_menu import FileMenu
+from gui.canvas.canvas_manager import CanvasManager
+from gui.left_side_menu.file_menu import FileMenu
 
 
 class AlgorithmMenu:
@@ -74,8 +74,8 @@ class AlgorithmMenu:
         selectAlgoTitle = Label(selectAlgoFrame,
                                 text="Choose Algorithm")
 
-        selectAlgoTitle.configure(font=("Helvetica", 11, "bold"))
-        selectAlgoTitle.pack(side=TOP, anchor=W)
+        selectAlgoTitle.configure(font=("Helvetica", 10, "bold"))
+        selectAlgoTitle.pack(side=TOP, anchor=W, pady=(0, 5))
 
         for txt, val in self.algorithms:
             optionFrame = Frame(selectAlgoFrame)
@@ -99,4 +99,4 @@ class AlgorithmMenu:
                 Label(optionFrame, text="cones").pack(side=LEFT, anchor=W)
             optionFrame.pack(side=TOP, anchor=W)
 
-        selectAlgoFrame.pack(side=TOP, anchor=W, pady=(10, 0))
+        selectAlgoFrame.pack(side=TOP, anchor=W)

@@ -1,7 +1,7 @@
 from sys import modules
 from tkinter import *
 from typing import List, Pattern
-import gui.plotting.translator as translator
+import gui.canvas.translator as translator
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
 

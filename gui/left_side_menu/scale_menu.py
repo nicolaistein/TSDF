@@ -2,7 +2,7 @@ from ctypes import pointer, string_at
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
-from gui.plotting.canvas_manager import CanvasManager
+from gui.canvas.canvas_manager import CanvasManager
 
 
 class ScaleMenu:

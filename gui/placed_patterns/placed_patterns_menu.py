@@ -1,10 +1,10 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
-from gui.plotting.canvas_manager import CanvasManager
+from gui.canvas.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
-from gui.pattern_list.placed_patterns_item import PlacedPatternsItem
+from gui.placed_patterns.placed_patterns_item import PlacedPatternsItem
 import os
 
 

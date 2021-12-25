@@ -1,12 +1,12 @@
 from tkinter import *
 from tkinter.filedialog import askdirectory
-from gui.scale_menu import ScaleMenu
-from gui.gcode_menu import GCodeMenu
-from gui.algorithm_menu import AlgorithmMenu
-from gui.algorithm_menu import AlgorithmMenu
-from gui.file_menu import FileMenu
-from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
-from gui.plotting.canvas_manager import CanvasManager
+from gui.left_side_menu.scale_menu import ScaleMenu
+from gui.all_patterns import AllPatterns
+from gui.left_side_menu.algorithm_menu import AlgorithmMenu
+from gui.left_side_menu.algorithm_menu import AlgorithmMenu
+from gui.left_side_menu.file_menu import FileMenu
+from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
+from gui.canvas.canvas_manager import CanvasManager
 
 mainColor = "#cccccc"
 root = Tk()
@@ -28,7 +28,7 @@ ScaleMenu(leftContainer, canvasManager, canvasSize).build("top")
 leftContainer.pack(side="left", padx=(0, 20), anchor=N)
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
-patternList = GCodeMenu(root, mainColor, placedPatterns)
+patternList = AllPatterns(root, mainColor, placedPatterns)
 patternList.build("left")
 placedPatterns.build()
 

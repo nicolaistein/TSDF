@@ -5,11 +5,11 @@ from PIL import ImageTk
 from PIL import ImageTk, Image
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
-from gui.pattern_list.placed_patterns_menu import PlacedPatternsMenu
+from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 import os
 
 
-class GCodeMenu:
+class AllPatterns:
 
     def __init__(self, master: Frame, mainColor: str, patternList: PlacedPatternsMenu):
         self.mainFrame = Frame(master, width=380, bg=mainColor)
