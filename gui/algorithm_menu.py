@@ -4,10 +4,10 @@ from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.plotting.canvas_manager import CanvasManager
+from gui.file_menu import FileMenu
 
 
 class AlgorithmMenu:
-    file = "[filename]"
 
     points = []
 
@@ -17,64 +17,44 @@ class AlgorithmMenu:
         ("ARAP", 3),
     ]
 
-    def __init__(self, master: Frame, canvasManager: CanvasManager):
+    def __init__(self, master: Frame, canvasManager: CanvasManager, fileMenu:FileMenu):
         self.mainFrame = Frame(
-            master, width=220, height=285, padx=20, pady=20)
+            master, width=220, height=250, padx=20, pady=20)
         self.canvasManager = canvasManager
+        self.fileMenu = fileMenu
         self.v = IntVar()
         self.v.set(1)
 
     def calculate(self):
+        file = self.fileMenu.path
+        if not file:
+            return
+
         if(self.v.get() == 1):
             coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
-            time, self.points = executeBFF(self.file, coneCount)
+            time, self.points = executeBFF(file, coneCount)
         if(self.v.get() == 2):
-            time, self.points = executeLSCM(self.file)
+            time, self.points = executeLSCM(file)
         if(self.v.get() == 3):
-            time, self.points = executeARAP(self.file)
+            time, self.points = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(self.points)))
         self.canvasManager.plot(self.points)
 
-    def selectFile(self):
-        filename = askopenfilename(
-            filetypes=[("Object files", ".obj")])
-
-        self.file = filename
-        self.fileLabel.configure(text=self.file.split("/")[-1])
-
-    def assembleFileChooserFrame(self):
-        fileSelectionFrame = Frame(self.mainFrame)
-        chooseFrame = Frame(fileSelectionFrame)
-
-        chooseFile = Label(chooseFrame, text="Choose File", anchor=W)
-        chooseFile.configure(font=("Helvetica", 11, "bold"))
-        chooseFile.pack(fill='both', side=LEFT)
-
-        button = TkinterCustomButton(master=chooseFrame, text="Select",
-                                     command=self.selectFile, corner_radius=60, height=25, width=80)
-        button.pack(side=LEFT, padx=5)
-        chooseFrame.pack(side=TOP)
-
-        self.fileLabel = Label(fileSelectionFrame, text="", anchor=W)
-        self.fileLabel.pack(fill='both')
-
-        fileSelectionFrame.pack(side=TOP, anchor=W)
 
     def build(self):
 
-        title = Label(self.mainFrame, text="Menu")
+        title = Label(self.mainFrame, text="Flatten Object")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 20))
 
         self.mainFrame.pack_propagate(0)
-        self.assembleFileChooserFrame()
         self.assembleAlgoChooserFrame()
 
         TkinterCustomButton(master=self.mainFrame, text="Calculate", command=self.calculate,
                             corner_radius=60, height=25, width=140).pack(side=TOP, pady=(20, 0))
 
-        self.mainFrame.pack(side=TOP)
+        self.mainFrame.pack(side=TOP, pady=(20, 0))
 
     def ShowChoice(self):
         print(self.v.get())

@@ -4,7 +4,6 @@ from PIL import ImageTk, Image
 from patterns.pattern1.pattern import Pattern as Pattern1
 from patterns.pattern2.pattern import Pattern as Pattern2
 from patterns.pattern3.pattern import Pattern as Pattern3
-import os
 
 
 def parsePatternAttributes(folderName: str):

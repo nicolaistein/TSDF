@@ -15,11 +15,7 @@ ymax = 900
 
 def P(x,y):
     """
-    For convenience only.
-    Transform point in cartesian (x,y) to Canvas (X,Y)
-    As both system has difference y direction:
-    Cartesian y-axis from bottom-left - up 
-    Canvas Y-axis from top-left - down 
+    Transform point from cartesian (x,y) to Canvas (X,Y)
     """
     X = M + (x/xmax) * (W-2*M)
     Y = M + (1-(y/ymax)) * (H-2*M)
@@ -59,7 +55,7 @@ class CanvasManager:
         for point in points:
             x = point[0]
             y = point[1]
-            r = 1
+            r = 0
             self.canvas.create_oval(x - r, y - r, x + r, y + r)
 
     def build(self):
@@ -126,12 +122,8 @@ class CanvasManager:
         if clockwise: xOrtho *= -1
         else: yOrtho *= -1
 
-    #    halfX = (x2 - x) / 2
-    #    halfY = (y2 - y) / 2
-
         if degrees == 180:
             return [P(x + xOrtho, y + yOrtho), P(x2 + xOrtho, y2 + yOrtho)]
         if degrees == 90:
-            print("canvas manager degrees = 90")
             return [P(x + + halfX + xOrtho, y + halfY + yOrtho)]
 

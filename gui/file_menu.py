@@ -1,0 +1,76 @@
+from ctypes import pointer, string_at
+from tkinter import *
+from tkinter.filedialog import askopenfilename
+from gui.button import TkinterCustomButton
+from gui.plotting.canvas_manager import CanvasManager
+import igl
+import os
+
+
+class FileMenu:
+    path = ""
+
+    def __init__(self, master: Frame):
+        self.mainFrame = Frame(master)
+        self.content = Frame(self.mainFrame, width=220,
+                             height=200, padx=20, pady=20)
+
+    def selectFile(self):
+        filename = askopenfilename(
+            filetypes=[("Object files", ".obj")])
+        self.path = filename
+
+        self.fileNameLabel.configure(text=filename.split("/")[-1])
+        self.verticesLabel.configure(text="Reading...")
+        self.facesLabel.configure(text="Reading...")
+
+        v, f = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
+        self.verticesLabel.configure(text=str(len(v)))
+        self.facesLabel.configure(text=str(len(f)))
+
+    def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
+        keyValFrame = Frame(parent)
+        keyLabel = Label(keyValFrame, text=key, width=8,
+                         anchor=W, justify=LEFT, wraplength=70)
+        keyLabel.configure(font=("Helvetica", 10, "bold"))
+        keyLabel.pack(side=LEFT)
+        valLabel = Label(keyValFrame, text="-", wraplength=valueLength)
+        valLabel.pack(side=LEFT)
+
+        keyValFrame.pack(side="top", anchor="w")
+        return valLabel
+
+
+    def build(self):
+        self.content.pack_propagate(0)
+
+        title = Label(self.content, text="Select Object")
+        title.configure(font=("Helvetica", 12, "bold"))
+        title.pack(fill=BOTH, side=TOP, pady=(0, 20))
+
+        fileSelectionFrame = Frame(self.content)
+        chooseFrame = Frame(fileSelectionFrame)
+
+        chooseFile = Label(chooseFrame, text="Choose File", anchor=W)
+        chooseFile.configure(font=("Helvetica", 10, "bold"))
+        chooseFile.pack(fill=BOTH, side=LEFT)
+
+        button = TkinterCustomButton(master=chooseFrame, text="Select",
+                command=self.selectFile, corner_radius=60, height=25, width=80)
+        button.pack(side=LEFT, padx=5)
+        chooseFrame.pack(side=TOP, pady=(0, 20))
+
+        print("FileMenu build name: " + self.path)
+        self.fileNameLabel = self.getKeyValueFrame(fileSelectionFrame, "Name")
+        self.verticesLabel = self.getKeyValueFrame(fileSelectionFrame, "Vertices")
+        self.facesLabel = self.getKeyValueFrame(fileSelectionFrame, "Faces")
+
+    #    self.fileLabel = Label(fileSelectionFrame, text="", anchor=W)
+    #    self.fileLabel.pack(fill=BOTH)
+
+        fileSelectionFrame.pack(side=TOP, anchor=W)
+
+
+
+        self.content.pack(side="top")
+        self.mainFrame.pack(side="top", anchor=N)
