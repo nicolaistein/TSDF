@@ -19,7 +19,7 @@ class AlgorithmMenu:
 
     def __init__(self, master: Frame, canvasManager: CanvasManager, fileMenu:FileMenu):
         self.mainFrame = Frame(
-            master, width=220, height=250, padx=20, pady=20)
+            master, width=220, height=240, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
         self.v = IntVar()
@@ -44,7 +44,7 @@ class AlgorithmMenu:
 
     def build(self):
 
-        title = Label(self.mainFrame, text="Flatten Object")
+        title = Label(self.mainFrame, text="Flatten")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 20))
 

@@ -44,7 +44,7 @@ class FileMenu:
     def build(self):
         self.content.pack_propagate(0)
 
-        title = Label(self.content, text="Select Object")
+        title = Label(self.content, text="Select")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill=BOTH, side=TOP, pady=(0, 20))
 
@@ -60,17 +60,11 @@ class FileMenu:
         button.pack(side=LEFT, padx=5)
         chooseFrame.pack(side=TOP, pady=(0, 20))
 
-        print("FileMenu build name: " + self.path)
         self.fileNameLabel = self.getKeyValueFrame(fileSelectionFrame, "Name")
         self.verticesLabel = self.getKeyValueFrame(fileSelectionFrame, "Vertices")
         self.facesLabel = self.getKeyValueFrame(fileSelectionFrame, "Faces")
 
-    #    self.fileLabel = Label(fileSelectionFrame, text="", anchor=W)
-    #    self.fileLabel.pack(fill=BOTH)
-
         fileSelectionFrame.pack(side=TOP, anchor=W)
-
-
 
         self.content.pack(side="top")
         self.mainFrame.pack(side="top", anchor=N)
