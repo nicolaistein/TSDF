@@ -64,7 +64,7 @@ class AlgorithmMenu:
         self.mainFrame.pack(side=TOP, pady=(20, 0))
 
     def ShowChoice(self):
-        print(self.v.get())
+        pass
 
     def cancelInput(self, event):
         return "break"

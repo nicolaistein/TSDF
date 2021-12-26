@@ -7,8 +7,6 @@ from gui.left_side_menu.analyze.analyze_window import AnalyzeWindow
 
 class AnalyzeMenu:
 
-    
-
     def __init__(self, master: Frame, fileMenu:FileMenu):
         self.mainFrame = Frame(
             master, width=220, height=280, padx=20, pady=20)
@@ -19,10 +17,12 @@ class AnalyzeMenu:
         
 
     def showResult(self):
-        print("show result")
         if self.fileMenu.path:
             self.error.configure(text="")
-            AnalyzeWindow(self.mainFrame).openWindow()
+            timeLimit =  self.timeLimit.get("1.0", END)[:-1]
+            edgeCount =  self.edgeCount.get("1.0", END)[:-1]
+            AnalyzeWindow(self.mainFrame, self.fileMenu.triangleCount, self.closed.get(),
+             self.basicShape.get(), self.curves.get(), timeLimit, edgeCount).openWindow()
         else:
             self.error.configure(text="You have to select a file first!")
 

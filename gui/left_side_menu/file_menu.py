@@ -9,6 +9,7 @@ import os
 
 class FileMenu:
     path = ""
+    triangleCount = 0
 
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master)
@@ -25,8 +26,9 @@ class FileMenu:
             self.facesLabel.configure(text="Reading...")
 
             v, f = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
+            self.triangleCount = len(f)
             self.verticesLabel.configure(text=str(len(v)))
-            self.facesLabel.configure(text=str(len(f)))
+            self.facesLabel.configure(text=str(self.triangleCount))
 
     def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
         keyValFrame = Frame(parent)
