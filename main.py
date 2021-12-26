@@ -1,5 +1,5 @@
 from tkinter import *
-from gui.left_side_menu.scale_menu import ScaleMenu
+from gui.left_side_menu.computation_info import ComputationInfo
 from gui.all_patterns import AllPatterns
 from gui.left_side_menu.algorithm_menu import AlgorithmMenu
 from gui.left_side_menu.algorithm_menu import AlgorithmMenu
@@ -19,14 +19,18 @@ root.configure(bg=mainColor, padx=20, pady=20)
 canvasSize = 900
 
 leftContainer = Frame(root, bg=mainColor)
-canvasManager = CanvasManager(root, canvasSize)
-fileMenu = FileMenu(leftContainer)
-fileMenu.build()
-AnalyzeMenu(leftContainer, fileMenu).build()
-AlgorithmMenu(leftContainer, canvasManager, fileMenu).build()
-#ScaleMenu(leftContainer, canvasManager, canvasSize).build("top")
+leftSubContainer = Frame(leftContainer, bg=mainColor)
 
-leftContainer.pack(side="left", padx=(0, 20), anchor=N)
+canvasManager = CanvasManager(root, canvasSize)
+fileMenu = FileMenu(leftSubContainer)
+computationInfo = ComputationInfo(leftSubContainer)
+fileMenu.build()
+AnalyzeMenu(leftSubContainer, fileMenu).build()
+AlgorithmMenu(leftSubContainer, canvasManager, fileMenu, computationInfo).build()
+leftSubContainer.pack(side="top", anchor=N, padx=(0, 20))
+
+computationInfo.build("top")
+leftContainer.pack(side="left", anchor=N)
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 patternList = AllPatterns(root, mainColor, placedPatterns)

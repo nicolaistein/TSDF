@@ -5,6 +5,7 @@ from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
+from gui.left_side_menu.computation_info import ComputationInfo
 
 
 class AlgorithmMenu:
@@ -12,16 +13,17 @@ class AlgorithmMenu:
     points = []
 
     algorithms = [
-        ("BFF", 1),
-        ("LSCM", 2),
-        ("ARAP", 3),
+        ("BFF", 0),
+        ("LSCM", 1),
+        ("ARAP", 2),
     ]
 
-    def __init__(self, master: Frame, canvasManager: CanvasManager, fileMenu:FileMenu):
-        self.mainFrame = Frame(
-            master, width=220, height=240, padx=20, pady=20)
+    def __init__(self, master: Frame, canvasManager: CanvasManager,
+     fileMenu:FileMenu, compInfo:ComputationInfo):
+        self.mainFrame = Frame(master, width=220, height=240, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
+        self.compInfo = compInfo
         self.v = IntVar()
         self.v.set(1)
 
@@ -30,16 +32,21 @@ class AlgorithmMenu:
         if not file:
             return
 
-        if(self.v.get() == 1):
+        chosen = self.v.get()
+        algo, id = self.algorithms[chosen]
+
+        if(chosen == 0):
             coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
             time, self.points = executeBFF(file, coneCount)
-        if(self.v.get() == 2):
+            algo = "BFF with " + str(coneCount) + " cones"
+        if(chosen == 1):
             time, self.points = executeLSCM(file)
-        if(self.v.get() == 3):
+        if(chosen == 2):
             time, self.points = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(self.points)))
         self.canvasManager.plot(self.points)
+        self.compInfo.updateInfo(algo, time)
 
 
     def build(self):
