@@ -19,14 +19,14 @@ class FileMenu:
         filename = askopenfilename(
             filetypes=[("Object files", ".obj")])
         self.path = filename
+        if os.path.isfile(filename):
+            self.fileNameLabel.configure(text=filename.split("/")[-1])
+            self.verticesLabel.configure(text="Reading...")
+            self.facesLabel.configure(text="Reading...")
 
-        self.fileNameLabel.configure(text=filename.split("/")[-1])
-        self.verticesLabel.configure(text="Reading...")
-        self.facesLabel.configure(text="Reading...")
-
-        v, f = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
-        self.verticesLabel.configure(text=str(len(v)))
-        self.facesLabel.configure(text=str(len(f)))
+            v, f = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
+            self.verticesLabel.configure(text=str(len(v)))
+            self.facesLabel.configure(text=str(len(f)))
 
     def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
         keyValFrame = Frame(parent)

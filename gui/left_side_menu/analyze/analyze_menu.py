@@ -20,6 +20,11 @@ class AnalyzeMenu:
 
     def showResult(self):
         print("show result")
+        if self.fileMenu.path:
+            self.error.configure(text="")
+            AnalyzeWindow(self.mainFrame).openWindow()
+        else:
+            self.error.configure(text="You have to select a file first!")
 
     def buildTextInput(self, label:str):
         textInputFrame = Frame(self.mainFrame)
@@ -51,7 +56,12 @@ class AnalyzeMenu:
 
         
         TkinterCustomButton(master=self.mainFrame, text="Show result", command=self.showResult,
-                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(20, 0))
+                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
+
+        self.error = Label(self.mainFrame, text="", fg="red")
+        self.error.pack(side="top", pady=(4, 0))
+
+        
 
         self.mainFrame.pack(side=TOP, pady=(20, 0))
 
