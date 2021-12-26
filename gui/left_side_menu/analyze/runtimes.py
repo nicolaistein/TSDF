@@ -14,9 +14,9 @@ bffComplex = [  (60,1.97), (120,6.6), (178,12.04), (225,16.95),
                 (335,39.28), (499,65.07), (734,108.9)]
 
 def computeTime(dataPoints, triangleCount:int):
-    print("computeTime")
-    print(dataPoints)
-    x, y = zip(dataPoints)
+    dataPoints.append((0,0))
+    triangleCount = triangleCount/1000
+    x, y = zip(*dataPoints)
     y_interpolation = scipy.interpolate.interp1d(x, y)
     return y_interpolation(triangleCount)
 
@@ -27,4 +27,5 @@ def arapTime(triangleCount:int):
     return computeTime(arap, triangleCount)
     
 def bffTime(triangleCount:int, basic:bool):
+    print("BFF basic: " + str(basic))
     return computeTime(bffBasic if basic else bffComplex, triangleCount)

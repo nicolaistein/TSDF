@@ -22,14 +22,14 @@ class AnalyzeWindow:
     def abort(self):
         self.window.destroy()
 
-    def buildHeading(self, master:Frame, text:str):
-        label = Label(master, text=text, anchor=W, justify=LEFT)
+    def buildHeading(self, master:Frame, text:str, pady=20):
+        label = Label(master, text=text)
         label.configure(font=("Helvetica", 12, "bold"))
-        label.pack(side=TOP)
+        label.pack(side=TOP, anchor=W, pady=(pady, 0))
   
     def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, anchor=W, justify=LEFT)
+        keyLabel = Label(keyValFrame, text=key, anchor=W, justify=LEFT, width=8)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
         valLabel = Label(keyValFrame, text=value, wraplength=200)
@@ -38,6 +38,13 @@ class AnalyzeWindow:
         keyValFrame.pack(side="top", anchor="w")
         return valLabel
 
+    def formatTime(self, time:int):
+        minutes = int(time//60)
+        seconds = int(round(time%60, 0))
+        val = str(seconds) + "s"
+        if minutes > 0:
+            val = str(minutes) + "m " + val
+        return val
 
     def getSuggestion(self):
         return "BFF"
@@ -49,10 +56,10 @@ class AnalyzeWindow:
         self.window.resizable(False, False)
 
         mainContainer = Frame(self.window, padx=20, pady=20)
-        self.buildHeading(mainContainer, "Estimated Runtimes")
-        self.getKeyValueFrame(mainContainer, "BFF", str(runtimes.bffTime(self.triangleCount, self.basicShape)))
-        self.getKeyValueFrame(mainContainer, "LSCM", str(runtimes.bffTime(self.triangleCount)))
-        self.getKeyValueFrame(mainContainer, "ARAP", str(runtimes.bffTime(self.triangleCount)))
+        self.buildHeading(mainContainer, "Estimated Runtimes", 0)
+        self.getKeyValueFrame(mainContainer, "BFF", self.formatTime(runtimes.bffTime(self.triangleCount, self.basicShape)) + " per cone")
+        self.getKeyValueFrame(mainContainer, "LSCM", self.formatTime(runtimes.lscmTime(self.triangleCount)))
+        self.getKeyValueFrame(mainContainer, "ARAP", self.formatTime(runtimes.arapTime(self.triangleCount)))
         self.buildHeading(mainContainer, "Possibilities")
         self.buildHeading(mainContainer, "Suggestion")
       
