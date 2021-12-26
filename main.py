@@ -19,18 +19,16 @@ root.configure(bg=mainColor, padx=20, pady=20)
 canvasSize = 900
 
 leftContainer = Frame(root, bg=mainColor)
-leftSubContainer = Frame(leftContainer, bg=mainColor)
-
 canvasManager = CanvasManager(root, canvasSize)
-fileMenu = FileMenu(leftSubContainer)
-computationInfo = ComputationInfo(leftSubContainer)
-fileMenu.build()
-AnalyzeMenu(leftSubContainer, fileMenu).build()
-AlgorithmMenu(leftSubContainer, canvasManager, fileMenu, computationInfo).build()
-leftSubContainer.pack(side="top", anchor=N, padx=(0, 20))
+fileMenu = FileMenu(leftContainer)
+computationInfo = ComputationInfo(leftContainer)
 
+fileMenu.build()
+AnalyzeMenu(leftContainer, fileMenu).build()
+AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo).build()
 computationInfo.build("top")
-leftContainer.pack(side="left", anchor=N)
+leftContainer.pack(side="left", anchor=N, padx=(0, 20))
+
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 patternList = AllPatterns(root, mainColor, placedPatterns)
