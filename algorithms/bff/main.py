@@ -7,6 +7,9 @@ class BFF:
         self.coneCount = coneCount
         self.objPath = objPath
 
+    def getTextureVertex(self, val:str):
+        return int(val.split("/")[1])
+
     def execute(self):
         # Select binary depending on the os
         print("Platform: " + platform.system())
@@ -22,11 +25,19 @@ class BFF:
         content = resultFile.read()
 
         # Extract texture vertices
-        finalResult = []
+        vertices = []
+        faces = []
         lines = content.split("\n")
         for line in lines:
-            if(line.startswith("vt")):
+            if line.startswith("vt"):
                 split = line.split(" ")
-                finalResult.append([float(split[1]), float(split[2])])
+                vertices.append([float(split[1]), float(split[2])])
 
-        return finalResult
+            elif line.startswith("f"):
+                split = line.split(" ")
+                x1 = self.getTextureVertex(split[1])
+                x2 = self.getTextureVertex(split[2])
+                x3 = self.getTextureVertex(split[3])
+                faces.append([x1, x2, x3])
+
+        return vertices, faces

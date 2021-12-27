@@ -25,7 +25,7 @@ class AlgorithmMenu:
         self.fileMenu = fileMenu
         self.compInfo = compInfo
         self.v = IntVar()
-        self.v.set(1)
+        self.v.set(0)
 
     def calculate(self):
         file = self.fileMenu.path
@@ -37,15 +37,15 @@ class AlgorithmMenu:
 
         if(chosen == 0):
             coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
-            time, self.points = executeBFF(file, coneCount)
+            time, self.points, self.faces = executeBFF(file, coneCount)
             algo = "BFF with " + str(coneCount) + " cones"
         if(chosen == 1):
-            time, self.points = executeLSCM(file)
+            time, self.points, self.faces = executeLSCM(file)
         if(chosen == 2):
-            time, self.points = executeARAP(file)
+            time, self.points, self.faces = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(self.points)))
-        self.canvasManager.plot(self.points)
+        self.canvasManager.plot(self.points, self.faces)
         self.compInfo.updateInfo(algo, time)
 
 

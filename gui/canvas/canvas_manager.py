@@ -27,15 +27,17 @@ class CanvasManager:
         self.master = master
         self.size = initSize
         self.points = []
+        self.faces = []
         self.patterns = {}
-        self.pointsOnCanvas = []
+        self.flatObjectPartsOnCanvas = []
         self.selectedPattern = None
 
     def resize(self, newSize: int):
         self.show()
 
-    def plot(self, points):
+    def plot(self, points, faces):
         self.points = points
+        self.faces = faces
         self.show()
 
     def selectPattern(self, pattern: PatternModel):
@@ -49,15 +51,29 @@ class CanvasManager:
             self.selectedPattern = None
         self.refreshPattern(pattern)
 
+    def createLine(self, x1, x2):
+        self.flatObjectPartsOnCanvas.append(
+            self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
+
+
     def show(self):
-        points = translator.moveToPositiveArea(self.points)
-        scale, points = translator.scale(points, self.size)
+        pointsNew = translator.moveToPositiveArea(self.points)
+        scale, pointsNew = translator.scale(pointsNew, self.size)
         self.clear()
-        for point in points:
+
+        for point in pointsNew:
             x = point[0]
             y = point[1]
-            r = 0
-            self.pointsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
+            r = 1
+            self.flatObjectPartsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r, fill="red"))
+            
+        for face in self.faces:
+            x = pointsNew[face[0]-1]
+            y = pointsNew[face[1]-1]
+            z = pointsNew[face[2]-1]
+            self.createLine(x, y)
+            self.createLine(y, z)
+            self.createLine(z, x)
 
     def build(self):
         canvasFrame = Frame(self.master, height=self.size, width=self.size)
@@ -66,9 +82,9 @@ class CanvasManager:
         self.canvas.pack(side=LEFT)
 
     def clear(self):
-        for point in self.pointsOnCanvas:
+        for point in self.flatObjectPartsOnCanvas:
             self.canvas.delete(point)
-        self.pointsOnCanvas.clear()
+        self.flatObjectPartsOnCanvas.clear()
 
     def deletePattern(self, pattern:PatternModel):
         self.removePatternFromCanvas(pattern)
