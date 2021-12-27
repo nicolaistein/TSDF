@@ -6,7 +6,7 @@ def formatTime(seconds:float):
 
     if mins > 0:
         val = str(mins) + "m " + val
-    elif secs < 1:
+    elif secs < 10:
         val = str(secs) + "s"
     
     return val

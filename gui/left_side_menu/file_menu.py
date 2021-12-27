@@ -19,8 +19,9 @@ class FileMenu:
     def selectFile(self):
         filename = askopenfilename(
             filetypes=[("Object files", ".obj")])
-        self.path = filename
+
         if os.path.isfile(filename):
+            self.path = filename
             self.fileNameLabel.configure(text=filename.split("/")[-1])
             self.verticesLabel.configure(text="Reading...")
             self.facesLabel.configure(text="Reading...")
