@@ -19,18 +19,21 @@ class AnalyzeMenu:
     def showResult(self):
         if self.fileMenu.path:
             self.error.configure(text="")
-            timeLimit =  self.timeLimit.get("1.0", END)[:-1]
+            timeLimiText =  self.timeLimit.get("1.0", END)[:-1]
+            timeLimit = int(timeLimiText) if timeLimiText else 0
+            timeLimit = timeLimit * 60
             edgeCount =  self.edgeCount.get("1.0", END)[:-1]
             AnalyzeWindow(self.mainFrame, self.fileMenu.triangleCount, self.closed.get(),
              self.basicShape.get(), self.curves.get(), timeLimit, edgeCount).openWindow()
         else:
             self.error.configure(text="You have to select a file first!")
 
-    def buildTextInput(self, label:str):
+    def buildTextInput(self, label:str, val:str = ""):
         textInputFrame = Frame(self.mainFrame)
         Label(textInputFrame, text=label, wraplength=130).pack(side=LEFT, anchor=W)
         text = Text(textInputFrame, height=1, width=4)
         text.pack(side=LEFT, anchor=W, padx=10)
+        text.insert(END, val)
         textInputFrame.pack(side="top", anchor="w", pady=(5, 0))
         return text
 
@@ -50,7 +53,7 @@ class AnalyzeMenu:
             side="top", anchor="w")
 
         
-        self.timeLimit = self.buildTextInput("Time limit in minutes:")
+        self.timeLimit = self.buildTextInput("Time limit in seconds:", "30")
         self.edgeCount = self.buildTextInput("Edge count(Leave empty if not obvious):")
 
 

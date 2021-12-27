@@ -1,8 +1,5 @@
-from ctypes import pointer, string_at
 from tkinter import *
-from tkinter.filedialog import askopenfilename
-from gui.button import TkinterCustomButton
-from gui.canvas.canvas_manager import CanvasManager
+import gui.time_formatter as formatter
 
 
 class ComputationInfo:
@@ -14,12 +11,7 @@ class ComputationInfo:
 
     def updateInfo(self, algo:str, time:int):
         self.algorithm.configure(text=algo)
-        minutes = round(time//60, 2)
-        seconds = round(time%60, 2)
-        val = str(seconds) + "s"
-        if minutes > 0:
-            val = str(minutes) + "m " + val
-        self.time.configure(text=val)
+        self.time.configure(text=formatter.formatTime(time))
     
     def getKeyValueFrame(self, parent: Frame, key: str):
         keyValFrame = Frame(parent)

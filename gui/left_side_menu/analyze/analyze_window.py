@@ -1,16 +1,14 @@
-from logging import error
-from os import name
 from tkinter import *
-from typing import List
 from gui.pattern_model import PatternModel
 from gui.button import TkinterCustomButton
 import gui.left_side_menu.analyze.runtimes as runtimes
+import gui.time_formatter as formatter
 
 
 class AnalyzeWindow:
 
     def __init__(self, root, triangleCount:int, closed:bool, basicShape:bool, curves:bool,
-     timeLimit:str, edgeCount:str):
+     timeLimit:int, edgeCount:str):
         self.window = Toplevel(root)
         self.closed = closed
         self.basicShape = basicShape
@@ -38,18 +36,16 @@ class AnalyzeWindow:
         keyValFrame.pack(side="top", anchor="w")
         return valLabel
 
-    def formatTime(self, time:int):
-        minutes = int(time//60)
-        seconds = int(round(time%60, 0))
-        val = str(seconds) + "s"
-        if minutes > 0:
-            val = str(minutes) + "m " + val
-        return val
-
     def getSuggestion(self):
         return "BFF"
 
-    
+    def getMaxConeCount(self):
+        time = runtimes.bffTime(self.triangleCount, self.basicShape)
+        cones = 1
+        while time * (cones+1) <= self.timeLimit:
+            cones += 1
+
+        return cones
 
     def openWindow(self):
         self.window.title("Analyzation results")
@@ -57,11 +53,22 @@ class AnalyzeWindow:
 
         mainContainer = Frame(self.window, padx=20, pady=20)
         self.buildHeading(mainContainer, "Estimated Runtimes", 0)
-        self.getKeyValueFrame(mainContainer, "BFF", self.formatTime(runtimes.bffTime(self.triangleCount, self.basicShape)) + " per cone")
-        self.getKeyValueFrame(mainContainer, "LSCM", self.formatTime(runtimes.lscmTime(self.triangleCount)))
-        self.getKeyValueFrame(mainContainer, "ARAP", self.formatTime(runtimes.arapTime(self.triangleCount)))
+        self.getKeyValueFrame(mainContainer, "BFF", formatter.formatTime(runtimes.bffTime(self.triangleCount, self.basicShape)) + " per cone")
+        self.getKeyValueFrame(mainContainer, "LSCM", formatter.formatTime(runtimes.lscmTime(self.triangleCount)))
+        self.getKeyValueFrame(mainContainer, "ARAP", formatter.formatTime(runtimes.arapTime(self.triangleCount)))
+
         self.buildHeading(mainContainer, "Possibilities")
+        
+        if runtimes.bffTime(self.triangleCount, self.basicShape) <= self.timeLimit:
+            self.getKeyValueFrame(mainContainer, "BFF with max. " + str(self.getMaxConeCount()) + " cones", "")
+        if not self.closed:
+            if runtimes.lscmTime(self.triangleCount) <= self.timeLimit:
+                self.getKeyValueFrame(mainContainer, "LSCM", "")
+            if runtimes.arapTime(self.triangleCount) <= self.timeLimit:
+                self.getKeyValueFrame(mainContainer, "ARAP", "")
+
         self.buildHeading(mainContainer, "Suggestion")
+        self.getKeyValueFrame(mainContainer, self.getSuggestion(), "")
       
         # buttons
         buttonFrame = Frame(mainContainer)
