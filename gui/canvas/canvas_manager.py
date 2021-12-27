@@ -28,6 +28,7 @@ class CanvasManager:
         self.size = initSize
         self.points = []
         self.patterns = {}
+        self.pointsOnCanvas = []
         self.selectedPattern = None
 
     def resize(self, newSize: int):
@@ -56,7 +57,7 @@ class CanvasManager:
             x = point[0]
             y = point[1]
             r = 0
-            self.canvas.create_oval(x - r, y - r, x + r, y + r)
+            self.pointsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
 
     def build(self):
         canvasFrame = Frame(self.master, height=self.size, width=self.size)
@@ -65,7 +66,9 @@ class CanvasManager:
         self.canvas.pack(side=LEFT)
 
     def clear(self):
-        self.canvas.delete("all")
+        for point in self.pointsOnCanvas:
+            self.canvas.delete(point)
+        self.pointsOnCanvas.clear()
 
     def deletePattern(self, pattern:PatternModel):
         self.removePatternFromCanvas(pattern)
