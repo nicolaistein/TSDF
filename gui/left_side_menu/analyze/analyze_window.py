@@ -27,7 +27,7 @@ class AnalyzeWindow:
   
     def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, anchor=W, justify=LEFT, width=8)
+        keyLabel = Label(keyValFrame, text=key, anchor=W, justify=LEFT, width=6)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
         valLabel = Label(keyValFrame, text=value, wraplength=200)
@@ -37,15 +37,25 @@ class AnalyzeWindow:
         return valLabel
 
     def getSuggestion(self):
-        return "BFF"
+        cones = str(self.getMaxConeCount()) if not self.edgeCount or self.curves else self.edgeCount
+        if self.closed or runtimes.bffTime(self.triangleCount, self.basicShape) <= self.timeLimit:
+            return "BFF with " + cones + " cones"
+        else:
+            return "LSCM" if runtimes.lscmTime(self.triangleCount) <= runtimes.arapTime(self.triangleCount) else "ARAP"
+
+        
 
     def getMaxConeCount(self):
         time = runtimes.bffTime(self.triangleCount, self.basicShape)
-        cones = 1
-        while time * (cones+1) <= self.timeLimit:
-            cones += 1
+        print("getMaxConeCount time: " + str(time))
+        if time == 0.0:
+            time = 0.01
 
-        return cones
+        maxPossible = int(self.timeLimit // time)
+        print("maxPossible: " + str(maxPossible))
+        #    if cones >= 100: return ">100"
+
+        return maxPossible
 
     def openWindow(self):
         self.window.title("Analyzation results")
@@ -59,28 +69,31 @@ class AnalyzeWindow:
 
         self.buildHeading(mainContainer, "Possibilities")
         
+        availableOptions = False
         if runtimes.bffTime(self.triangleCount, self.basicShape) <= self.timeLimit:
-            self.getKeyValueFrame(mainContainer, "BFF with max. " + str(self.getMaxConeCount()) + " cones", "")
+            Label(mainContainer, text="BFF with max. " + str(self.getMaxConeCount()) + " cones").pack(side="top", anchor="w")
+            availableOptions = True
         if not self.closed:
             if runtimes.lscmTime(self.triangleCount) <= self.timeLimit:
-                self.getKeyValueFrame(mainContainer, "LSCM", "")
+                availableOptions = True
+                Label(mainContainer, text="LSCM").pack(side="top", anchor="w")
             if runtimes.arapTime(self.triangleCount) <= self.timeLimit:
-                self.getKeyValueFrame(mainContainer, "ARAP", "")
+                availableOptions = True
+                Label(mainContainer, text="ARAP").pack(side="top", anchor="w")
+
+        if not availableOptions:
+            Label(mainContainer, text="None").pack(side="top", anchor="w")
 
         self.buildHeading(mainContainer, "Suggestion")
-        self.getKeyValueFrame(mainContainer, self.getSuggestion(), "")
+        Label(mainContainer, text=self.getSuggestion()).pack(side="top", anchor="w")
       
         # buttons
         buttonFrame = Frame(mainContainer)
-        self.buttonAccept = TkinterCustomButton(master=buttonFrame, text="Apply suggestion", command=self.abort,
-                                                fg_color="#28a63f", hover_color="#54c76d",
-                                                corner_radius=60, height=25, width=160)
-        self.buttonAccept.pack(side=LEFT)
 
         self.buttonCancel = TkinterCustomButton(master=buttonFrame, text="Close", command=self.abort,
                                                 fg_color="#a62828", hover_color="#c75454",
                                                 corner_radius=60, height=25, width=80)
-        self.buttonCancel.pack(side=LEFT, padx=(10, 0))
+        self.buttonCancel.pack(side=LEFT)
 
         buttonFrame.pack(side=TOP, anchor=W, pady=(30, 0))
 

@@ -26,10 +26,9 @@ class FileMenu:
             self.verticesLabel.configure(text="Reading...")
             self.facesLabel.configure(text="Reading...")
 
-            v, f = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
-            self.triangleCount = len(f)
+            v, self.triangles = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
             self.verticesLabel.configure(text=str(len(v)))
-            self.facesLabel.configure(text=str(self.triangleCount))
+            self.facesLabel.configure(text=str(len(self.triangles)))
 
     def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
         keyValFrame = Frame(parent)

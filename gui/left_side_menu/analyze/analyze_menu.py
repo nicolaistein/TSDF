@@ -3,6 +3,7 @@ from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.analyze.analyze_window import AnalyzeWindow
+import igl
 
 
 class AnalyzeMenu:
@@ -21,9 +22,10 @@ class AnalyzeMenu:
             self.error.configure(text="")
             timeLimiText =  self.timeLimit.get("1.0", END)[:-1]
             timeLimit = int(timeLimiText) if timeLimiText else 0
-            timeLimit = timeLimit * 60
+            timeLimit = timeLimit
             edgeCount =  self.edgeCount.get("1.0", END)[:-1]
-            AnalyzeWindow(self.mainFrame, self.fileMenu.triangleCount, self.closed.get(),
+            closed = self.closed.get() or len(igl.boundary_loop(self.fileMenu.triangles)) == 0
+            AnalyzeWindow(self.mainFrame, len(self.fileMenu.triangles), closed,
              self.basicShape.get(), self.curves.get(), timeLimit, edgeCount).openWindow()
         else:
             self.error.configure(text="You have to select a file first!")
