@@ -32,13 +32,10 @@ class CanvasManager:
         self.flatObjectPartsOnCanvas = []
         self.selectedPattern = None
 
-    def resize(self, newSize: int):
-        self.show()
-
-    def plot(self, points, faces):
+    def plot(self, points, faces, plotFaces:bool):
         self.points = points
         self.faces = faces
-        self.show()
+        self.show(plotFaces)
 
     def selectPattern(self, pattern: PatternModel):
         selected = self.selectedPattern
@@ -56,24 +53,26 @@ class CanvasManager:
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
 
-    def show(self):
+    def show(self, plotFaces:bool):
         pointsNew = translator.moveToPositiveArea(self.points)
         scale, pointsNew = translator.scale(pointsNew, self.size)
         self.clear()
 
-        for point in pointsNew:
-            x = point[0]
-            y = point[1]
-            r = 1
-            self.flatObjectPartsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r, fill="red"))
-            
-        for face in self.faces:
-            x = pointsNew[face[0]-1]
-            y = pointsNew[face[1]-1]
-            z = pointsNew[face[2]-1]
-            self.createLine(x, y)
-            self.createLine(y, z)
-            self.createLine(z, x)
+        if plotFaces:
+            for face in self.faces:
+                x = pointsNew[face[0]-1]
+                y = pointsNew[face[1]-1]
+                z = pointsNew[face[2]-1]
+                self.createLine(x, y)
+                self.createLine(y, z)
+                self.createLine(z, x)
+        else:
+            for point in pointsNew:
+                x = point[0]
+                y = point[1]
+                r = 0
+                self.flatObjectPartsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
+                
 
     def build(self):
         canvasFrame = Frame(self.master, height=self.size, width=self.size)

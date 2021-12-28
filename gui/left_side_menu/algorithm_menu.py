@@ -25,6 +25,7 @@ class AlgorithmMenu:
         self.fileMenu = fileMenu
         self.compInfo = compInfo
         self.v = IntVar()
+        self.plotFaces = IntVar()
         self.v.set(0)
 
     def calculate(self):
@@ -45,7 +46,7 @@ class AlgorithmMenu:
             time, self.points, self.faces = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(self.points)))
-        self.canvasManager.plot(self.points, self.faces)
+        self.canvasManager.plot(self.points, self.faces, self.plotFaces.get())
         self.compInfo.updateInfo(algo, time)
 
 
@@ -53,13 +54,13 @@ class AlgorithmMenu:
 
         title = Label(self.mainFrame, text="Flatten")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 20))
+        title.pack(fill='both', side=TOP, pady=(0, 10))
 
         self.mainFrame.pack_propagate(0)
         self.assembleAlgoChooserFrame()
 
         TkinterCustomButton(master=self.mainFrame, text="Calculate", command=self.calculate,
-                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(20, 0))
+                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
 
         self.mainFrame.pack(side=TOP, pady=(20, 0))
 
@@ -105,5 +106,8 @@ class AlgorithmMenu:
                 self.bffConeInput.pack(side=LEFT, anchor=W, padx=10)
                 Label(optionFrame, text="cones").pack(side=LEFT, anchor=W)
             optionFrame.pack(side=TOP, anchor=W)
+        
+        Checkbutton(selectAlgoFrame, text="Plot Faces (vs only vertices)", variable=self.plotFaces, width=180, wraplength=180).pack(
+            side="top", anchor="w")
 
         selectAlgoFrame.pack(side=TOP, anchor=W)
