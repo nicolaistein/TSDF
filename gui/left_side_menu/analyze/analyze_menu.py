@@ -10,7 +10,7 @@ class AnalyzeMenu:
 
     def __init__(self, master: Frame, fileMenu:FileMenu):
         self.mainFrame = Frame(
-            master, width=220, height=280, padx=20, pady=20)
+            master, width=220, height=255, padx=20, pady=20)
         self.fileMenu = fileMenu
         self.closed = IntVar()
         self.basicShape = IntVar()
@@ -42,7 +42,7 @@ class AnalyzeMenu:
     def build(self):
         title = Label(self.mainFrame, text="Analyze")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 20))
+        title.pack(fill='both', side=TOP, pady=(0, 10))
 
         self.mainFrame.pack_propagate(0)
         Checkbutton(self.mainFrame, text="Object is closed", variable=self.closed).pack(

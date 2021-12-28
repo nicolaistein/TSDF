@@ -1,5 +1,6 @@
 from tkinter import *
 import gui.time_formatter as formatter
+from gui.button import TkinterCustomButton
 
 
 class ComputationInfo:
@@ -26,15 +27,40 @@ class ComputationInfo:
         return valLabel
 
 
+    def showFaces():
+        pass
+
+    def showAreaDistortion():
+        pass
+    
+    def showAngleDistortion():
+        pass
+
+
     def build(self, side: str):
         self.content.pack_propagate(0)
 
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))
-        chooseFile.pack(side="top", pady=(0, 20))
+    #    chooseFile.pack(side="top", pady=(0, 10))
+
 
         self.algorithm = self.getKeyValueFrame(self.content, "Algorithm")
         self.time = self.getKeyValueFrame(self.content, "Time")
 
-        self.content.pack(side=TOP)
+        buttons = Frame(self.content)
+        TkinterCustomButton(master=buttons, text="Area Dist.", command=self.showAreaDistortion,
+                        corner_radius=60, height=25, width=95).pack(side=LEFT)
+        
+        TkinterCustomButton(master=buttons, text="Faces", command=self.showFaces,
+                        corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
+                        
+                        
+        
+        buttons.pack(side=TOP, anchor=W, pady=(5,0))
+
+        TkinterCustomButton(master=self.content, text="Angle Dist.", command=self.showAngleDistortion,
+                        corner_radius=60, height=25, width=95).pack(side=LEFT, pady=(10,0))
+
+        self.content.pack(side=LEFT)
         self.mainFrame.pack(side=side, pady=(20, 0), anchor=N)

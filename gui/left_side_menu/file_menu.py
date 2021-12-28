@@ -14,7 +14,7 @@ class FileMenu:
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master)
         self.content = Frame(self.mainFrame, width=220,
-                             height=200, padx=20, pady=20)
+                             height=180, padx=20, pady=20)
 
     def selectFile(self):
         filename = askopenfilename(
@@ -48,7 +48,7 @@ class FileMenu:
 
         title = Label(self.content, text="Select")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill=BOTH, side=TOP, pady=(0, 20))
+        title.pack(fill=BOTH, side=TOP, pady=(0, 10))
 
         fileSelectionFrame = Frame(self.content)
         chooseFrame = Frame(fileSelectionFrame)
@@ -60,7 +60,7 @@ class FileMenu:
         button = TkinterCustomButton(master=chooseFrame, text="Select",
                 command=self.selectFile, corner_radius=60, height=25, width=80)
         button.pack(side=LEFT, padx=5)
-        chooseFrame.pack(side=TOP, pady=(0, 20))
+        chooseFrame.pack(side=TOP, pady=(0, 10))
 
         self.fileNameLabel = self.getKeyValueFrame(fileSelectionFrame, "Name")
         self.verticesLabel = self.getKeyValueFrame(fileSelectionFrame, "Vertices")
