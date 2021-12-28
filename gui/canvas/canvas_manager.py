@@ -32,7 +32,8 @@ class CanvasManager:
         self.flatObjectPartsOnCanvas = []
         self.selectedPattern = None
 
-    def plot(self, points, faces, plotFaces:bool):
+    def plot(self, points, faces, distortions, plotFaces:bool):
+        self.distortions = distortions
         self.points = points
         self.faces = faces
         self.show(plotFaces)
@@ -59,10 +60,29 @@ class CanvasManager:
         self.clear()
 
         if plotFaces:
-            for face in self.faces:
-                x = pointsNew[face[0]-1]
-                y = pointsNew[face[1]-1]
-                z = pointsNew[face[2]-1]
+            for index, face in enumerate(self.faces):
+                x = list(pointsNew[face[0]-1])
+                y = list(pointsNew[face[1]-1])
+                z = list(pointsNew[face[2]-1])
+
+                maxDistort = 2
+
+                distFac = self.distortions[index]-maxDistort
+                if distFac > maxDistort:
+                    distFac = maxDistort
+                if distFac < 0:
+                    distFac = 0
+
+                distFac = distFac/maxDistort
+                distFac = 1-distFac
+
+                colorFac = int(round(distFac * 255, 0))
+                color = '#%02x%02x%02x' % (255, colorFac, colorFac)
+                
+                self.flatObjectPartsOnCanvas.append(
+                    self.canvas.create_polygon(x, y, z, fill=color))
+
+                #Border
                 self.createLine(x, y)
                 self.createLine(y, z)
                 self.createLine(z, x)

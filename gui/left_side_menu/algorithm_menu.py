@@ -1,11 +1,10 @@
-from ctypes import pointer, string_at
 from tkinter import *
-from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
+from gui.canvas.area_distortion import computeDistortions
 
 
 class AlgorithmMenu:
@@ -38,15 +37,16 @@ class AlgorithmMenu:
 
         if(chosen == 0):
             coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
-            time, self.points, self.faces = executeBFF(file, coneCount)
+            time, points, pointsBefore, faces, facesBefore = executeBFF(file, coneCount)
             algo = "BFF with " + str(coneCount) + " cones"
         if(chosen == 1):
-            time, self.points, self.faces = executeLSCM(file)
+            time, points, pointsBefore, faces, facesBefore = executeLSCM(file)
         if(chosen == 2):
-            time, self.points, self.faces = executeARAP(file)
+            time, points, pointsBefore, faces, facesBefore = executeARAP(file)
 
-        print("time: " + str(time) + ", points: " + str(len(self.points)))
-        self.canvasManager.plot(self.points, self.faces, self.plotFaces.get())
+        print("time: " + str(time) + ", points: " + str(len(points)))
+        distortions = computeDistortions(pointsBefore, points, facesBefore, faces)
+        self.canvasManager.plot(points, faces, distortions, self.plotFaces.get())
         self.compInfo.updateInfo(algo, time)
 
 

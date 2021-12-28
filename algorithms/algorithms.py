@@ -3,6 +3,18 @@ from algorithms.arap.arap import ARAP
 from algorithms.lscm.lscm import LSCM
 import time
 
+def getPreviousVertices(objPath:str):
+    file = open(objPath)
+    vertices = []
+    for line in file:
+        if line.startswith("v"):
+            split = line.split(" ")
+            x1 = float(split[1])
+            x2 = float(split[2])
+            x3 = float(split[3])
+            vertices.append([x1, x2, x3])
+    return vertices
+
 def getFaces(objPath:str):
     file = open(objPath)
     faces = []
@@ -26,13 +38,14 @@ def executeARAP(file: str):
 
 def executeAlgo(algo, includeFaces:bool=True):
 
+    faces = getFaces(algo.objPath)
+    facesBefore = getFaces(algo.objPath)
     # execute algorithm
     computeStart = time.time()
     if includeFaces:
         points = algo.execute()
-        faces = getFaces(algo.objPath)
     else:
         points, faces = algo.execute()
     computeEnd = time.time()
 
-    return computeEnd-computeStart, points, faces
+    return computeEnd-computeStart, points, getPreviousVertices(algo.objPath), faces, facesBefore
