@@ -22,7 +22,7 @@ def faceToArea(face, points):
     indexZ = face[2]-1
     return triangleArea(points[indexX], points[indexY], points[indexZ])
 
-def computeDistortions(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[int], facesAfter:List[int]):
+def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[int], facesAfter:List[int]):
     print("computeDistortion: before=" + str(len(pointsBefore))
      + ", after=" + str(len(pointsAfter))
       + ", facesBefore=" + str(len(facesBefore))
@@ -31,15 +31,28 @@ def computeDistortions(pointsBefore:List[List[float]], pointsAfter:List[List[flo
     distortions = []
     maxDistortion = 0
     minDistortion = 10000
+    total = 0
     for index, face in enumerate(facesAfter):
         areaBefore = faceToArea(facesBefore[index], pointsBefore)
         areaAfter = faceToArea(facesAfter[index], pointsAfter)
 
-        dist = areaBefore / areaAfter if areaBefore >= areaAfter else areaAfter / areaBefore
+    # BOTH
+    #    dist = areaBefore / areaAfter if areaBefore >= areaAfter else areaAfter / areaBefore
+
+    # REAL AVG
+        dist = areaAfter / areaBefore
+
+        
         distortions.append(dist)
+        total += dist
         if dist > maxDistortion:
             maxDistortion = dist
         if dist < minDistortion:
             minDistortion = dist
 
-    return distortions
+    avg = total/len(distortions)
+
+    print("min area distortion: " + str(minDistortion))
+    print("max area distortion: " + str(maxDistortion))
+    print("average distortion: " + str(avg))
+    return distortions, avg

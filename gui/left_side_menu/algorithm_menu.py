@@ -4,7 +4,7 @@ from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
-from gui.canvas.area_distortion import computeDistortions
+import gui.canvas.area_distortion as AreaDistortion
 
 
 class AlgorithmMenu:
@@ -24,7 +24,6 @@ class AlgorithmMenu:
         self.fileMenu = fileMenu
         self.compInfo = compInfo
         self.v = IntVar()
-        self.plotFaces = IntVar()
         self.v.set(0)
 
     def calculate(self):
@@ -45,9 +44,9 @@ class AlgorithmMenu:
             time, points, pointsBefore, faces, facesBefore = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(points)))
-        distortions = computeDistortions(pointsBefore, points, facesBefore, faces)
-        self.canvasManager.plot(points, faces, distortions, self.plotFaces.get())
-        self.compInfo.updateInfo(algo, time)
+        distortions, averageDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
+        self.canvasManager.plot(points, faces, distortions)
+        self.compInfo.updateInfo(algo, time, averageDistortion, 0)
 
 
     def build(self):
@@ -79,7 +78,7 @@ class AlgorithmMenu:
 
     def assembleAlgoChooserFrame(self):
         selectAlgoFrame = Frame(self.mainFrame)
-        
+
         for txt, val in self.algorithms:
             optionFrame = Frame(selectAlgoFrame)
             Radiobutton(optionFrame,

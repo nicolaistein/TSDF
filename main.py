@@ -21,7 +21,7 @@ canvasSize = 900
 leftContainer = Frame(root, bg=mainColor)
 canvasManager = CanvasManager(root, canvasSize)
 fileMenu = FileMenu(leftContainer)
-computationInfo = ComputationInfo(leftContainer)
+computationInfo = ComputationInfo(leftContainer, canvasManager)
 
 fileMenu.build()
 AnalyzeMenu(leftContainer, fileMenu).build()
