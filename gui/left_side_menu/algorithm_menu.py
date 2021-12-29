@@ -19,7 +19,7 @@ class AlgorithmMenu:
 
     def __init__(self, master: Frame, canvasManager: CanvasManager,
      fileMenu:FileMenu, compInfo:ComputationInfo):
-        self.mainFrame = Frame(master, width=220, height=240, padx=20, pady=20)
+        self.mainFrame = Frame(master, width=220, height=200, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
         self.compInfo = compInfo
@@ -54,7 +54,7 @@ class AlgorithmMenu:
 
         title = Label(self.mainFrame, text="Flatten")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 10))
+        title.pack(fill='both', side=TOP, pady=(0, 20))
 
         self.mainFrame.pack_propagate(0)
         self.assembleAlgoChooserFrame()
@@ -79,12 +79,7 @@ class AlgorithmMenu:
 
     def assembleAlgoChooserFrame(self):
         selectAlgoFrame = Frame(self.mainFrame)
-        selectAlgoTitle = Label(selectAlgoFrame,
-                                text="Choose Algorithm")
-
-        selectAlgoTitle.configure(font=("Helvetica", 10, "bold"))
-        selectAlgoTitle.pack(side=TOP, anchor=W, pady=(0, 5))
-
+        
         for txt, val in self.algorithms:
             optionFrame = Frame(selectAlgoFrame)
             Radiobutton(optionFrame,
@@ -106,8 +101,5 @@ class AlgorithmMenu:
                 self.bffConeInput.pack(side=LEFT, anchor=W, padx=10)
                 Label(optionFrame, text="cones").pack(side=LEFT, anchor=W)
             optionFrame.pack(side=TOP, anchor=W)
-        
-        Checkbutton(selectAlgoFrame, text="Plot Faces (vs only vertices)", variable=self.plotFaces, width=180, wraplength=180).pack(
-            side="top", anchor="w")
 
         selectAlgoFrame.pack(side=TOP, anchor=W)

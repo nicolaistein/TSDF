@@ -8,16 +8,16 @@ class ComputationInfo:
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master)
         self.content = Frame(self.mainFrame, width=220,
-                             height=150, padx=20, pady=20)
+                             height=200, padx=20, pady=20)
 
     def updateInfo(self, algo:str, time:int):
         self.algorithm.configure(text=algo)
         self.time.configure(text=formatter.formatTime(time))
     
-    def getKeyValueFrame(self, parent: Frame, key: str):
+    def getKeyValueFrame(self, parent: Frame, key: str, keyWidth:float=14):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=9,
-                            anchor=W, justify=LEFT, wraplength=70)
+        keyLabel = Label(keyValFrame, text=key, width=keyWidth,
+                            anchor=W, justify=LEFT, wraplength=120)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
         valLabel = Label(keyValFrame, text="-", wraplength=100)
@@ -45,8 +45,10 @@ class ComputationInfo:
     #    chooseFile.pack(side="top", pady=(0, 10))
 
 
-        self.algorithm = self.getKeyValueFrame(self.content, "Algorithm")
-        self.time = self.getKeyValueFrame(self.content, "Time")
+        self.algorithm = self.getKeyValueFrame(self.content, "Algorithm", 10)
+        self.time = self.getKeyValueFrame(self.content, "Time", 10)
+        self.time = self.getKeyValueFrame(self.content, "Area Distortion")
+        self.time = self.getKeyValueFrame(self.content, "Angle Distortion")
 
         buttons = Frame(self.content)
         TkinterCustomButton(master=buttons, text="Area Dist.", command=self.showAreaDistortion,
@@ -57,7 +59,7 @@ class ComputationInfo:
                         
                         
         
-        buttons.pack(side=TOP, anchor=W, pady=(5,0))
+        buttons.pack(side=TOP, anchor=W, pady=(10,0))
 
         TkinterCustomButton(master=self.content, text="Angle Dist.", command=self.showAngleDistortion,
                         corner_radius=60, height=25, width=95).pack(side=LEFT, pady=(10,0))
