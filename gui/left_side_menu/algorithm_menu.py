@@ -5,6 +5,7 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
 import gui.canvas.area_distortion as AreaDistortion
+import gui.canvas.angular_distortion as AngularDistortion
 
 
 class AlgorithmMenu:
@@ -44,9 +45,11 @@ class AlgorithmMenu:
             time, points, pointsBefore, faces, facesBefore = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(points)))
-        distortions, averageDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
-        self.canvasManager.plot(points, faces, distortions)
-        self.compInfo.updateInfo(algo, time, averageDistortion, 0)
+        areaDistortions, areaDistortionsAVG, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
+        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces)
+
+        self.canvasManager.plot(points, faces, areaDistortionsAVG, angularDistortions)
+        self.compInfo.updateInfo(algo, time, avgAreaDistortion, avgAngularDistortion)
 
 
     def build(self):

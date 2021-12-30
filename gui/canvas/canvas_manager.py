@@ -34,8 +34,9 @@ class CanvasManager:
         self.distortionOnCanvas = []
         self.selectedPattern = None
 
-    def plot(self, points, faces, distortions):
-        self.distortions = distortions
+    def plot(self, points, faces, areaDistortions, angularDistortions):
+        self.areaDistortions = areaDistortions
+        self.angularDistortions = angularDistortions
         self.faces = faces    
         pointsNew = translator.moveToPositiveArea(points)
         self.scale, self.points = translator.scale(pointsNew, self.size)
@@ -101,29 +102,73 @@ class CanvasManager:
 
 
     def showAreaDistortion(self):
+        big = 0
+        small = 0
         for index, face in enumerate(self.faces):
             x = list(self.points[face[0]-1])
             y = list(self.points[face[1]-1])
             z = list(self.points[face[2]-1])
-            maxDistort = 1
 
-            distFac = self.distortions[index]-maxDistort
-            if distFac > maxDistort:
-                distFac = maxDistort
-            if distFac < 0:
-                distFac = 0
+            maxDistort = 20
+            distortion = self.areaDistortions[index]
 
-            distFac = distFac/maxDistort
-            distFac = 1-distFac
+            if distortion > 1:
+                big += 1
+            else:
+                small += 1
 
-            colorFac = int(round(distFac * 255, 0))
-            color = '#%02x%02x%02x' % (255, colorFac, colorFac)
+
+            if distortion > 1:
+            #    distFac = self.distortions[index]-maxDistort
+                distFac = distortion
+                if distFac > maxDistort:
+                    distFac = maxDistort
+                if distFac < 1:
+                    distFac = 1
+
+                distFac = distFac-1
+                distFac = distFac/(maxDistort-1)
+                distFac = 1-distFac
+
+                colorFac = int(round(distFac * 255, 0))
+                color = '#%02x%02x%02x' % (255, colorFac, colorFac)
+
+            else:
+                blueFac = distortion
+                colorFac = int(round(blueFac * 255, 0))
+                color = '#%02x%02x%02x' % (colorFac, colorFac, 255)
             
             self.distortionOnCanvas.append(
             self.canvas.create_polygon(x, y, z, fill=color))
 
-    def showAngleDistortion():
-        pass
+        
+        print("Small distortion count: " + str(small))
+        print("Big distortion count: " + str(big))
+
+    def showAngleDistortion(self):
+        for index, face in enumerate(self.faces):
+            x = list(self.points[face[0]-1])
+            y = list(self.points[face[1]-1])
+            z = list(self.points[face[2]-1])
+
+            if index not in self.angularDistortions: continue
+            
+            distortion = self.angularDistortions[index]/45
+            if distortion > 1:
+                distortion = 1
+
+            if distortion == -1:
+                self.distortionOnCanvas.append(
+                    self.canvas.create_polygon(x, y, z, fill="red"))
+            else:
+                distFac = 1-distortion
+                colorFac = int(round(distFac * 255, 0))
+                color = '#%02x%02x%02x' % (colorFac, 255, colorFac)
+                
+                self.distortionOnCanvas.append(
+                    self.canvas.create_polygon(x, y, z, fill=color))
+
+
 
     def build(self):
         canvasFrame = Frame(self.master, height=self.size, width=self.size)
@@ -170,11 +215,9 @@ class CanvasManager:
             if(cmd.prefix == "G1"):
                 s = self.canvas.create_line(cmd.previousX, 900-cmd.previousY, cmd.x, 900-cmd.y, fill=color, width=1)
 
-            if(cmd.prefix == "G02"):
+            if cmd.prefix == "G02" or cmd.prefix == "G03":
                 s = self.computeArc(cmd, color)
 
-            if(cmd.prefix == "G03"):
-                s = self.computeArc(cmd, color)
             shapes.append(s)
 
         self.patterns[pattern] = shapes

@@ -2,12 +2,16 @@ from algorithms.bff.main import BFF
 from algorithms.arap.arap import ARAP
 from algorithms.lscm.lscm import LSCM
 import time
+import os
+import igl
 
 def getPreviousVertices(objPath:str):
     file = open(objPath)
     vertices = []
     for line in file:
         if line.startswith("v"):
+            while "  " in line: 
+                line = line.replace("  ", " ")
             split = line.split(" ")
             x1 = float(split[1])
             x2 = float(split[2])
@@ -20,6 +24,8 @@ def getFaces(objPath:str):
     faces = []
     for line in file:
         if line.startswith("f"):
+            while "  " in line: 
+                line = line.replace("  ", " ")
             split = line.split(" ")
             x1 = int(split[1].split("/")[0])
             x2 = int(split[2].split("/")[0])

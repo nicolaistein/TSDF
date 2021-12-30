@@ -22,37 +22,40 @@ def faceToArea(face, points):
     indexZ = face[2]-1
     return triangleArea(points[indexX], points[indexY], points[indexZ])
 
-def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[int], facesAfter:List[int]):
-    print("computeDistortion: before=" + str(len(pointsBefore))
+def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]]):
+    print("compute area distortion: before=" + str(len(pointsBefore))
      + ", after=" + str(len(pointsAfter))
       + ", facesBefore=" + str(len(facesBefore))
        + ", facesAfter=" + str(len(facesAfter)))
 
     distortions = []
+    distortionsAVG = []
     maxDistortion = 0
-    minDistortion = 10000
+    minDistortion = 1000000
     total = 0
+    totalAVG = 0
     for index, face in enumerate(facesAfter):
         areaBefore = faceToArea(facesBefore[index], pointsBefore)
         areaAfter = faceToArea(facesAfter[index], pointsAfter)
 
-    # BOTH
-    #    dist = areaBefore / areaAfter if areaBefore >= areaAfter else areaAfter / areaBefore
+        dist = areaBefore / areaAfter if areaBefore >= areaAfter else areaAfter / areaBefore
+        distAVG = areaAfter / areaBefore
 
-    # REAL AVG
-        dist = areaAfter / areaBefore
-
-        
         distortions.append(dist)
         total += dist
+        
+        distortionsAVG.append(distAVG)
+        totalAVG += distAVG
+
         if dist > maxDistortion:
             maxDistortion = dist
         if dist < minDistortion:
             minDistortion = dist
 
-    avg = total/len(distortions)
+    avg = totalAVG/len(distortionsAVG)
 
     print("min area distortion: " + str(minDistortion))
     print("max area distortion: " + str(maxDistortion))
-    print("average distortion: " + str(avg))
-    return distortions, avg
+    print("average area distortion: " + str(avg))
+    print("TRUE average area distortion: " + str(totalAVG / len(distortionsAVG)))
+    return distortions, distortionsAVG, avg
