@@ -28,34 +28,28 @@ def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], faces
       + ", facesBefore=" + str(len(facesBefore))
        + ", facesAfter=" + str(len(facesAfter)))
 
-    distortions = []
-    distortionsAVG = []
+    distortionsAVG = {}
     maxDistortion = 0
     minDistortion = 1000000
-    total = 0
     totalAVG = 0
     for index, face in enumerate(facesAfter):
         areaBefore = faceToArea(facesBefore[index], pointsBefore)
         areaAfter = faceToArea(facesAfter[index], pointsAfter)
-
-        dist = areaBefore / areaAfter if areaBefore >= areaAfter else areaAfter / areaBefore
-        distAVG = areaAfter / areaBefore
-
-        distortions.append(dist)
-        total += dist
         
-        distortionsAVG.append(distAVG)
+        if areaBefore == 0: continue
+
+        distAVG = areaAfter / areaBefore
+        distortionsAVG[index] = distAVG
         totalAVG += distAVG
 
-        if dist > maxDistortion:
-            maxDistortion = dist
-        if dist < minDistortion:
-            minDistortion = dist
+        if totalAVG > maxDistortion:
+            maxDistortion = totalAVG
+        if totalAVG < minDistortion:
+            minDistortion = totalAVG
 
     avg = totalAVG/len(distortionsAVG)
 
     print("min area distortion: " + str(minDistortion))
     print("max area distortion: " + str(maxDistortion))
     print("average area distortion: " + str(avg))
-    print("TRUE average area distortion: " + str(totalAVG / len(distortionsAVG)))
-    return distortions, distortionsAVG, avg
+    return distortionsAVG, avg

@@ -102,9 +102,9 @@ class CanvasManager:
 
 
     def showAreaDistortion(self):
-        big = 0
-        small = 0
         for index, face in enumerate(self.faces):
+            if index not in self.areaDistortions: continue
+
             x = list(self.points[face[0]-1])
             y = list(self.points[face[1]-1])
             z = list(self.points[face[2]-1])
@@ -113,13 +113,6 @@ class CanvasManager:
             distortion = self.areaDistortions[index]
 
             if distortion > 1:
-                big += 1
-            else:
-                small += 1
-
-
-            if distortion > 1:
-            #    distFac = self.distortions[index]-maxDistort
                 distFac = distortion
                 if distFac > maxDistort:
                     distFac = maxDistort
@@ -140,18 +133,15 @@ class CanvasManager:
             
             self.distortionOnCanvas.append(
             self.canvas.create_polygon(x, y, z, fill=color))
-
-        
-        print("Small distortion count: " + str(small))
-        print("Big distortion count: " + str(big))
+            
 
     def showAngleDistortion(self):
         for index, face in enumerate(self.faces):
+            if index not in self.angularDistortions: continue
+
             x = list(self.points[face[0]-1])
             y = list(self.points[face[1]-1])
             z = list(self.points[face[2]-1])
-
-            if index not in self.angularDistortions: continue
             
             distortion = self.angularDistortions[index]/45
             if distortion > 1:

@@ -9,7 +9,7 @@ def getPreviousVertices(objPath:str):
     file = open(objPath)
     vertices = []
     for line in file:
-        if line.startswith("v"):
+        if line.startswith("v "):
             while "  " in line: 
                 line = line.replace("  ", " ")
             split = line.split(" ")

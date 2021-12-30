@@ -45,10 +45,10 @@ class AlgorithmMenu:
             time, points, pointsBefore, faces, facesBefore = executeARAP(file)
 
         print("time: " + str(time) + ", points: " + str(len(points)))
-        areaDistortions, areaDistortionsAVG, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
+        areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
         angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces)
 
-        self.canvasManager.plot(points, faces, areaDistortionsAVG, angularDistortions)
+        self.canvasManager.plot(points, faces, areaDistortions, angularDistortions)
         self.compInfo.updateInfo(algo, time, avgAreaDistortion, avgAngularDistortion)
 
 

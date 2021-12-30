@@ -43,8 +43,6 @@ class ComputationInfo:
 
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))
-    #    chooseFile.pack(side="top", pady=(0, 10))
-
 
         self.algorithm = self.getKeyValueFrame(self.content, "Algorithm", 10)
         self.time = self.getKeyValueFrame(self.content, "Time", 10)
