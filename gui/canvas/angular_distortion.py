@@ -66,7 +66,7 @@ def faceToAngles(face, points, debug:bool=False):
 def perm(a1, a2, a3, b1, b2, b3):
     return abs(b1-a1) + abs(b2-a2) + abs(b3-a3)
 
-def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]]):
+def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]], isBFF:bool=False):
     print("compute angular distortion: before=" + str(len(pointsBefore))
      + ", after=" + str(len(pointsAfter))
       + ", facesBefore=" + str(len(facesBefore))
@@ -86,7 +86,7 @@ def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], faces
         e22 = perm(a2, a3, a1, b1, b2, b3)
         e31 = perm(a3, a1, a2, b1, b2, b3)
         e32 = perm(a3, a2, a1, b1, b2, b3)
-        dist = e11 if len(pointsBefore) == len(pointsAfter) else min(e11, e12, e21, e21, e31, e32)
+        dist = e11 if not isBFF else min(e11, e12, e21, e22, e31, e32)
         dist = dist / 3
 
         if math.isnan(dist): continue

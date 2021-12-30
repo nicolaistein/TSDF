@@ -46,7 +46,7 @@ class AlgorithmMenu:
 
         print("time: " + str(time) + ", points: " + str(len(points)))
         areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
-        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces)
+        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=chosen==0)
 
         self.canvasManager.plot(points, faces, areaDistortions, angularDistortions)
         self.compInfo.updateInfo(algo, time, avgAreaDistortion, avgAngularDistortion)

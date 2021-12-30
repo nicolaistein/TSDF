@@ -133,7 +133,7 @@ class CanvasManager:
             
             self.distortionOnCanvas.append(
             self.canvas.create_polygon(x, y, z, fill=color))
-            
+
 
     def showAngleDistortion(self):
         for index, face in enumerate(self.faces):
@@ -143,20 +143,16 @@ class CanvasManager:
             y = list(self.points[face[1]-1])
             z = list(self.points[face[2]-1])
             
-            distortion = self.angularDistortions[index]/45
+            distortion = self.angularDistortions[index]/30
             if distortion > 1:
                 distortion = 1
 
-            if distortion == -1:
-                self.distortionOnCanvas.append(
-                    self.canvas.create_polygon(x, y, z, fill="red"))
-            else:
-                distFac = 1-distortion
-                colorFac = int(round(distFac * 255, 0))
-                color = '#%02x%02x%02x' % (colorFac, 255, colorFac)
-                
-                self.distortionOnCanvas.append(
-                    self.canvas.create_polygon(x, y, z, fill=color))
+            distFac = 1-distortion
+            colorFac = int(round(distFac * 255, 0))
+            color = '#%02x%02x%02x' % (colorFac, 255, colorFac)
+            
+            self.distortionOnCanvas.append(
+                self.canvas.create_polygon(x, y, z, fill=color))
 
 
 
