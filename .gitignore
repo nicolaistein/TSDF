@@ -4,3 +4,6 @@
 *.obj
 *.pyc
 *.spec
+*.txt
+
+test.py
