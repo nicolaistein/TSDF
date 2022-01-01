@@ -1,7 +1,13 @@
-import igl
+import array
+from functools import total_ordering
+from typing import List
 from openmesh import *
 import numpy as np
 from data_parser import SegmentationParser
+
+max_string_length:int = 5
+min_feature_length:int = 15
+tao = 4
 
 class Segmenter:
 
@@ -9,67 +15,64 @@ class Segmenter:
         self.objPath = objPath
         self.parser = SegmentationParser()
 
-    def parseHalfedge(self):
-        self.parser.parse(self.objPath)
-        self.features = []
-
-        edges = 0
-        for eh in self.parser.mesh.edges():
-            edges += 1
-
-        print("edge count: " + str(edges))
+    def getFeatures(self):
         featureCount = int(round(len(self.parser.SOD) * 0.05))
-        print("feature count: " + str(featureCount))
         features = {}
         for index, (key, value) in enumerate(self.parser.SOD.items()):
             if index >= featureCount: break
             features[key] = value
+        
+        return features.keys()
 
-        print(features)
+    def calc(self):
+        self.parser.parse(self.objPath)
+        relevantFeatures = self.getFeatures()
+        self.marked_features = array.array('i',(False,)*self.parser.edgeLength())
+        self.marked_feature_neighbors = array.array('i',(False,)*self.parser.edgeLength())
+        for edge in relevantFeatures:
+            self.expand_feature_curve(edge)
+
+        print(relevantFeatures)
+
+    def sharpness(self, s:List[int]):
+        sum = 0
+        for edge, _ in s:
+            sum += self.parser.SOD[edge]
+        return sum
+
+    def getOtherVertex(self, edge:int, vertex:int):
+        vertices = self.parser.edgeToVertices[edge]
+        return vertices[1] if vertices[0]==vertex else vertices[0]
+
+    def findEdgeString(self, edge:int, vertex:int, depth:int):
+        if depth == max_string_length: return []
+
+        maxString = []
+        for neighbor in self.parser.mesh.ve(vertex):
+            id = neighbor.idx()
+            if id == edge: continue
+            nextVertex = self.getOtherVertex(id, vertex)
+            currentString = self.findEdgeString(id, nextVertex)
+            maxString = currentString if self.sharpness(currentString) > self.sharpness(maxString) else maxString
+
+        maxString.insert(0, (edge, vertex))
+        return maxString
 
 
-    def printAll(self):
-        # iterate over all halfedges
-        print("halfedges")
-        for heh in self.parser.mesh.halfedges():
-            print(heh.idx())
-        # iterate over all edges
-        print("edges")
-        for eh in self.parser.mesh.edges():
-            print(eh.idx())
-        # iterate over all faces
-        print("faces")
-        for fh in self.parser.mesh.faces():
-            print(fh.idx())
 
-        vh1 = self.parser.vertexHandles[0]
-        # iterate over all incoming halfedges
-        print("incoming halfedges")
-        for heh in self.parser.mesh.vih(vh1):
-            print (heh.idx())
-        # iterate over all outgoing halfedges
-        print("outgoing halfedges")
-        for heh in self.parser.mesh.voh(vh1):
-            print (heh.idx())
-        # iterate over all adjacent edges
-        print("adjacent edges")
-        for eh in self.parser.mesh.ve(vh1):
-            print (eh.idx())
-        # iterate over all adjacent faces
-        print("adjacent faces")
-        for fh in self.parser.mesh.vf(vh1):
-            print(fh.idx())
-
-    max_string_length:int = 5
-    min_feature_length:int = 15
-
-    def expand_feature_curve():
+    def expand_feature_curve(self, edge:int):
     #    vector<halfedge> detected_feature
         detected_feature = []
+
+        vertices = self.parser.edgeToVertices[edge]
+        halfedges = [(edge, vertices[0]), (edge, vertices[1])]
     #    for halfedge h ∈ { start, opposite(start) }
-        
+        for e, v in halfedges:
     #        halfedge h' ← h
+            currentEdge = e
+            currentVertex = v
     #        do
+            while True:
     #            use depth-first search to find the string S of halfedges
     #            starting with h' and such that:
     #            • two consecutive halfedges of S share a vertex
@@ -77,17 +80,32 @@ class Segmenter:
     #            • sharpness(S) ←Ee∈S sharpness(e) is maximum
     #            • no halfedge of S goes backward (relative to h')
     #            • no halfedge of S is tagged as a feature neighbor
-    #        h' ← second item of S
-    #        append h to detected_f eature
+                s = self.findEdgeString(currentEdge, currentVertex, 0)
+
+        #        append h' to detected_feature
+                detected_feature.append(currentEdge)
+        #        h' ← second item of S
+                currentEdge, currentVertex = s[1]
     #        while(sharpness(S) > max_string_length × τ)
+                if self.sharpness(s) > max_string_length * tao:
+                    break
     #    end // for
 
-    #    if (length(detected_f eature) > min_f eature_length) then
-    #        tag the elements of detected_f eature as features
-    #        tag the halfedges in the neighborhood of detected_f eature
-    #            as feature neighbors
+    #    if (length(detected_feature) > min_feature_length) then
+        if len(detected_feature) > min_feature_length:
+    #        tag the elements of detected_feature as features
+            for e in detected_feature:
+                self.marked_features[e] = True
+    #        tag the halfedges in the neighborhood of detected_feature as feature neighbors
+            for e in detected_feature:
+                faces = self.parser.edgeToFaces[e]
+                for f in faces:
+                    for eh in self.parser.mesh.fe(f):
+                        id = eh.idx()
+                        if id != e and id not in detected_feature:
+                            self.marked_feature_neighbors[id] = True
+
     #    end // if
-        pass
 
     def expand_charts():
 
@@ -125,7 +143,7 @@ class Segmenter:
 
 print("init")
 s = Segmenter("face.obj")
-s.parseHalfedge()
+s.calc()
 #print("ALL")
 #s.printAll()
 #print("SOD")

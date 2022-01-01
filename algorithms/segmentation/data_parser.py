@@ -10,6 +10,9 @@ class SegmentationParser:
     edgeToFaces: mapping edge -> List of faces 
     """
 
+    def edgeLength(self):
+        return len(self.edgeToFaces)
+
     def createMesh(self):
         self.mesh = TriMesh()
         self.vertexHandles = []
@@ -28,6 +31,14 @@ class SegmentationParser:
                 id = edge.idx()
                 if id not in self.edgeToFaces: self.edgeToFaces[id] = []
                 self.edgeToFaces[id].append(face.idx())
+
+        self.edgeToVertices = {}
+        for vertex in self.mesh.vertices():
+            for edge in self.mesh.vv(vertex):
+                id = edge.idx()
+                if id not in self.edgeToVertices: self.edgeToVertices[id] = []
+                self.edgeToVertices[id].append(vertex.idx())
+
 
     def surface_normal(self, faceID:int):
         face = self.faces[faceID]
@@ -68,3 +79,36 @@ class SegmentationParser:
    
 
         print("Reading finisehd")
+
+
+    def printAll(self):
+        # iterate over all halfedges
+        print("halfedges")
+        for heh in self.mesh.halfedges():
+            print(heh.idx())
+        # iterate over all edges
+        print("edges")
+        for eh in self.mesh.edges():
+            print(eh.idx())
+        # iterate over all faces
+        print("faces")
+        for fh in self.mesh.faces():
+            print(fh.idx())
+
+        vh1 = self.vertexHandles[0]
+        # iterate over all incoming halfedges
+        print("incoming halfedges")
+        for heh in self.mesh.vih(vh1):
+            print (heh.idx())
+        # iterate over all outgoing halfedges
+        print("outgoing halfedges")
+        for heh in self.mesh.voh(vh1):
+            print (heh.idx())
+        # iterate over all adjacent edges
+        print("adjacent edges")
+        for eh in self.mesh.ve(vh1):
+            print (eh.idx())
+        # iterate over all adjacent faces
+        print("adjacent faces")
+        for fh in self.mesh.vf(vh1):
+            print(fh.idx())
