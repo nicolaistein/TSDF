@@ -10,21 +10,25 @@ def testplot():
     x, y, z = pts.T
 
     fig = go.Figure(data=[go.Mesh3d(x=x, y=y, z=z, color='lightpink', opacity=0.50)])
-    offline.plot(fig, filename='plot2.html')
+    offline.plot(fig, filename='result.html')
 
 
 
-def plot(vertices:List[List[float]], faces:List[List[int]]):
+def plot(vertices:List[List[float]], faces:List[List[int]], coloredVertices:List[int]):
 
     vt = np.transpose(vertices)
     ft = np.transpose(faces)
 
-    fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2], color='lightpink', opacity=1)])
+    colors = ["lightpink"] * len(vertices)
+    for x in coloredVertices: colors[x] = "green"
+
+    fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
+         color='lightpink', vertexcolor=colors, opacity=1)])
     offline.plot(fig, filename='plot.html')
 
 def tryPlot():
     v, f = igl.read_triangle_mesh("bunny.obj")
     print("Reading finished")
-    plot(v, f)
+    plot(v, f, range(1, 20))
 
-tryPlot()
+#tryPlot()

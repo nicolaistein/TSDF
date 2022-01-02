@@ -34,7 +34,7 @@ class SegmentationParser:
 
         self.edgeToVertices = {}
         for vertex in self.mesh.vertices():
-            for edge in self.mesh.vv(vertex):
+            for edge in self.mesh.ve(vertex):
                 id = edge.idx()
                 if id not in self.edgeToVertices: self.edgeToVertices[id] = []
                 self.edgeToVertices[id].append(vertex.idx())
@@ -73,6 +73,8 @@ class SegmentationParser:
 
     def parse(self, objPath:str):
         self.vertices, self.faces = igl.read_triangle_mesh(objPath)
+        print("vertex length: " + str(len(self.vertices)))
+        print("faces length: " + str(len(self.faces)))
         self.createMesh()
         self.readCustomData()
         self.compute_SOD_all()
