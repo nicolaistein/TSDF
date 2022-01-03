@@ -45,8 +45,8 @@ class Features:
         relevantFeatures = self.getInitialFeatures()
         log("getting features finished")
         log("relevant feature size: " + str(len(relevantFeatures)))
-        self.marked_features = array.array('i',(False,)*self.parser.edgeLength())
-        self.marked_feature_neighbors = array.array('i',(False,)*self.parser.edgeLength())
+        self.marked_features = array.array('i',(False,)*self.parser.edgeCount)
+        self.marked_feature_neighbors = array.array('i',(False,)*self.parser.edgeCount)
         self.feature_count = 0
         count = 0
         for edge in relevantFeatures:

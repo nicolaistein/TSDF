@@ -1,6 +1,7 @@
 import igl
 from openmesh import *
 import numpy as np
+import array
 
 class SegmentationParser:    
     """
@@ -10,8 +11,10 @@ class SegmentationParser:
     edgeToFaces: mapping edge -> List of faces 
     """
 
-    def edgeLength(self):
-        return len(self.edgeToFaces)
+    def calculateEdgeCount(self):
+        self.edgeCount = 0
+        for edge in self.mesh.edges:
+            self.edgeCount += 1
 
     def createMesh(self):
         self.mesh = TriMesh()
@@ -25,19 +28,17 @@ class SegmentationParser:
                 self.vertexHandles[f[1]], self.vertexHandles[f[2]]))
 
     def readCustomData(self):
-        self.edgeToFaces = {}
+        self.edgeToFaces = array.array('i',([],)*self.edgeCount)
         for face in self.mesh.faces():
+            fid = face.idx()
             for edge in self.mesh.fe(face):
-                id = edge.idx()
-                if id not in self.edgeToFaces: self.edgeToFaces[id] = []
-                self.edgeToFaces[id].append(face.idx())
+                self.edgeToFaces[edge.idx()].append(fid)
 
-        self.edgeToVertices = {}
+        self.edgeToVertices = array.array('i',([],)*self.edgeCount)
         for vertex in self.mesh.vertices():
+            vid = vertex.idx()
             for edge in self.mesh.ve(vertex):
-                id = edge.idx()
-                if id not in self.edgeToVertices: self.edgeToVertices[id] = []
-                self.edgeToVertices[id].append(vertex.idx())
+                self.edgeToVertices[edge.idx()].append(vid)
 
 
     def surface_normal(self, faceID:int):
@@ -76,6 +77,7 @@ class SegmentationParser:
         print("vertex length: " + str(len(self.vertices)))
         print("faces length: " + str(len(self.faces)))
         self.createMesh()
+        self.calculateEdgeCount()
         self.readCustomData()
         self.compute_SOD_all()
    

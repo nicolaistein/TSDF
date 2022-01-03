@@ -29,15 +29,8 @@ class Segmenter:
         self.features.plotResult()
     #    features = util.loadMarkedFeatures()
         log("Feature detection finished.")
-        
-
-       
-        
-
-    
 
 
-    
 
 print("init")
 s = Segmenter("face.obj")
