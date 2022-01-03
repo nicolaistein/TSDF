@@ -1,8 +1,10 @@
 from typing import List
 import array
 import numpy as np
+import bisect
 from data_parser import SegmentationParser
 from plotter import plotFaceColor
+from priority_queue import PriorityQueue
 
 prefix = "[Charts] "
 
@@ -16,15 +18,8 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
-    #    print(self.featureDistances)
         self.expand_charts()
-        plotFaceColor(self.parser.vertices, self.parser.faces, self.featureDistances)
-
-
-    #    for e in features:
-    #        v = self.parser.edgeToVertices[e]
-    #        log(str(e) + " " + str(v[0]) + " " + str(v[1]))
-
+    #    plotFaceColor(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
 
 
@@ -36,10 +31,6 @@ class Charts:
             if self.featureDistances[face] != -1: continue
             self.featureDistances[face] = distance
             handledFaces += 1
-            # Change evtl
-            #for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
-            #    if e.idx() != edge:
-            #        newEdges.append(e)
             newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
         
         self.featureBorders[feature].remove(edge)
@@ -51,12 +42,16 @@ class Charts:
     def computeFeatureDistance(self):
         log("Computing feature distance")
         faceCount = len(self.parser.faces)
-        self.featureDistances = array.array('i',(-1,)*faceCount)
+        self.featureDistances = {}
         self.featureBorders = [[]]*self.parser.edgeCount
         self.currentFeatureDistance = {}
         for f in self.features:
             self.featureBorders[f] = [f]
             self.currentFeatureDistance[f] = 0
+
+        for index, _ in enumerate(self.parser.faces):
+            self.featureDistances[index] = -1
+
         handledFaces = 0
 
         while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
@@ -85,11 +80,14 @@ class Charts:
         log("faceCount: " + str(faceCount))
         log("current feature distance length: " + str(len(self.currentFeatureDistance)))
 
-    def expand_charts(self):
-    #    priority_queue = 
 
+    def expand_charts(self):
+        
     #    priority_queue<halfedge> Heap sorted by dist(facet(half edge))
+        heap = PriorityQueue(self.featureDistances)
+
     #    set<edge> chart_boundaries initialized with all the edges of the surface
+        chart_boundaries = [e.idx() for e in self.parser.mesh.edges()]
 
     #    #Initialize Heap
     #    foreach facet F where dist(F ) is a local maximum

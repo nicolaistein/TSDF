@@ -28,7 +28,7 @@ def plotFaceColor(vertices:List[List[float]], faces:List[List[int]], featureDist
     ft = np.transpose(faces)
 
     colors = ["green"]*len(featureDistances)
-    for index, x in enumerate(featureDistances): 
+    for index, x in featureDistances.items(): 
         distortion = x/16
         if distortion > 1:
             distortion = 1
