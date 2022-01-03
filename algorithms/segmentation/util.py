@@ -10,7 +10,7 @@ def saveMarkedFeatures(features:List[int]):
 
     file.close()
 
-def getMarkedFeatures():
+def loadMarkedFeatures():
     file = open(filename, "r")
     vertices = []
     for line in file:
