@@ -36,7 +36,7 @@ class Features:
         edges = []
         for index, val in enumerate(self.marked_features):
             if val: edges.append(index)
-        util.saveMarkedFeatures(edges)
+        util.saveMarkedFeatures(edges, self.parser)
 
     def computeFeatures(self):
         relevantFeatures = self.getInitialFeatures()

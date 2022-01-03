@@ -22,3 +22,22 @@ def plot(vertices:List[List[float]], faces:List[List[int]], coloredVertices:List
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', vertexcolor=colors, opacity=1)])
     offline.plot(fig, filename='plot.html')
+
+def plotFaceColor(vertices:List[List[float]], faces:List[List[int]], featureDistances):
+    vt = np.transpose(vertices)
+    ft = np.transpose(faces)
+
+    colors = ["green"]*len(featureDistances)
+    for index, x in enumerate(featureDistances): 
+        distortion = x/16
+        if distortion > 1:
+            distortion = 1
+
+        distFac = 1-distortion
+        colorFac = int(round(distFac * 255, 0))
+        color = '#%02x%02x%02xff' % (255, colorFac, colorFac)
+        colors[index] = color
+
+    fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
+         color='lightpink', facecolor=colors, opacity=1)])
+    offline.plot(fig, filename='faceColorPlot.html')

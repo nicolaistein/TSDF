@@ -2,6 +2,7 @@ from typing import List
 import array
 import numpy as np
 from data_parser import SegmentationParser
+from plotter import plotFaceColor
 
 prefix = "[Charts] "
 
@@ -17,6 +18,15 @@ class Charts:
         self.computeFeatureDistance()
     #    print(self.featureDistances)
         self.expand_charts()
+        plotFaceColor(self.parser.vertices, self.parser.faces, self.featureDistances)
+
+
+    #    for e in features:
+    #        v = self.parser.edgeToVertices[e]
+    #        log(str(e) + " " + str(v[0]) + " " + str(v[1]))
+
+    #    print(self.featureDistances)
+
 
     def expandEdge(self, feature:int, edge:int, distance:int):
 
@@ -30,10 +40,11 @@ class Charts:
             #for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
             #    if e.idx() != edge:
             #        newEdges.append(e)
-            newEdges.extend([e for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
+            newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
         
         self.featureBorders[feature].remove(edge)
-        self.featureBorders.extend(newEdges)
+        self.featureBorders[feature].extend(newEdges)
+    #    log("expandEdge newEdges size: " + str(len(newEdges)) + ", handledFaces: " + str(handledFaces))
 
         return handledFaces
 
@@ -58,16 +69,24 @@ class Charts:
 
                     handledFaces += fc
                     expanded = True if fc>0 else expanded
+        #            log("expanded: " + str(expanded))
 
                 self.currentFeatureDistance[feature] += 1
                 if not expanded: toRemove.append(feature)
     #            else: print("feature was actually expanded")
 
+        #    log("toRemove size: " + str(len(toRemove)))
             for f in toRemove:
                 del self.currentFeatureDistance[f]
+            
 
+        log("while loop end")
+        log("handled faces: " + str(handledFaces))
+        log("faceCount: " + str(faceCount))
+        log("current feature distance length: " + str(len(self.currentFeatureDistance)))
 
     def expand_charts(self):
+    #    priority_queue = 
 
     #    priority_queue<halfedge> Heap sorted by dist(facet(half edge))
     #    set<edge> chart_boundaries initialized with all the edges of the surface
