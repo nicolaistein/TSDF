@@ -33,13 +33,10 @@ class Features:
 
     def saveResult(self):
         log("Saving features")
-        fileContent = []
+        edges = []
         for index, val in enumerate(self.marked_features):
-            if val:
-                vertices = self.parser.edgeToVertices[index]
-                fileContent.append((vertices[0], vertices[1]))
-
-        util.saveMarkedFeatures(fileContent)
+            if val: edges.append(index)
+        util.saveMarkedFeatures(edges)
 
     def computeFeatures(self):
         relevantFeatures = self.getInitialFeatures()
@@ -71,10 +68,10 @@ class Features:
         return features.keys()
 
     def sharpness(self, s:List[int]):
-            sum = 0
-            for edge, _ in s:
-                sum += self.parser.SOD[edge]
-            return sum
+        sum = 0
+        for edge, _ in s:
+            sum += self.parser.SOD[edge]
+        return sum
 
     def getOtherVertex(self, edge:int, vertex:int):
         vertices = self.parser.edgeToVertices[edge]
@@ -119,8 +116,8 @@ class Features:
     #            • no halfedge of S is tagged as a feature neighbor
                 s = self.findEdgeString(currentEdge, currentVertex, detected_feature, 0)
 
-        #        print("s length: " + str(len(s)))
-        #        print("sharpness s: " + str(self.sharpness(s)))
+    #            print("s length: " + str(len(s)))
+    #            print("sharpness s: " + str(self.sharpness(s)))
 
         #        append h' to detected_feature
                 detected_feature.append(currentEdge)
@@ -134,7 +131,7 @@ class Features:
     #    if (length(detected_feature) > min_feature_length) then
         if len(detected_feature) > min_feature_length:
             self.feature_count += 1
-    #        print("accepted feature length: " + str(len(detected_feature)))
+    #        log("accepted feature length: " + str(len(detected_feature)))
     #        tag the elements of detected_feature as features
             for e in detected_feature:
                 self.marked_features[e] = True

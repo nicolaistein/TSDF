@@ -1,5 +1,6 @@
 from typing import List
 import array
+import numpy as np
 from data_parser import SegmentationParser
 
 prefix = "[Charts] "
@@ -14,19 +15,56 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
+    #    print(self.featureDistances)
         self.expand_charts()
+
+    def expandEdge(self, feature:int, edge:int, distance:int):
+
+        newEdges = []
+        handledFaces = 0
+        for face in self.parser.edgeToFaces[edge]:
+            if self.featureDistances[face] != -1: continue
+            self.featureDistances[face] = distance
+            handledFaces += 1
+            # Change evtl
+            #for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
+            #    if e.idx() != edge:
+            #        newEdges.append(e)
+            newEdges.extend([e for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
+        
+        self.featureBorders[feature].remove(edge)
+        self.featureBorders.extend(newEdges)
+
+        return handledFaces
 
     def computeFeatureDistance(self):
         log("Computing feature distance")
         faceCount = len(self.parser.faces)
         self.featureDistances = array.array('i',(-1,)*faceCount)
+        self.featureBorders = [[]]*self.parser.edgeCount
+        self.currentFeatureDistance = {}
+        for f in self.features:
+            self.featureBorders[f] = [f]
+            self.currentFeatureDistance[f] = 0
         handledFaces = 0
-        while handledFaces < faceCount:
-            log("handled faces: " + str(handledFaces))
-            for feat in self.features:
-                pass
 
+        while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
+            log("new round, handled faces: " + str(handledFaces) + ", remaining features: " + str(len(self.currentFeatureDistance)))
+            toRemove = []
+            for feature, distance in self.currentFeatureDistance.items():
+                expanded = False
+                for edge in self.featureBorders[feature]:
+                    fc = self.expandEdge(feature, edge, distance)
 
+                    handledFaces += fc
+                    expanded = True if fc>0 else expanded
+
+                self.currentFeatureDistance[feature] += 1
+                if not expanded: toRemove.append(feature)
+    #            else: print("feature was actually expanded")
+
+            for f in toRemove:
+                del self.currentFeatureDistance[f]
 
 
     def expand_charts(self):

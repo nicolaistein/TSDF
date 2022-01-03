@@ -22,18 +22,20 @@ class Segmenter:
         self.charts = Charts(self.parser)
 
     def calc(self):
-        self.parser.parse(self.objPath)
+        self.parser.parse(self.objPath, False)
         log("parsing finished")
-        features = self.features.computeFeatures()
-        self.features.saveResult()
-        self.features.plotResult()
-    #    features = util.loadMarkedFeatures()
-        log("Feature detection finished.")
+#        features = self.features.computeFeatures()
+#        self.features.saveResult()
+#        self.features.plotResult()
+        features = util.loadMarkedFeatures()
+        log("Feature detection finished. Size: " + str(len(features)))
+
+        self.charts.computeCharts(features)
 
 
 
 print("init")
-s = Segmenter("face.obj")
+s = Segmenter("bunny.obj")
 computeStart = time.time()
 s.calc()
 computeEnd = time.time()

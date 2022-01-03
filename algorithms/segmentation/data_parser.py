@@ -2,6 +2,12 @@ import igl
 from openmesh import *
 import numpy as np
 import array
+import math
+
+prefix = "[Halfedge Parser] "
+
+def log(msg:str):
+    print(prefix + msg)
 
 class SegmentationParser:    
     """
@@ -11,10 +17,20 @@ class SegmentationParser:
     edgeToFaces: mapping edge -> List of faces 
     """
 
-    def calculateEdgeCount(self):
-        self.edgeCount = 0
-        for edge in self.mesh.edges:
-            self.edgeCount += 1
+    def parse(self, objPath:str, sod:bool=True):
+        self.vertices, self.faces = igl.read_triangle_mesh(objPath)
+        log("vertex length: " + str(len(self.vertices)))
+        log("faces length: " + str(len(self.faces)))
+        self.createMesh()
+        self.edgeCount = len(self.mesh.edges())
+    #    for e in self.mesh.edges():
+    #        self.edgeCount += 1
+        print("edge count: " + str(self.edgeCount))
+        self.readCustomData()
+        if sod: self.compute_SOD_all()
+   
+
+        log("Reading finisehd")
 
     def createMesh(self):
         self.mesh = TriMesh()
@@ -28,17 +44,21 @@ class SegmentationParser:
                 self.vertexHandles[f[1]], self.vertexHandles[f[2]]))
 
     def readCustomData(self):
-        self.edgeToFaces = array.array('i',([],)*self.edgeCount)
+        self.edgeToFaces = {}
         for face in self.mesh.faces():
             fid = face.idx()
             for edge in self.mesh.fe(face):
-                self.edgeToFaces[edge.idx()].append(fid)
+                id = edge.idx()
+                if id not in self.edgeToFaces: self.edgeToFaces[id] = []
+                self.edgeToFaces[id].append(fid)
 
-        self.edgeToVertices = array.array('i',([],)*self.edgeCount)
+        self.edgeToVertices = {}
         for vertex in self.mesh.vertices():
             vid = vertex.idx()
             for edge in self.mesh.ve(vertex):
-                self.edgeToVertices[edge.idx()].append(vid)
+                id = edge.idx()
+                if id not in self.edgeToVertices: self.edgeToVertices[id] = []
+                self.edgeToVertices[id].append(vid)
 
 
     def surface_normal(self, faceID:int):
@@ -55,64 +75,21 @@ class SegmentationParser:
     
 
     def compute_SOD_all(self):
-        print("computing SOD...")
+        log("computing SOD...")
         self.SOD = {}
-        for key, val in self.edgeToFaces.items():
+        for index, val in self.edgeToFaces.items():
             if len(val) < 2:
                 #Edge is at the border loop
                 result = 360
             else:
                 n1 = self.surface_normal(val[0])
                 n2 = self.surface_normal(val[1])
-            result = np.degrees(np.arccos(np.dot(n1, n2)))
-            self.SOD[key] = result
+                result = np.degrees(np.arccos(np.dot(n1, n2)))
+            self.SOD[index] = result
 
-        print("sorting...")
+        log("sorting...")
         self.SOD = {k: v for k, v in sorted(self.SOD.items(), key=lambda item: item[1], reverse=True)}
-        print("computing SOD finished")
+        log("computing SOD finished")
 
 
-    def parse(self, objPath:str):
-        self.vertices, self.faces = igl.read_triangle_mesh(objPath)
-        print("vertex length: " + str(len(self.vertices)))
-        print("faces length: " + str(len(self.faces)))
-        self.createMesh()
-        self.calculateEdgeCount()
-        self.readCustomData()
-        self.compute_SOD_all()
-   
-
-        print("Reading finisehd")
-
-
-    def printAll(self):
-        # iterate over all halfedges
-        print("halfedges")
-        for heh in self.mesh.halfedges():
-            print(heh.idx())
-        # iterate over all edges
-        print("edges")
-        for eh in self.mesh.edges():
-            print(eh.idx())
-        # iterate over all faces
-        print("faces")
-        for fh in self.mesh.faces():
-            print(fh.idx())
-
-        vh1 = self.vertexHandles[0]
-        # iterate over all incoming halfedges
-        print("incoming halfedges")
-        for heh in self.mesh.vih(vh1):
-            print (heh.idx())
-        # iterate over all outgoing halfedges
-        print("outgoing halfedges")
-        for heh in self.mesh.voh(vh1):
-            print (heh.idx())
-        # iterate over all adjacent edges
-        print("adjacent edges")
-        for eh in self.mesh.ve(vh1):
-            print (eh.idx())
-        # iterate over all adjacent faces
-        print("adjacent faces")
-        for fh in self.mesh.vf(vh1):
-            print(fh.idx())
+    
