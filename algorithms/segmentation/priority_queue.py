@@ -9,26 +9,29 @@ def log(msg:str):
 class PriorityQueue:
     def __init__(self, featureDistances:Mapping):
         self.featureDistances = featureDistances
-        self.keys = []
+        self.data = []
         self.values = []
 
     def pop(self):
-        key = self.keys.pop(0)
+        face, edge = self.data.pop(0)
         value = self.values.pop(0)
-        return key, value
+        return face, edge
 
-    def insert(self, key:int):
-        val = self.featureDistances[key]
+    def insert(self, face:int, edge:int):
+        val = self.featureDistances[face]
     #    log("insert key: " + str(key) + ", feature distance: " + str(val))
         idx = bisect.bisect_left(self.values, val)
         self.values.insert(idx, val)
     #    log("insert idx: " + str(idx))
-        self.keys.insert(idx, key)
+        self.data.insert(idx, (face, edge))
 
     #    log("insert keySize: " + str(len(self.keys)) + ", valueSize: " + str(len(self.values)))
     #    print("keys  : " + str(self.keys))
     #    print("values: " + str(self.values))
 
     def print(self):
-        for index, key in enumerate(self.keys):
-            log(str(key) + ": " + str(self.values[index]))
+        for index, face, edge in enumerate(self.data.items()):
+            log(str(face) + " " + str(edge) + ": " + str(self.values[index]))
+
+    def size(self):
+        return len(self.data)

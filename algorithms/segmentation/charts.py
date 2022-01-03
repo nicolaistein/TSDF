@@ -30,6 +30,7 @@ class Charts:
         for face in self.parser.edgeToFaces[edge]:
             if self.featureDistances[face] != -1: continue
             self.featureDistances[face] = distance
+            if distance > self.maxDistance: self.maxDistance = distance
             handledFaces += 1
             newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
         
@@ -44,6 +45,7 @@ class Charts:
         faceCount = len(self.parser.faces)
         self.featureDistances = {}
         self.featureBorders = [[]]*self.parser.edgeCount
+        self.maxDistance = 0
         self.currentFeatureDistance = {}
         for f in self.features:
             self.featureBorders[f] = [f]
@@ -74,6 +76,7 @@ class Charts:
             for f in toRemove:
                 del self.currentFeatureDistance[f]
             
+        self.epsilon = self.maxDistance / 4
 
         log("while loop end")
         log("handled faces: " + str(handledFaces))
@@ -89,8 +92,40 @@ class Charts:
                     if v != -1: total.append(v)
                 self.featureDistances[key] = int(round(sum(total) / len(total)))
 
+    def getChartElements(self, face:int):
+        elements = [face]
+        toSearch = [self.chartOf(face)]
+        while toSearch:
+            currentChart = toSearch.pop()
+            for index, val in enumerate(self.charts):
+                if val == currentChart:
+                    elements.append(index)
+                    toSearch.append(index)
+
+        return elements
+
+
+    def max_dist(self, chart:int):
+        return max(self.getChartElements(chart))
+
+
+    def getOppositeFace(self, edge:int, face:int):
+        faces = self.parser.edgeToFaces[edge]
+        if len(faces) == 1: return -1
+        return faces[0] if faces[0]!=face else faces[1]
+
+    def chartOf(self, face:int):
+        if self.charts[face] == -1: return -1
+        current = face
+        while current != self.charts[current] and current != -1:
+            current = self.charts[current]
+
+        return current
 
     def expand_charts(self):
+        dist = self.featureDistances
+        chartCounter = 0
+        self.charts = [-1] * len(self.parser.faces)
         
     #    priority_queue<halfedge> Heap sorted by dist(facet(half edge))
         heap = PriorityQueue(self.featureDistances)
@@ -106,22 +141,33 @@ class Charts:
 
     #   #Charts-growing phase
     #   while(Heap is not empty)
+        while heap.size() > 0:
     #        halfedge h ← e ∈ Heap such that dist(e) is maximum
     #        remove h from Heap
     #        facet F ← facet(h)
+            f, h = heap.pop()
+
     #        facet Fopp ← the opposite facet of F relative to h
+            fopp = self.getOppositeFace(h, f)
 
     #        if ( chart(Fopp) is undefined ) then
-    #            add Fopp to chart(F )
+            if self.chartOf(fopp) == -1:
+    #            add Fopp to chart(F)
+                self.charts[fopp] = self.charts[f]
     #            remove E from chart_boundaries
+                chart_boundaries.remove(h)
     #            remove non-extremal edges from chart_boundaries,
     #            #(i.e. edges that do not link two other chart boundary edges)
     #            add the halfedges of Fopp belonging to
     #            chart_boundaries to Heap
 
-    #        elseif ( chart(Fopp) 6= chart(F ) and
-    #            max_dist(chart(F )) - dist(F ) < ε and
-    #            max_dist(chart(Fopp)) - dist(F ) < ε ) then
+    #        elseif ( chart(Fopp) != chart(F ) and
+#            max_dist(chart(F )) - dist(F ) < ε and
+#            max_dist(chart(Fopp)) - dist(F ) < ε ) then
+            elif (self.chartOf(fopp) != self.chartOf(f) 
+                and self.max_dist(f) - dist[f] < self.epsilon
+                and self.max_dist(fopp) - dist[f] < self.epsilon):
+                    self.charts[fopp] = self.charts[f]
     #            merge chart(F ) and chart(Fopp)
     #        end // if
     #    end // while
