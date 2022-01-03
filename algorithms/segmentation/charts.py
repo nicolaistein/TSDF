@@ -19,7 +19,7 @@ class Charts:
         self.features = features
         self.computeFeatureDistance()
         self.expand_charts()
-    #    plotFaceColor(self.parser.vertices, self.parser.faces, self.featureDistances)
+        plotFaceColor(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
 
 
@@ -79,6 +79,15 @@ class Charts:
         log("handled faces: " + str(handledFaces))
         log("faceCount: " + str(faceCount))
         log("current feature distance length: " + str(len(self.currentFeatureDistance)))
+
+        # Fix not reachable faces
+        for key, val in self.featureDistances.items():
+            if val == -1:
+                total = []
+                for x in self.parser.mesh.ff(self.parser.faceHandles[key]):
+                    v = self.featureDistances[x.idx()]
+                    if v != -1: total.append(v)
+                self.featureDistances[key] = int(round(sum(total) / len(total)))
 
 
     def expand_charts(self):

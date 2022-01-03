@@ -36,6 +36,9 @@ def plotFaceColor(vertices:List[List[float]], faces:List[List[int]], featureDist
         distFac = 1-distortion
         colorFac = int(round(distFac * 255, 0))
         color = '#%02x%02x%02xff' % (255, colorFac, colorFac)
+
+        if x == -1: color='#%02x%02x%02xff' % (0, 255, 0)
+
         colors[index] = color
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
