@@ -82,7 +82,7 @@ class Charts:
             for f in toRemove:
                 del self.currentFeatureDistance[f]
             
-        self.epsilon = 0
+        self.epsilon = self.maxDistance / 4
 
         log("while loop end")
         log("handled faces: " + str(handledFaces))
@@ -152,7 +152,7 @@ class Charts:
 
     #    #Initialize Heap  
         sortedFaces = {k: v for k, v in sorted(self.featureDistances.items(), key=lambda item: item[1], reverse=True)}
-        seedCount = 2
+        seedCount = 200
        
     #    foreach facet F where dist(F ) is a local maximum
         for index, (face, val) in enumerate(sortedFaces.items()):
@@ -243,9 +243,11 @@ class Charts:
         return chartBoundaries
 
     def merge(self, c1:int, c2:int):
-        log("MERGE " + str(c1) + " - " + str(c2))
+        chart1 = self.chartOf(c1)
+        chart2 = self.chartOf(c2)
+        log("MERGE " + str(c1) + " - " + str(c2) + ", actual: " + str(chart1) + " - " + str(chart2))
         for index, val in enumerate(self.charts):
-            if val == c2: self.charts[index] = c1
+            if val == chart2: self.charts[index] = chart1
 
     def getCharts(self):
         map = {}
@@ -254,27 +256,3 @@ class Charts:
             map[val] += 1
 
         return map
-
-##
- #   def removeNonExtremalEdges(self, chartBoundaries:List[int], removedEdge:int):
- #       toRemove = []
- #       for edge in chartBoundaries:
- #           log("removeNonExtremalEdges loop 1 edge: " + str(edge))
- #           edgeValid = True
- #           for vertex in self.parser.edgeToVertices[edge]:
- #   #            log("removeNonExtremalEdges loop 2 vertex: " + str(vertex))
- #               found = False
- #               for ve in self.parser.mesh.ve(self.parser.vertexHandles[vertex]):
- #                   id = ve.idx()
- #   #                log("removeNonExtremalEdges loop 3 ve: " + str(id))
- #                   if id != edge and id in chartBoundaries: found=True
-#
-#                if not found: edgeValid = False
-#
-#            if not edgeValid: toRemove.append(edge)
- #       
-#        for e in toRemove:
-#            chartBoundaries.remove(e)
-
-#        return chartBoundaries
-
