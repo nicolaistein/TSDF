@@ -130,15 +130,15 @@ class Charts:
         heap = PriorityQueue(self.featureDistances)
 
     #    set<edge> chart_boundaries initialized with all the edges of the surface
-        chart_boundaries = [e.idx() for e in self.parser.mesh.edges()]
+        chart_boundaries = [True] * self.parser.edgeCount
 
     #    #Initialize Heap  
         sortedFaces = {k: v for k, v in sorted(self.featureDistances.items(), key=lambda item: item[1], reverse=True)}
-        seedCount = 30
+        seedCount = 10
        
     #    foreach facet F where dist(F ) is a local maximum
         for index, (face, val) in enumerate(sortedFaces.items()):
-            if index == seedCount+1: break
+            if index >= seedCount: break
     #        create a new chart with seed F
             self.charts[face] = face
     #        add the halfedges of F to Heap
@@ -146,13 +146,15 @@ class Charts:
                 heap.insert(face, e.idx())
     #    end // foreach
 
+
+        log("heap size: " + str(heap.size()))
     #   #Charts-growing phase
     #   while(Heap is not empty)
         while heap.size() > 0:
     #        halfedge h ← e ∈ Heap such that dist(e) is maximum
     #        remove h from Heap
     #        facet F ← facet(h)
-            log("expand charts heap size: " + str(heap.size()))
+    #        log("expand charts heap size: " + str(heap.size()))
             f, h = heap.pop()
 
     #        facet Fopp ← the opposite facet of F relative to h
@@ -163,20 +165,18 @@ class Charts:
     #            add Fopp to chart(F)
                 self.charts[fopp] = self.charts[f]
     #            remove E from chart_boundaries
-                chart_boundaries.remove(h)
+                chart_boundaries[h] = False
 
-                log("after remove")
     #            remove non-extremal edges from chart_boundaries,
     #            #(i.e. edges that do not link two other chart boundary edges)
                 chart_boundaries = self.removeNonExtremalEdges(chart_boundaries, h)
 
-                log("after removeNonExtremalEdges")
 
     #            add the halfedges of Fopp belonging to
     #            chart_boundaries to Heap
                 for eh in self.parser.mesh.fe(self.parser.faceHandles[fopp]):
                     id = eh.idx()
-                    if id in chart_boundaries: heap.insert(fopp, id)
+                    if chart_boundaries[id]: heap.insert(fopp, id)
 
     #        elseif ( chart(Fopp) != chart(F ) and
 #            max_dist(chart(F )) - dist(F ) < ε and
@@ -191,8 +191,24 @@ class Charts:
         pass
 
 
-    def removeNonExtremalEdges(self, chartBoundaries:List[int], removedEdge:int):
-        
+    def removeNonExtremalEdges(self, chartBoundaries:List[bool], removedEdge:int):
+        toSearch = [removedEdge]
+        while toSearch:
+            currentEdge = toSearch.pop()
+
+            for vertex in self.parser.edgeToVertices[currentEdge]:
+                border = []
+                for ve in self.parser.mesh.ve(self.parser.vertexHandles[vertex]):
+                    id = ve.idx()
+                    if id != currentEdge and chartBoundaries[id]: 
+                        border.append(id)
+                
+                if len(border) == 1: 
+                    chartBoundaries[border[0]] = False
+                    toSearch.append(border[0])
+
+        return chartBoundaries
+
 ##
  #   def removeNonExtremalEdges(self, chartBoundaries:List[int], removedEdge:int):
  #       toRemove = []
