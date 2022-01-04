@@ -38,6 +38,8 @@ class Charts:
             self.featureDistances[face] = distance
             if distance > self.maxDistance: self.maxDistance = distance
             handledFaces += 1
+            if distance > 3:
+                self.lastExpanded[feature] = face
             newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
         
         self.featureBorders[feature].remove(edge)
@@ -61,6 +63,8 @@ class Charts:
             self.featureDistances[index] = -1
 
         handledFaces = 0
+        self.localMaxima = []
+        self.lastExpanded = [-1]*self.parser.edgeCount
 
         while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
             log("new round, handled faces: " + str(handledFaces) + ", remaining features: " + str(len(self.currentFeatureDistance)))
@@ -68,6 +72,7 @@ class Charts:
             for feature, distance in self.currentFeatureDistance.items():
                 expanded = False
                 for edge in self.featureBorders[feature]:
+                    
                     fc = self.expandEdge(feature, edge, distance)
 
                     handledFaces += fc
@@ -80,10 +85,11 @@ class Charts:
 
         #    log("toRemove size: " + str(len(toRemove)))
             for f in toRemove:
+                if self.lastExpanded[f] != -1: self.localMaxima.append(self.lastExpanded[f])
                 del self.currentFeatureDistance[f]
             
-        self.epsilon = self.maxDistance / 4
-
+        self.epsilon = self.maxDistance / 2.5
+        log("MAXIMA COUNT: " + str(len(self.localMaxima)))
         log("while loop end")
         log("handled faces: " + str(handledFaces))
         log("faceCount: " + str(faceCount))
@@ -155,7 +161,8 @@ class Charts:
         seedCount = 200
        
     #    foreach facet F where dist(F ) is a local maximum
-        for index, (face, val) in enumerate(sortedFaces.items()):
+    #    for index, (face, val) in enumerate(sortedFaces.items()):
+        for index, face in enumerate(self.localMaxima):
             if index >= seedCount: break
     #        create a new chart with seed F
             self.charts[face] = face
@@ -245,7 +252,7 @@ class Charts:
     def merge(self, c1:int, c2:int):
         chart1 = self.chartOf(c1)
         chart2 = self.chartOf(c2)
-        log("MERGE " + str(c1) + " - " + str(c2) + ", actual: " + str(chart1) + " - " + str(chart2))
+        log("Merge " + str(c1) + " - " + str(c2) + ", actual: " + str(chart1) + " - " + str(chart2))
         for index, val in enumerate(self.charts):
             if val == chart2: self.charts[index] = chart1
 
