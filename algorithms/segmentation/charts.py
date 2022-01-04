@@ -3,7 +3,7 @@ import array
 import numpy as np
 import bisect
 from data_parser import SegmentationParser
-from plotter import plotFaceColor
+from plotter import plotFeatureDistance, plotCharts
 from priority_queue import PriorityQueue
 
 prefix = "[Charts] "
@@ -19,7 +19,12 @@ class Charts:
         self.features = features
         self.computeFeatureDistance()
         self.expand_charts()
-        plotFaceColor(self.parser.vertices, self.parser.faces, self.featureDistances)
+        log("expand charts finished")
+        log("Charts")
+        ch = self.getCharts()
+        print(ch)
+        plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
+    #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
 
 
@@ -93,15 +98,21 @@ class Charts:
                 self.featureDistances[key] = int(round(sum(total) / len(total)))
 
     def getChartElements(self, face:int):
+#        log("getChartElements of " + str(face))
+        searched = [False] * len(self.parser.faces)
         elements = [face]
         toSearch = [self.chartOf(face)]
         while toSearch:
+#            log("getChartElements toSearch size: " + str(len(toSearch)))
             currentChart = toSearch.pop()
+            searched[currentChart] = True
             for index, val in enumerate(self.charts):
                 if val == currentChart:
                     elements.append(index)
-                    toSearch.append(index)
+            #        if index != currentChart and not searched[index]:
+            #            toSearch.append(index)
 
+#        log("getChartElements of " + str(face) + ": count=" + str(len(elements)))
         return elements
 
 
@@ -115,11 +126,13 @@ class Charts:
         return faces[0] if faces[0]!=face else faces[1]
 
     def chartOf(self, face:int):
+    #    log("chartOf " + str(face))
         if self.charts[face] == -1: return -1
         current = face
         while current != self.charts[current] and current != -1:
             current = self.charts[current]
 
+    #    log("chartOf " + str(face) + " is " + str(current))
         return current
 
     def expand_charts(self):
@@ -134,7 +147,7 @@ class Charts:
 
     #    #Initialize Heap  
         sortedFaces = {k: v for k, v in sorted(self.featureDistances.items(), key=lambda item: item[1], reverse=True)}
-        seedCount = 10
+        seedCount = 60
        
     #    foreach facet F where dist(F ) is a local maximum
         for index, (face, val) in enumerate(sortedFaces.items()):
@@ -146,15 +159,18 @@ class Charts:
                 heap.insert(face, e.idx())
     #    end // foreach
 
-
-        log("heap size: " + str(heap.size()))
+        counter = 0
     #   #Charts-growing phase
     #   while(Heap is not empty)
         while heap.size() > 0:
+            counter += 1
+            if counter % 2000 == 0: 
+                log(str(counter) + " | heap size: " + str(heap.size()) + " | charted faces: "
+                 + str(self.getChartedFaces()) + "/" + str(len(self.parser.faces)))
     #        halfedge h ← e ∈ Heap such that dist(e) is maximum
     #        remove h from Heap
     #        facet F ← facet(h)
-    #        log("expand charts heap size: " + str(heap.size()))
+          
             f, h = heap.pop()
 
     #        facet Fopp ← the opposite facet of F relative to h
@@ -171,7 +187,6 @@ class Charts:
     #            #(i.e. edges that do not link two other chart boundary edges)
                 chart_boundaries = self.removeNonExtremalEdges(chart_boundaries, h)
 
-
     #            add the halfedges of Fopp belonging to
     #            chart_boundaries to Heap
                 for eh in self.parser.mesh.fe(self.parser.faceHandles[fopp]):
@@ -185,10 +200,18 @@ class Charts:
                 and self.max_dist(f) - dist[f] < self.epsilon
                 and self.max_dist(fopp) - dist[f] < self.epsilon):
     #            merge chart(F ) and chart(Fopp)
-                    self.charts[fopp] = self.charts[f]
+
+    #                self.charts[fopp] = self.charts[f]
+                    self.merge(f, fopp)
     #        end // if
     #    end // while
-        pass
+
+
+    def getChartedFaces(self):
+        count = 0
+        for val in self.charts:
+            if val != -1: count += 1
+        return count
 
 
     def removeNonExtremalEdges(self, chartBoundaries:List[bool], removedEdge:int):
@@ -208,6 +231,18 @@ class Charts:
                     toSearch.append(border[0])
 
         return chartBoundaries
+
+    def merge(self, c1:int, c2:int):
+        for index, val in enumerate(self.charts):
+            if val == c2: self.charts[index] = c1
+
+    def getCharts(self):
+        map = {}
+        for val in self.charts:
+            if val not in map: map[val] = 0
+            map[val] += 1
+
+        return map
 
 ##
  #   def removeNonExtremalEdges(self, chartBoundaries:List[int], removedEdge:int):
