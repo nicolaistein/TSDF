@@ -20,7 +20,7 @@ class PriorityQueue:
     def insert(self, face:int, edge:int):
         val = self.featureDistances[face]
     #    log("insert key: " + str(key) + ", feature distance: " + str(val))
-        idx = bisect.bisect_left(self.values, val)
+        idx = bisect.bisect_right(self.values, val)
         self.values.insert(idx, val)
     #    log("insert idx: " + str(idx))
         self.data.insert(idx, (face, edge))
