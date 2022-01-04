@@ -7,6 +7,11 @@ from plotter import plotFeatureDistance, plotCharts
 from priority_queue import PriorityQueue
 
 prefix = "[Charts] "
+epsilonFactor = 1/3
+seedMinFeatureDistance = 4
+minChartSizeFactor = 1/230
+localMaximumSeedCount = 20
+globalMaximumSeedCount = 20
 
 def log(msg:str):
     print(prefix + msg)
@@ -19,6 +24,7 @@ class Charts:
         self.features = features
         self.computeFeatureDistance()
         self.expand_charts()
+        self.fixUnchartedFaces()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -27,6 +33,45 @@ class Charts:
         plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
     #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
+
+    def removeSmallCharts(self):
+        log("Removing small charts")
+        ch = self.getCharts()
+        min = (self.parser.faces)*minChartSizeFactor
+        toRemove = []
+        for key, val in ch:
+            if val < min: toRemove.append(key)
+
+        for chart in toRemove:
+            border = []
+
+
+    def fixUnchartedFaces(self):
+        log("Fixing uncharted edges")
+        found = []
+        for key, val in enumerate(self.charts):
+            if val == -1: found.append(key)
+
+        while found:
+            face = found.pop(0)
+            adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
+                                if self.charts[f.idx()] != -1]
+
+            if len(adjacent) == 0:
+                found.append(face)
+                continue
+
+            if len(adjacent) <= 2:
+                self.charts[face] = self.charts[adjacent[0]]
+                continue
+            
+
+            #len = 3
+            a = newChart = self.charts[adjacent[0]]
+            b = self.charts[adjacent[1]]
+            c = self.charts[adjacent[2]]
+            if b == c: newChart = b
+            self.charts[face] = newChart 
 
 
     def expandEdge(self, feature:int, edge:int, distance:int):
@@ -38,7 +83,7 @@ class Charts:
             self.featureDistances[face] = distance
             if distance > self.maxDistance: self.maxDistance = distance
             handledFaces += 1
-            if distance > 3:
+            if distance >= seedMinFeatureDistance:
                 self.lastExpanded[feature] = face
             newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
         
@@ -88,7 +133,7 @@ class Charts:
                 if self.lastExpanded[f] != -1: self.localMaxima.append(self.lastExpanded[f])
                 del self.currentFeatureDistance[f]
             
-        self.epsilon = self.maxDistance / 2.5
+        self.epsilon = self.maxDistance * epsilonFactor
         log("MAXIMA COUNT: " + str(len(self.localMaxima)))
         log("while loop end")
         log("handled faces: " + str(handledFaces))
@@ -158,15 +203,22 @@ class Charts:
 
     #    #Initialize Heap  
         sortedFaces = {k: v for k, v in sorted(self.featureDistances.items(), key=lambda item: item[1], reverse=True)}
-        seedCount = 200
+
        
     #    foreach facet F where dist(F ) is a local maximum
     #    for index, (face, val) in enumerate(sortedFaces.items()):
         for index, face in enumerate(self.localMaxima):
-            if index >= seedCount: break
+            if index >= localMaximumSeedCount: break
     #        create a new chart with seed F
             self.charts[face] = face
     #        add the halfedges of F to Heap
+            for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
+                heap.insert(face, e.idx())
+
+
+        for index, (face, val) in enumerate(sortedFaces.items()):
+            if index >= globalMaximumSeedCount: break
+            self.charts[face] = face
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
@@ -186,6 +238,7 @@ class Charts:
     #        facet F ← facet(h)
           
             f, h = heap.pop()
+            if h in self.features: continue
 
     #        facet Fopp ← the opposite facet of F relative to h
             fopp = self.getOppositeFace(h, f)
