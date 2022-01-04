@@ -20,9 +20,10 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         log("expand charts finished")
-        log("Charts")
+        log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
-        print(ch)
+        log("Charts count: " + str(len(ch)))
+        print([(key,val) for key, val in ch.items() if val > -1])
         plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
     #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
@@ -81,7 +82,7 @@ class Charts:
             for f in toRemove:
                 del self.currentFeatureDistance[f]
             
-        self.epsilon = self.maxDistance / 4
+        self.epsilon = 0
 
         log("while loop end")
         log("handled faces: " + str(handledFaces))
@@ -117,7 +118,11 @@ class Charts:
 
 
     def max_dist(self, chart:int):
-        return max(self.getChartElements(chart))
+        max = 0
+        for f in self.getChartElements(chart):
+            if self.featureDistances[f] > max:
+                max = self.featureDistances[f]
+        return max
 
 
     def getOppositeFace(self, edge:int, face:int):
@@ -147,7 +152,7 @@ class Charts:
 
     #    #Initialize Heap  
         sortedFaces = {k: v for k, v in sorted(self.featureDistances.items(), key=lambda item: item[1], reverse=True)}
-        seedCount = 60
+        seedCount = 2
        
     #    foreach facet F where dist(F ) is a local maximum
         for index, (face, val) in enumerate(sortedFaces.items()):
@@ -159,12 +164,14 @@ class Charts:
                 heap.insert(face, e.idx())
     #    end // foreach
 
+        log("initial charts")
+        print(self.getCharts())
         counter = 0
     #   #Charts-growing phase
     #   while(Heap is not empty)
         while heap.size() > 0:
             counter += 1
-            if counter % 2000 == 0: 
+            if counter % 5000 == 0: 
                 log(str(counter) + " | heap size: " + str(heap.size()) + " | charted faces: "
                  + str(self.getChartedFaces()) + "/" + str(len(self.parser.faces)))
     #        halfedge h ← e ∈ Heap such that dist(e) is maximum
@@ -196,13 +203,16 @@ class Charts:
     #        elseif ( chart(Fopp) != chart(F ) and
 #            max_dist(chart(F )) - dist(F ) < ε and
 #            max_dist(chart(Fopp)) - dist(F ) < ε ) then
-            elif (self.chartOf(fopp) != self.chartOf(f) 
-                and self.max_dist(f) - dist[f] < self.epsilon
-                and self.max_dist(fopp) - dist[f] < self.epsilon):
-    #            merge chart(F ) and chart(Fopp)
+            else:
+    #            log("ELSE CALLED MEEEEEEEEEEEEEEEEEEEEEEEEEEEEP")
 
-    #                self.charts[fopp] = self.charts[f]
-                    self.merge(f, fopp)
+                if (self.chartOf(fopp) != self.chartOf(f)):
+                    if self.max_dist(f) - dist[f] < self.epsilon:
+                        if self.max_dist(fopp) - dist[f] < self.epsilon:
+            #            merge chart(F ) and chart(Fopp)
+
+            #                self.charts[fopp] = self.charts[f]
+                            self.merge(f, fopp)
     #        end // if
     #    end // while
 
@@ -233,6 +243,7 @@ class Charts:
         return chartBoundaries
 
     def merge(self, c1:int, c2:int):
+        log("MERGE " + str(c1) + " - " + str(c2))
         for index, val in enumerate(self.charts):
             if val == c2: self.charts[index] = c1
 

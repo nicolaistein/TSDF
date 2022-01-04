@@ -13,14 +13,15 @@ class PriorityQueue:
         self.values = []
 
     def pop(self):
-        face, edge = self.data.pop(0)
-        value = self.values.pop(0)
+        index = len(self.data) - 1
+        face, edge = self.data.pop(index)
+        value = self.values.pop(index)
         return face, edge
 
     def insert(self, face:int, edge:int):
         val = self.featureDistances[face]
     #    log("insert key: " + str(key) + ", feature distance: " + str(val))
-        idx = bisect.bisect_right(self.values, val)
+        idx = bisect.bisect_left(self.values, val)
         self.values.insert(idx, val)
     #    log("insert idx: " + str(idx))
         self.data.insert(idx, (face, edge))

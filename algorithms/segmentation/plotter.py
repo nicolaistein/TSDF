@@ -62,8 +62,9 @@ def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartL
 
     colors = ["green"]*len(faces)
     for index, x in enumerate(charts): 
-        color = chartToColor[x]
-        colors[index] = color + "ff"
+        color = chartToColor[x] + "ff"
+        if index == 15318: color = "#000000ff"
+        colors[index] = color
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', facecolor=colors, opacity=1)])
