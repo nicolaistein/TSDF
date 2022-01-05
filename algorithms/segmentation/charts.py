@@ -7,10 +7,10 @@ from plotter import plotFeatureDistance, plotCharts
 from priority_queue import PriorityQueue
 
 prefix = "[Charts] "
-epsilonFactor = 1/3
+epsilonFactor = 1/3.5
 seedMinFeatureDistance = 4
 minChartSizeFactor = 1/230
-localMaximumSeedCount = 20
+localMaximumSeedCount = 80
 globalMaximumSeedCount = 20
 
 def log(msg:str):
@@ -20,11 +20,16 @@ class Charts:
     def __init__(self, parser:SegmentationParser):
         self.parser = parser
 
+    def plotCurrent(self):
+        ch = self.getCharts()
+    #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
+
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
+        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -34,16 +39,46 @@ class Charts:
     #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
 
+    def getBorderCharts(self, face:int, chart:int):
+        result = []
+        for fc in self.parser.mesh.ff(self.parser.faceHandles[face]):
+            id = fc.idx()
+            if self.charts[id] == chart: continue
+            else: result.append(self.charts[id])
+        return result
+
+
+    def removeChart(self, chart:int):
+        log("Removing chart " + str(chart))
+        borders = {}
+        for index, ic in enumerate(self.charts):
+            if ic == chart:
+                for b in self.getBorderCharts(index, chart):
+                    if b not in borders: borders[b] = 0
+                    borders[b] += 1
+        print(borders)
+        
+        k, v = zip(*borders.items())
+        idx = max(v)
+        bb = k[v.index(idx)]
+        print("max: " + str(max))
+        for index, val in enumerate(self.charts):
+            if val == chart: self.charts[index] = bb
+
+
     def removeSmallCharts(self):
         log("Removing small charts")
         ch = self.getCharts()
-        min = (self.parser.faces)*minChartSizeFactor
+        print(ch)
+        min = len(self.parser.faces)*minChartSizeFactor
+        log("removeSmallCharts min: " + str(min))
         toRemove = []
-        for key, val in ch:
+        for key, val in ch.items():
             if val < min: toRemove.append(key)
 
         for chart in toRemove:
-            border = []
+            self.removeChart(chart)
+
 
 
     def fixUnchartedFaces(self):
@@ -222,7 +257,7 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-
+        self.plotCurrent()
         log("initial charts")
         print(self.getCharts())
         counter = 0
@@ -233,6 +268,7 @@ class Charts:
             if counter % 5000 == 0: 
                 log(str(counter) + " | heap size: " + str(heap.size()) + " | charted faces: "
                  + str(self.getChartedFaces()) + "/" + str(len(self.parser.faces)))
+    #        if counter % 10000 == 0: self.plotCurrent()
     #        halfedge h ← e ∈ Heap such that dist(e) is maximum
     #        remove h from Heap
     #        facet F ← facet(h)
@@ -305,7 +341,7 @@ class Charts:
     def merge(self, c1:int, c2:int):
         chart1 = self.chartOf(c1)
         chart2 = self.chartOf(c2)
-        log("Merge " + str(c1) + " - " + str(c2) + ", actual: " + str(chart1) + " - " + str(chart2))
+        log("Merge " + str(chart1) + " - " + str(chart2))
         for index, val in enumerate(self.charts):
             if val == chart2: self.charts[index] = chart1
 
