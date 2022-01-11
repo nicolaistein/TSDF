@@ -23,9 +23,7 @@ class SegmentationParser:
         log("faces length: " + str(len(self.faces)))
         self.createMesh()
         self.edgeCount = len(self.mesh.edges())
-    #    for e in self.mesh.edges():
-    #        self.edgeCount += 1
-        print("edge count: " + str(self.edgeCount))
+        log("edge count: " + str(self.edgeCount))
         self.readCustomData()
         if sod: self.compute_SOD_all()
    

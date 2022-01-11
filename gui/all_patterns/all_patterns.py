@@ -13,9 +13,9 @@ import os
 class AllPatterns:
 
     def __init__(self, master: Frame, mainColor: str, patternList: PlacedPatternsMenu):
-        self.mainFrame = Frame(master, width=380, bg=mainColor)
+        self.mainFrame = Frame(master, bg=mainColor)
         self.patternList = patternList
-        self.content = Frame(self.mainFrame, width=380,height=600, padx=0, pady=20)
+        self.content = Frame(self.mainFrame, padx=0, pady=20)
 
     def place(self, patternFolderName):
         PatternInputWindow(self.mainFrame, PatternModel(patternFolderName),
@@ -54,15 +54,13 @@ class AllPatterns:
         patternFrame.pack(side=TOP, pady=(20, 0), anchor=W)
 
     def build(self, side: str):
-#        self.content.pack_propagate(0)
 
         title = Label(self.content, text="All Patterns")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
-        self.canvas = Canvas(self.content, height=400)
-        self.innerContent = Frame(self.canvas, width=300, padx=20)
-#        self.innerContent.pack_propagate(0)
+        self.canvas = Canvas(self.content, height=440, width=340)
+        self.innerContent = Frame(self.canvas)
 
         self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
         # Add A Scrollbar To The Canvas

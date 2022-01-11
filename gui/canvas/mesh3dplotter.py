@@ -1,11 +1,8 @@
 from tkinter import *
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
-# Implement the default Matplotlib key bindings.
 from matplotlib.backend_bases import key_press_handler
-from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import igl
 
@@ -14,7 +11,7 @@ import igl
 class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
-        self.mainFrame = Frame(master, width=400, height=400)
+        self.mainFrame = Frame(master, width=360, height=360)
 
     def update_frequency(self, new_val):
         # retrieve frequency
