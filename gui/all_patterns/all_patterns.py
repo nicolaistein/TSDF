@@ -81,4 +81,4 @@ class AllPatterns:
                 self.buildPattern("patterns/" + file)
 
         self.content.pack(side=TOP)
-        self.mainFrame.pack(side=side, padx=(20, 0), anchor=N)
+        self.mainFrame.pack(side=side, anchor=N)

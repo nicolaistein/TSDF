@@ -2,7 +2,7 @@ from ctypes import pointer, string_at
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
-from gui.canvas.canvas_manager import CanvasManager
+from gui.canvas.mesh3dplotter import Mesh3DPlotter
 import igl
 import os
 
@@ -11,12 +11,13 @@ class FileMenu:
     path = ""
     triangleCount = 0
 
-    def __init__(self, master: Frame):
+    def __init__(self, master: Frame, plotter:Mesh3DPlotter):
+        self.plotter = plotter
         self.mainFrame = Frame(master)
         self.content = Frame(self.mainFrame, width=220,
                              height=180, padx=20, pady=20)
 
-    def selectFile(self):
+    def onSelectFile(self):
         filename = askopenfilename(
             filetypes=[("Object files", ".obj")])
 
@@ -29,6 +30,7 @@ class FileMenu:
             v, self.triangles = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
             self.verticesLabel.configure(text=str(len(v)))
             self.facesLabel.configure(text=str(len(self.triangles)))
+            self.plotter.plotFile(v, self.triangles)
 
     def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
         keyValFrame = Frame(parent)
@@ -58,7 +60,7 @@ class FileMenu:
         chooseFile.pack(fill=BOTH, side=LEFT)
 
         button = TkinterCustomButton(master=chooseFrame, text="Select",
-                command=self.selectFile, corner_radius=60, height=25, width=80)
+                command=self.onSelectFile, corner_radius=60, height=25, width=80)
         button.pack(side=LEFT, padx=5)
         chooseFrame.pack(side=TOP, pady=(0, 10))
 

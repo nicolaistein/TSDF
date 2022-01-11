@@ -19,9 +19,12 @@ root.configure(bg=mainColor, padx=20, pady=20)
 
 canvasSize = 900
 
+allPatternsContainer = Frame(root, bg=mainColor)
+plotter = Mesh3DPlotter(allPatternsContainer)
+
 leftContainer = Frame(root, bg=mainColor)
 canvasManager = CanvasManager(root, canvasSize)
-fileMenu = FileMenu(leftContainer)
+fileMenu = FileMenu(leftContainer, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
 
 fileMenu.build()
@@ -33,13 +36,10 @@ leftContainer.pack(side="left", anchor=N, padx=(0, 20))
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 
-allPatternsContainer = Frame(root, bg=mainColor)
 AllPatterns(allPatternsContainer, mainColor, placedPatterns).build("top")
-plotter = Mesh3DPlotter(allPatternsContainer)
 plotter.build()
-plotter.draw2()
 
-allPatternsContainer.pack(side=LEFT, anchor=N)
+allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))
 
 placedPatterns.build()
 

@@ -17,7 +17,7 @@ class Mesh3DPlotter:
         self.mainFrame = Frame(master, width=400, height=400)
 
     def update_frequency(self, new_val):
-    # retrieve frequency
+        # retrieve frequency
         f = float(new_val)
 
         # update data
@@ -33,14 +33,14 @@ class Mesh3DPlotter:
         self.mainFrame.pack(side=TOP, pady=(20,0))
 
 
-    def draw2(self):
+    def plotFile(self, vertices, faces):
         root = self.mainFrame
-        v, f = igl.read_triangle_mesh("algorithms/segmentation/Part_1.obj")
+        for widget in root.winfo_children():
+            widget.destroy()
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.plot_trisurf(v[:, 0], v[:,1], triangles=f, Z=v[:,2]) 
-
+        ax.plot_trisurf(vertices[:, 0], vertices[:,1], triangles=faces, Z=vertices[:,2])
 
         self.canvas = FigureCanvasTkAgg(fig, master=root)
         self.canvas.draw()
