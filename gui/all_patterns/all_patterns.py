@@ -1,5 +1,6 @@
 from functools import partial
 from tkinter import *
+from tkinter import ttk
 from gui.button import TkinterCustomButton
 from PIL import ImageTk
 from PIL import ImageTk, Image
@@ -14,15 +15,14 @@ class AllPatterns:
     def __init__(self, master: Frame, mainColor: str, patternList: PlacedPatternsMenu):
         self.mainFrame = Frame(master, width=380, bg=mainColor)
         self.patternList = patternList
-        self.content = Frame(self.mainFrame, width=380,
-                             height=900, padx=20, pady=20)
+        self.content = Frame(self.mainFrame, width=380,height=600, padx=0, pady=20)
 
     def place(self, patternFolderName):
         PatternInputWindow(self.mainFrame, PatternModel(patternFolderName),
                            self.patternList.addPattern).openWindow()
 
     def buildPattern(self, folderName: str):
-        patternFrame = Frame(self.content)
+        patternFrame = Frame(self.innerContent)
         pattern = PatternModel(folderName)
 
         imgFile = pattern.img
@@ -54,11 +54,27 @@ class AllPatterns:
         patternFrame.pack(side=TOP, pady=(20, 0), anchor=W)
 
     def build(self, side: str):
-        self.content.pack_propagate(0)
+#        self.content.pack_propagate(0)
 
         title = Label(self.content, text="All Patterns")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP)
+        title.pack(fill='both', side=TOP, pady=(0, 15))
+
+        self.canvas = Canvas(self.content)
+        self.innerContent = Frame(self.canvas, height=600, width=300, padx=20)
+#        self.innerContent.pack_propagate(0)
+
+        self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
+        # Add A Scrollbar To The Canvas
+        my_scrollbar = ttk.Scrollbar(self.content, orient=VERTICAL, command=self.canvas.yview)
+        my_scrollbar.pack(side=RIGHT, fill=Y)
+
+        # Configure The Canvas
+        self.canvas.configure(yscrollcommand=my_scrollbar.set)
+        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion = self.canvas.bbox("all")))
+
+        # Add that New frame To a Window In The Canvas
+        self.canvas.create_window((0,0), window=self.innerContent, anchor="nw")
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file) and file.startswith("pattern"):
