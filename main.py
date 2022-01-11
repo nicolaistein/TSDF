@@ -7,6 +7,7 @@ from gui.left_side_menu.file_menu import FileMenu
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
+from gui.canvas.mesh3dplotter import Mesh3DPlotter
 
 mainColor = "#cccccc"
 root = Tk()
@@ -31,8 +32,19 @@ leftContainer.pack(side="left", anchor=N, padx=(0, 20))
 
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
-AllPatterns(root, mainColor, placedPatterns).build("left")
+
+allPatternsContainer = Frame(root, bg=mainColor)
+AllPatterns(allPatternsContainer, mainColor, placedPatterns).build("top")
+plotter = Mesh3DPlotter(allPatternsContainer)
+plotter.build()
+plotter.draw2()
+
+allPatternsContainer.pack(side=LEFT, anchor=N)
+
 placedPatterns.build()
 
 
 root.mainloop()
+
+
+#plotter.plotFile("algorithms/segmentation/plot.html")

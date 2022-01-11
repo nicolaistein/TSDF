@@ -60,8 +60,8 @@ class AllPatterns:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
-        self.canvas = Canvas(self.content)
-        self.innerContent = Frame(self.canvas, height=600, width=300, padx=20)
+        self.canvas = Canvas(self.content, height=400)
+        self.innerContent = Frame(self.canvas, width=300, padx=20)
 #        self.innerContent.pack_propagate(0)
 
         self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
