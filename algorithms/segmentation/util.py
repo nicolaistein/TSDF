@@ -1,7 +1,7 @@
 from typing import List
 from data_parser import SegmentationParser
 
-filename = "features_cylinder50k.txt"
+filename = "features.txt"
 separator = "#"
 
 def saveMarkedFeatures(features:List[int], parser:SegmentationParser):

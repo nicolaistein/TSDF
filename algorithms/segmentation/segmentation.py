@@ -24,10 +24,10 @@ class Segmenter:
     def calc(self):
         self.parser.parse(self.objPath, True)
         log("parsing finished")
-   #     features = self.features.computeFeatures()
-   #     self.features.saveResult()
-  #      self.features.plotResult()
-        features = util.loadMarkedFeatures()
+        features = self.features.computeFeatures()
+        self.features.saveResult()
+        self.features.plotResult()
+  #      features = util.loadMarkedFeatures()
         log("Feature detection finished. Size: " + str(len(features)))
 
         self.charts.computeCharts(features)
@@ -35,7 +35,7 @@ class Segmenter:
 
 
 print("init")
-s = Segmenter("bunny.obj")
+s = Segmenter("Body_2.obj")
 computeStart = time.time()
 s.calc()
 computeEnd = time.time()
