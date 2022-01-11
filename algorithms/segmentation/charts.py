@@ -2,9 +2,9 @@ from typing import List
 import array
 import numpy as np
 import bisect
-from data_parser import SegmentationParser
-from plotter import plotFeatureDistance, plotCharts
-from priority_queue import PriorityQueue
+from algorithms.segmentation.data_parser import SegmentationParser
+from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
+from algorithms.segmentation.priority_queue import PriorityQueue
 
 prefix = "[Charts] "
 epsilonFactor = 1/3.5
@@ -39,6 +39,8 @@ class Charts:
         plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
     #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
+
+        return self.charts, ch.keys()
 
     def getBorderCharts(self, face:int, chart:int):
         result = []

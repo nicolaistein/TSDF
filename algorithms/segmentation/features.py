@@ -1,8 +1,8 @@
-from data_parser import SegmentationParser
+from algorithms.segmentation.data_parser import SegmentationParser
 from typing import List
 import array
-import util
-from plotter import plot
+import algorithms.segmentation.util as util
+from algorithms.segmentation.plotter import plot
 
 prefix = "[Features] "
 

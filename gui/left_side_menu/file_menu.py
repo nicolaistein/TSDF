@@ -30,7 +30,7 @@ class FileMenu:
             v, self.triangles = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
             self.verticesLabel.configure(text=str(len(v)))
             self.facesLabel.configure(text=str(len(self.triangles)))
-            self.plotter.plotFile(v, self.triangles)
+            self.plotter.plotFile(v, self.triangles, filename)
 
     def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
         keyValFrame = Frame(parent)

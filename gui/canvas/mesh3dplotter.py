@@ -7,7 +7,14 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
 from matplotlib import cm
+from algorithms.segmentation.segmentation import Segmenter
 import igl
+
+distinctColors = ["#808080", "#dcdcdc", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
+    "#008b8b", "#000080", "#9acd32", "#8fbc8f", "#800080", "#b03060", "#ff0000", "#ffff00",
+    "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
+    "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]
+
 
 def make_colormap(seq):
     """Return a LinearSegmentedColormap
@@ -47,8 +54,20 @@ class Mesh3DPlotter:
         self.mainFrame.pack_propagate(0)
         self.mainFrame.pack(side=TOP, pady=(20,0))
 
+    def getColors(self, faces, charts, chartList):
+        chartToColor = {}
+        for index, val in enumerate(chartList):
+            chartToColor[val] = distinctColors[index % len(distinctColors)]
 
-    def plotFile(self, vertices, faces):
+        colors = ["green"]*len(faces)
+        for index, x in enumerate(charts): 
+            color = chartToColor[x] + "ff"
+            colors[index] = color
+
+        return colors
+
+
+    def plotFile(self, vertices, faces, objFile):
         root = self.mainFrame
         for widget in root.winfo_children():
             widget.destroy()
@@ -63,8 +82,13 @@ class Mesh3DPlotter:
 
         testC.extend(testC2)
 
+
+        charts, chartList = Segmenter(objFile).calc()
+        colors = self.getColors(faces, charts, chartList)
+
         p3dc = ax.plot_trisurf(vertices[:, 0], vertices[:,1], triangles=faces, Z=vertices[:,2])
-        p3dc.set_fc(testC)
+        p3dc.set_fc(colors)
+    #    p3dc.set_edgecolor("black")
 
 
         self.canvas = FigureCanvasTkAgg(fig, master=root)

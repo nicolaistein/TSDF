@@ -1,5 +1,5 @@
 from typing import List
-from data_parser import SegmentationParser
+from algorithms.segmentation.data_parser import SegmentationParser
 
 filename = "features.txt"
 separator = "#"
