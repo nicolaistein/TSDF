@@ -22,11 +22,11 @@ class Segmenter:
         self.charts = Charts(self.parser)
 
     def calc(self):
-        self.parser.parse(self.objPath, False)
+        self.parser.parse(self.objPath, True)
         log("parsing finished")
-#        features = self.features.computeFeatures()
-#        self.features.saveResult()
-#        self.features.plotResult()
+   #     features = self.features.computeFeatures()
+   #     self.features.saveResult()
+  #      self.features.plotResult()
         features = util.loadMarkedFeatures()
         log("Feature detection finished. Size: " + str(len(features)))
 

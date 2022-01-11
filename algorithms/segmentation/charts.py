@@ -9,7 +9,7 @@ from priority_queue import PriorityQueue
 prefix = "[Charts] "
 epsilonFactor = 1/3.5
 seedMinFeatureDistance = 4
-minChartSizeFactor = 1/230
+minChartSizeFactor = 1/40
 localMaximumSeedCount = 80
 globalMaximumSeedCount = 20
 
@@ -19,17 +19,18 @@ def log(msg:str):
 class Charts:
     def __init__(self, parser:SegmentationParser):
         self.parser = parser
+        
 
     def plotCurrent(self):
         ch = self.getCharts()
-    #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
+        plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
 
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-        self.removeSmallCharts()
+    #    self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()

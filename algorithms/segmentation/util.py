@@ -1,7 +1,7 @@
 from typing import List
 from data_parser import SegmentationParser
 
-filename = "output.txt"
+filename = "features_cylinder50k.txt"
 separator = "#"
 
 def saveMarkedFeatures(features:List[int], parser:SegmentationParser):
@@ -16,7 +16,7 @@ def loadMarkedFeatures():
     file = open("features.txt", "r")
     vertices = []
     for line in file:
-        vertices.append(int(line))
+        vertices.append(int(line.split("#")[0]))
     return vertices
 
 # def saveMarkedFeatures(features:List[int]):
