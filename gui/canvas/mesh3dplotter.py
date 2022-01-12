@@ -121,12 +121,5 @@ class Mesh3DPlotter:
         self.canvas = FigureCanvasTkAgg(fig, master=root)
         self.canvas.draw()
 
-        # pack_toolbar=False will make it easier to use a layout manager later on.
-        toolbar = NavigationToolbar2Tk(self.canvas, root, pack_toolbar=False)
-        toolbar.update()
-
         self.canvas.mpl_connect("key_press_event", key_press_handler)
-
-        toolbar.pack(side=BOTTOM, fill=X)
-
         self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
