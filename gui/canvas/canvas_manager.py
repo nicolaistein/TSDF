@@ -73,9 +73,6 @@ class CanvasManager:
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
     def plotRulers(self):
-        print("canvas manager plot rulers")
-        print("xmax: " + str(self.xmax))
-        print("ymax: " + str(self.ymax))
         max = self.size - 4
         min = 4
         length = 820

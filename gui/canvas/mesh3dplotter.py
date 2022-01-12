@@ -19,6 +19,7 @@ class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master, width=360, height=480)
+        self.buttons = []
         self.faces = []
         self.vertices = []
         self.faceColors = []
@@ -60,6 +61,7 @@ class Mesh3DPlotter:
         button3.pack(side=TOP, pady=(10,0))
         leftSide.pack(side=LEFT, anchor=N, padx=(10,0))
 
+        self.buttons = [button1, button2, button3]
         
         rightSide = Frame(self.mainFrame)
 
@@ -96,6 +98,8 @@ class Mesh3DPlotter:
 
     def show(self):
 
+        for b in self.buttons:
+            b.delete()
         for widget in self.mainFrame.winfo_children():
             widget.destroy()
 
