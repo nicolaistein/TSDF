@@ -11,6 +11,7 @@ class CanvasManager:
     plotDistortion:str = "none"
 
     def __init__(self, master: Frame, initSize: int):
+        self.placedPatternsMenu = None
         self.master = master
         self.size = initSize
         self.xmax = initSize
@@ -52,6 +53,8 @@ class CanvasManager:
 
         self.plotDistortion = "none"
         self.plotFaces = False
+
+        self.placedPatternsMenu.deleteAll()
         self.show()
 
     def selectPattern(self, pattern: PatternModel):

@@ -13,13 +13,23 @@ class PlacedPatternsMenu:
     def __init__(self, master: Frame, canvasManager:CanvasManager, mainColor: str):
         self.mainFrame = Frame(master, bg=mainColor)
         self.canvasManager = canvasManager
+        canvasManager.placedPatternsMenu = self
         self.patterns = []
+        self.placedPatternItems = []
 
-    def delete(self, placedPatternItem):
+    def deleteAll(self):
+        print("deleting all length: " + str(len(self.placedPatternItems)))
+        for p in self.placedPatternItems:
+            self.delete(p, False)
+        self.placedPatternItems.clear()
+        self.build()
+
+    def delete(self, placedPatternItem, rebuild:bool=True):
         placedPatternItem.deleteButtons()
         self.patterns.remove(placedPatternItem.pattern)
         self.canvasManager.deletePattern(placedPatternItem.pattern)
-        self.build()
+        if rebuild:
+            self.build()
 
     def onPlacedPatternItemClick(self, pattern):
         self.canvasManager.selectPattern(pattern)
@@ -77,8 +87,11 @@ class PlacedPatternsMenu:
         # Add that New frame To a Window In The Canvas
         self.canvas.create_window((0,0), window=self.innerContent, anchor="nw")
 
+        self.placedPatternItems.clear()
         for pattern in self.patterns:
-            PlacedPatternsItem(self.innerContent, pattern, self).build()
+            pat = PlacedPatternsItem(self.innerContent, pattern, self)
+            self.placedPatternItems.append(pat)
+            pat.build()
 
         self.content.pack(side=TOP, anchor=N)
 
