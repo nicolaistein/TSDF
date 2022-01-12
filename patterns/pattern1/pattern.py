@@ -33,8 +33,8 @@ class Pattern(PatternParent):
 
         self.freeMoveHeight()
     #    self.moveTo(y=0)
-        print("# ----------------------")
-        print(self.result)
-        print("# ----------------------")
+    #    print("# ----------------------")
+    #    print(self.result)
+    #    print("# ----------------------")
 
         return self.result, self.commands

@@ -44,14 +44,14 @@ class PatternModel:
             self.params[x] = "0.0"
 
     def getGcode(self):
-        print("# Pattern " + self.name + " generate gcode")
-        print("# x: " + str(self.x) + ", y: " + str(self.y))
-        print("# rotation: " + str(self.rotation) + " degrees")
+    #    print("# Pattern " + self.name + " generate gcode")
+    #    print("# x: " + str(self.x) + ", y: " + str(self.y))
+    #    print("# rotation: " + str(self.rotation) + " degrees")
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
 
-        print("folder: " + self.folderName)
+    #    print("folder: " + self.folderName)
         
         if self.folderName.endswith("pattern1"):
             result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
