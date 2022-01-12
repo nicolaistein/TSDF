@@ -1,23 +1,9 @@
 from tkinter import *
+
+from PIL.Image import init
 import gui.canvas.translator as translator
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
-
-M = 4
-W = 900
-H = 900
-xmin = 0
-xmax = 900
-ymin = 0
-ymax = 900    
-
-def P(x,y):
-    """
-    Transform point from cartesian (x,y) to Canvas (X,Y)
-    """
-    X = M + (x/xmax) * (W-2*M)
-    Y = M + (1-(y/ymax)) * (H-2*M)
-    return (X,Y)
 
 class CanvasManager:
 
@@ -27,19 +13,43 @@ class CanvasManager:
     def __init__(self, master: Frame, initSize: int):
         self.master = master
         self.size = initSize
+        self.xmax = initSize
+        self.ymax = initSize
         self.points = []
         self.faces = []
         self.patterns = {}
         self.flatObjectOnCanvas = []
         self.distortionOnCanvas = []
+        self.rulers = []
         self.selectedPattern = None
+
+    def P(self, x,y):
+        """
+        Transform point from cartesian (x,y) to Canvas (X,Y)
+        """
+        M=4
+        X = M + (x/self.xmax) * (self.size-2*M)
+        Y = M + (1-(y/self.ymax)) * (self.size-2*M)
+        return (X,Y)
 
     def plot(self, points, faces, areaDistortions, angularDistortions):
         self.areaDistortions = areaDistortions
         self.angularDistortions = angularDistortions
         self.faces = faces    
         pointsNew = translator.moveToPositiveArea(points)
-        self.scale, self.points = translator.scale(pointsNew, self.size)
+#        self.scale, self.points = translator.scale(pointsNew, self.size)
+        self.points = pointsNew
+        maxValue = 0
+        for p in pointsNew:
+            for x in p:
+                if maxValue < x: maxValue = x
+
+        self.xmax = self.ymax = round(maxValue, 2)
+
+        for index, p in enumerate(self.points):
+            self.points[index] = list(self.P(p[0], p[1]))
+
+
         self.plotDistortion = "none"
         self.plotFaces = False
         self.show()
@@ -60,27 +70,31 @@ class CanvasManager:
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
     def plotRulers(self):
-
+        print("canvas manager plot rulers")
+        print("xmax: " + str(self.xmax))
+        print("ymax: " + str(self.ymax))
         max = self.size - 4
         min = 4
-        length = 860
+        length = 820
 
         topLeft = self.size-length
         bottomRight = length
         diff = 10
 
-        self.canvas.create_line(min, max, min, topLeft)
-        self.canvas.create_line(min, max, length, max)
+        l1 = self.canvas.create_line(min, max, min, topLeft)
+        l2 =self.canvas.create_line(min, max, length, max)
 
-        self.canvas.create_line(4, topLeft, min+diff, topLeft+diff)
-        self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
+        l3 =self.canvas.create_line(4, topLeft, min+diff, topLeft+diff)
+        l4 =self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
 
-        self.canvas.create_text(min+10,topLeft-10,fill="darkblue",font=("Purisa", 10), text=str(H))
-        self.canvas.create_text(bottomRight+20,max-5,fill="darkblue",font=("Purisa", 10), text=str(H))
+        l5 =self.canvas.create_text(min+20,topLeft-10,fill="darkblue",font=("Purisa", 10), text=str(self.ymax))
+        l6 =self.canvas.create_text(bottomRight+20,max-5,fill="darkblue",font=("Purisa", 10), text=str(self.xmax))
+
+        self.rulers.extend([l1, l2, l3, l4, l5, l6])
 
     def onFaces(self):
         self.plotFaces = not self.plotFaces
-        self.clear(True, False)
+        self.clear(True, False, False)
         self.showFlatObject()
         
 
@@ -93,6 +107,7 @@ class CanvasManager:
 
     def show(self):
         self.clear(True, True)
+        self.plotRulers()
         self.showDistortion()
         self.showFlatObject()
         
@@ -182,16 +197,18 @@ class CanvasManager:
         self.canvas.pack(side=LEFT)
         self.plotRulers()
 
-    def clear(self, object:bool, distortion:bool):
-        if distortion:
-            for point in self.distortionOnCanvas:
-                self.canvas.delete(point)
-            self.distortionOnCanvas.clear()
+    def clearList(self, list):
+        for point in list:
+            self.canvas.delete(point)
+        list.clear()
 
+    def clear(self, object:bool, distortion:bool, rulers:bool=True):
+        if distortion:
+            self.clearList(self.distortionOnCanvas)
         if object:
-            for point in self.flatObjectOnCanvas:
-                self.canvas.delete(point)
-            self.flatObjectOnCanvas.clear()
+            self.clearList(self.flatObjectOnCanvas)
+        if rulers:
+            self.clearList(self.rulers)
 
     def deletePattern(self, pattern:PatternModel):
         self.removePatternFromCanvas(pattern)
@@ -219,7 +236,9 @@ class CanvasManager:
         for cmd in commands:
             s = []
             if(cmd.prefix == "G1"):
-                s = self.canvas.create_line(cmd.previousX, 900-cmd.previousY, cmd.x, 900-cmd.y, fill=color, width=1)
+                p1x, p1y = self.P(cmd.previousX, cmd.previousY)
+                p2x, p2y = self.P(cmd.x, cmd.y)
+                s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=color, width=1)
 
             if cmd.prefix == "G02" or cmd.prefix == "G03":
                 s = self.computeArc(cmd, color)
@@ -229,12 +248,12 @@ class CanvasManager:
         self.patterns[pattern] = shapes
 
     def computeArc(self, cmd:GCodeCmd, color:str):
-        points = [P(cmd.previousX, cmd.previousY)]
+        points = [self.P(cmd.previousX, cmd.previousY)]
 
         cornerPoints = self.getCornerPoints(cmd.prefix=="G02", cmd.arcDegrees, cmd.previousX, cmd.previousY, cmd.x, cmd.y)
         points.append(cornerPoints)
 
-        points.append(P(cmd.x, cmd.y))
+        points.append(self.P(cmd.x, cmd.y))
         return self.canvas.create_line(points, smooth=True, fill=color, width=1)
         
 
@@ -247,7 +266,7 @@ class CanvasManager:
         else: yOrtho *= -1
 
         if degrees == 180:
-            return [P(x + xOrtho, y + yOrtho), P(x2 + xOrtho, y2 + yOrtho)]
+            return [self.P(x + xOrtho, y + yOrtho), self.P(x2 + xOrtho, y2 + yOrtho)]
         if degrees == 90:
-            return [P(x + + halfX + xOrtho, y + halfY + yOrtho)]
+            return [self.P(x + + halfX + xOrtho, y + halfY + yOrtho)]
 
