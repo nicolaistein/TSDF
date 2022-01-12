@@ -4,39 +4,24 @@ from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.backend_bases import key_press_handler
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import numpy as np
-from matplotlib import cm
+from gui.button import TkinterCustomButton
+from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
-import igl
 
-distinctColors = ["#808080", "#dcdcdc", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
-    "#008b8b", "#000080", "#9acd32", "#8fbc8f", "#800080", "#b03060", "#ff0000", "#ffff00",
-    "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
-    "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]
-
-
-def make_colormap(seq):
-    """Return a LinearSegmentedColormap
-    seq: a sequence of floats and RGB-tuples. The floats should be increasing
-    and in the interval (0,1).
-    """
-    seq = [(None,) * 3, 0.0] + list(seq) + [1.0, (None,) * 3]
-    cdict = {'red': [], 'green': [], 'blue': []}
-    for i, item in enumerate(seq):
-        if isinstance(item, float):
-            r1, g1, b1 = seq[i - 1]
-            r2, g2, b2 = seq[i + 1]
-            cdict['red'].append([item, r1, r2])
-            cdict['green'].append([item, g1, g2])
-            cdict['blue'].append([item, b1, b2])
-    return mcolors.LinearSegmentedColormap('CustomMap', cdict)
+#distinctColors = ["#808080", "#dcdcdc", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
+#    "#008b8b", "#000080", "#9acd32", "#8fbc8f", "#800080", "#b03060", "#ff0000", "#ffff00",
+#    "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
+#    "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]
 
 
 class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
-        self.mainFrame = Frame(master, width=360, height=360)
+        self.mainFrame = Frame(master, width=360, height=480)
+        
+        self.faceColors = []
+        self.showEdges = False
 
     def update_frequency(self, new_val):
         # retrieve frequency
@@ -49,10 +34,39 @@ class Mesh3DPlotter:
         # required to update canvas and attached toolbar!
         self.canvas.draw()
 
+    def viewBrowser(self):
+        plotFaceColors(self.vertices, self.faces, self.faceColors)
+
+    def changeEdgeView(self):
+        self.showEdges = not self.showEdges
+        self.show()
 
     def build(self):
+        self.plotContainer = Frame(self.mainFrame, width=360, height=360)
+        self.plotContainer.pack_propagate(0)
+        self.plotContainer.pack(side=TOP, anchor=N)
         self.mainFrame.pack_propagate(0)
+
+        leftSide = Frame(self.mainFrame)
+        button1 = TkinterCustomButton(master=leftSide, text="Segment",
+                command=self.segment, corner_radius=60, height=25, width=120)
+        button1.pack(side=TOP, pady=(10,0))
+        button2 = TkinterCustomButton(master=leftSide, text="Browserview",
+                command=self.viewBrowser, corner_radius=60, height=25, width=120)
+        button2.pack(side=TOP, pady=(10,0))
+        button3 = TkinterCustomButton(master=leftSide, text="Hide Edges" if self.showEdges else "Show Edges",
+                command=self.changeEdgeView, corner_radius=60, height=25, width=120)
+        button3.pack(side=TOP, pady=(10,0))
+
+        leftSide.pack(side=LEFT, anchor=N, padx=(10,0))
+
+        
+        rightSide = Frame(self.mainFrame)
+
+        rightSide.pack(side=LEFT, anchor=N, padx=(0,10))
+
         self.mainFrame.pack(side=TOP, pady=(20,0))
+
 
     def getColors(self, faces, charts, chartList):
         chartToColor = {}
@@ -67,28 +81,36 @@ class Mesh3DPlotter:
         return colors
 
 
-    def plotFile(self, vertices, faces, objFile):
-        root = self.mainFrame
-        for widget in root.winfo_children():
+    def plotFile(self, vertices, faces):
+        self.vertices = vertices
+        self.faces = faces
+        self.faceColors = ["#1f77b4"] * len(faces)
+        self.show()
+
+
+    def segment(self):
+        charts, chartList = Segmenter(self.vertices, self.faces).calc()
+        self.faceColors = self.getColors(self.faces, charts, chartList)
+        self.show()
+
+
+    def show(self):
+
+        for widget in self.mainFrame.winfo_children():
             widget.destroy()
 
+        self.build()
+        
+        root = self.plotContainer
 
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
-
-        testC = ["#ff7f0eff"] * 6
-        testC2 = ["#2ca02cff"] * 6
-
-        testC.extend(testC2)
-
-
-        charts, chartList = Segmenter(objFile).calc()
-        colors = self.getColors(faces, charts, chartList)
-
-        p3dc = ax.plot_trisurf(vertices[:, 0], vertices[:,1], triangles=faces, Z=vertices[:,2])
-        p3dc.set_fc(colors)
-    #    p3dc.set_edgecolor("black")
+        p3dc = ax.plot_trisurf(self.vertices[:, 0], self.vertices[:,1],
+         triangles=self.faces, Z=self.vertices[:,2])
+        p3dc.set_fc(self.faceColors)
+        if self.showEdges:
+            p3dc.set_edgecolor("black")
 
 
         self.canvas = FigureCanvasTkAgg(fig, master=root)

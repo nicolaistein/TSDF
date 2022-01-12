@@ -17,8 +17,9 @@ class SegmentationParser:
     edgeToFaces: mapping edge -> List of faces 
     """
 
-    def parse(self, objPath:str, sod:bool=True):
-        self.vertices, self.faces = igl.read_triangle_mesh(objPath)
+    def parse(self, vertices, faces, sod:bool=True):
+        self.vertices = vertices
+        self.faces = faces
         log("vertex length: " + str(len(self.vertices)))
         log("faces length: " + str(len(self.faces)))
         self.createMesh()

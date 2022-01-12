@@ -19,7 +19,6 @@ def log(msg:str):
 class Charts:
     def __init__(self, parser:SegmentationParser):
         self.parser = parser
-        
 
     def plotCurrent(self):
         ch = self.getCharts()
@@ -36,7 +35,7 @@ class Charts:
         ch = self.getCharts()
         log("Charts count: " + str(len(ch)))
         print([(key,val) for key, val in ch.items() if val > -1])
-        plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
+    #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
     #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
     #    print(self.featureDistances)
 
@@ -260,7 +259,7 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-        self.plotCurrent()
+    #     self.plotCurrent()
         log("initial charts")
         print(self.getCharts())
         counter = 0

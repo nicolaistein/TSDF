@@ -2,7 +2,7 @@ from algorithms.segmentation.data_parser import SegmentationParser
 from typing import List
 import array
 import algorithms.segmentation.util as util
-from algorithms.segmentation.plotter import plot
+from algorithms.segmentation.plotter import plotFeatures
 
 prefix = "[Features] "
 
@@ -29,7 +29,7 @@ class Features:
                 colored.append(vertices[0])
                 colored.append(vertices[1])
 
-        plot(self.parser.vertices, self.parser.faces, colored)
+        plotFeatures(self.parser.vertices, self.parser.faces, colored)
 
     def saveResult(self):
         log("Saving features")
