@@ -1,9 +1,11 @@
 from tkinter import *
+from typing import Pattern
 from PIL.Image import init
 import gui.canvas.translator as translator
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
 from gui.canvas.plotter.distortions import DistortionPlotter
+from gui.canvas.plotter.patterns import PatternPlotter
 
 class CanvasManager:
 
@@ -14,15 +16,14 @@ class CanvasManager:
         self.canvasFrame = Frame(master, height=self.size, width=self.size)
         self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size)
         self.distortionPlotter = DistortionPlotter(self)
+        self.patternPlotter = PatternPlotter(self)
         self.placedPatternsMenu = None
         self.xmax = initSize
         self.ymax = initSize
         self.points = []
         self.faces = []
-        self.patterns = {}
         self.flatObjectOnCanvas = []
         self.rulers = []
-        self.selectedPattern = None
 
     def P(self, x,y):
         """
@@ -54,16 +55,6 @@ class CanvasManager:
         self.placedPatternsMenu.deleteAll()
         self.show()
 
-    def selectPattern(self, pattern: PatternModel):
-        selected = self.selectedPattern
-        if selected is None or not selected == pattern:
-            self.selectedPattern = pattern
-
-            if not selected is None:
-                self.refreshPattern(selected)
-        else:
-            self.selectedPattern = None
-        self.refreshPattern(pattern)
 
     def createLine(self, x1, x2):
         self.flatObjectOnCanvas.append(
@@ -144,64 +135,4 @@ class CanvasManager:
             self.clearList(self.flatObjectOnCanvas)
         if rulers:
             self.clearList(self.rulers)
-
-    def deletePattern(self, pattern:PatternModel):
-        self.removePatternFromCanvas(pattern)
-        if self.selectedPattern == pattern:
-            self.selectedPattern = None
-
-    def removePatternFromCanvas(self, pattern:PatternModel):
-        for shape in self.patterns[pattern]:
-            self.canvas.delete(shape)
-        self.patterns[pattern] = []
-
-
-    def refreshPattern(self, pattern:PatternModel):
-        self.removePatternFromCanvas(pattern)
-        self.addPattern(pattern)
-
-    def addPattern(self, pattern:PatternModel):
-        result, commands = pattern.getGcode()
-        color = "blue"
-        #Change color to red if selected
-        if not self.selectedPattern is None:
-            color = "red" if self.selectedPattern == pattern else "blue"
-
-        shapes = []
-        for cmd in commands:
-            s = []
-            if(cmd.prefix == "G1"):
-                p1x, p1y = self.P(cmd.previousX, cmd.previousY)
-                p2x, p2y = self.P(cmd.x, cmd.y)
-                s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=color, width=1)
-
-            if cmd.prefix == "G02" or cmd.prefix == "G03":
-                s = self.computeArc(cmd, color)
-
-            shapes.append(s)
-
-        self.patterns[pattern] = shapes
-
-    def computeArc(self, cmd:GCodeCmd, color:str):
-        points = [self.P(cmd.previousX, cmd.previousY)]
-
-        cornerPoints = self.getCornerPoints(cmd.prefix=="G02", cmd.arcDegrees, cmd.previousX, cmd.previousY, cmd.x, cmd.y)
-        points.append(cornerPoints)
-
-        points.append(self.P(cmd.x, cmd.y))
-        return self.canvas.create_line(points, smooth=True, fill=color, width=1)
-        
-
-    def getCornerPoints(self, clockwise:bool, degrees:float, x:float, y:float, x2:float, y2:float):
-        #Compute orthogonal vector to v2-v vector
-        xOrtho = halfY = (y2 - y) / 2
-        yOrtho = halfX = (x2 - x) / 2
-
-        if clockwise: xOrtho *= -1
-        else: yOrtho *= -1
-
-        if degrees == 180:
-            return [self.P(x + xOrtho, y + yOrtho), self.P(x2 + xOrtho, y2 + yOrtho)]
-        if degrees == 90:
-            return [self.P(x + + halfX + xOrtho, y + halfY + yOrtho)]
 

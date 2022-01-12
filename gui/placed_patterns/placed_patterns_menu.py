@@ -18,7 +18,6 @@ class PlacedPatternsMenu:
         self.placedPatternItems = []
 
     def deleteAll(self):
-        print("deleting all length: " + str(len(self.placedPatternItems)))
         for p in self.placedPatternItems:
             self.delete(p, False)
         self.placedPatternItems.clear()
@@ -27,15 +26,15 @@ class PlacedPatternsMenu:
     def delete(self, placedPatternItem, rebuild:bool=True):
         placedPatternItem.deleteButtons()
         self.patterns.remove(placedPatternItem.pattern)
-        self.canvasManager.deletePattern(placedPatternItem.pattern)
+        self.canvasManager.patternPlotter.deletePattern(placedPatternItem.pattern)
         if rebuild:
             self.build()
 
     def onPlacedPatternItemClick(self, pattern):
-        self.canvasManager.selectPattern(pattern)
+        self.canvasManager.patternPlotter.selectPattern(pattern)
 
     def onEditFinished(self, pattern:PatternModel):
-        self.canvasManager.refreshPattern(pattern)
+        self.canvasManager.patternPlotter.refreshPattern(pattern)
         self.build()
 
     def edit(self, pattern: PatternModel):
@@ -44,7 +43,7 @@ class PlacedPatternsMenu:
 
     def addPattern(self, pattern: PatternModel):
         self.patterns.append(pattern)
-        self.canvasManager.addPattern(pattern)
+        self.canvasManager.patternPlotter.addPattern(pattern)
         self.build()
 
     def generateGCode(self):

@@ -54,7 +54,7 @@ class Pattern(PatternParent):
 
         self.freeMoveHeight()
 
-        print(self.result)
+    #    print(self.result)
 
         return self.result, self.commands
 

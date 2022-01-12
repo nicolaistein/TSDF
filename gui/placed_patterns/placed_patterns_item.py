@@ -37,7 +37,6 @@ class PlacedPatternsItem:
         self.button3.delete()
 
     def onShowClick(self):
-        print("mouse click placed patterns item")
         self.menu.onPlacedPatternItemClick(self.pattern)
 
     def build(self):
