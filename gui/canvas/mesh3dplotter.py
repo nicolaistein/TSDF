@@ -9,12 +9,6 @@ from gui.button import TkinterCustomButton
 from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
 
-#distinctColors = ["#808080", "#dcdcdc", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
-#    "#008b8b", "#000080", "#9acd32", "#8fbc8f", "#800080", "#b03060", "#ff0000", "#ffff00",
-#    "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
-#    "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]
-
-
 class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
@@ -24,17 +18,6 @@ class Mesh3DPlotter:
         self.vertices = []
         self.faceColors = []
         self.showEdges = False
-
-    def update_frequency(self, new_val):
-        # retrieve frequency
-        f = float(new_val)
-
-        # update data
-        y = 2 * np.sin(2 * np.pi * f * self.t)
-        self.line.set_data(self.t, y)
-
-        # required to update canvas and attached toolbar!
-        self.canvas.draw()
 
     def viewBrowser(self):
         plotFaceColors(self.vertices, self.faces, self.faceColors)

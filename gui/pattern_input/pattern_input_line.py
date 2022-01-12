@@ -58,8 +58,6 @@ class PatternInputLine:
             text.bind('<BackSpace>', self.allowInput)
             text.bind('<KeyPress>', self.onKeyPress)
             text.insert(END, value)
-    #        if self.isNumeric:
-    #            text.insert(END, "0.0")
             self.texts[key] = text
             text.pack(side=LEFT, padx=(0, 10))
 

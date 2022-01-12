@@ -5,6 +5,7 @@ from typing import List
 from gui.pattern_model import PatternModel
 from gui.button import TkinterCustomButton
 from gui.pattern_input.pattern_input_line import PatternInputLine
+from gui.pattern_input.pattern_slider_input import PatternSliderInput
 
 
 class PatternInputWindow:
@@ -30,8 +31,7 @@ class PatternInputWindow:
         self.pattern.updateParams(self.parameterInput.getValues())
 
         self.pattern.setName(self.nameInput.getValues()["name"])
-        self.pattern.rotation = float(
-            self.rotationInput.getValues()["degrees"])
+        self.pattern.rotation = round(float(self.rotationInput.getValue()), 2)
 
         loc = self.positionInput.getValues()
         self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
@@ -70,8 +70,7 @@ class PatternInputWindow:
         self.positionInput.display()
 
         # Rotation row
-        self.rotationInput = PatternInputLine(
-            "Rotation", {"degrees": pattern.rotation})
+        self.rotationInput = PatternSliderInput("Rotation", "degrees", pattern.rotation, 360)
         self.rotationInput.build(mainContainer, 15)
         self.rotationInput.display()
 
