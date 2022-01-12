@@ -1,26 +1,26 @@
 from tkinter import *
-
 from PIL.Image import init
 import gui.canvas.translator as translator
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
+from gui.canvas.plotter.distortions import DistortionPlotter
 
 class CanvasManager:
 
     plotFaces:bool = False
-    plotDistortion:str = "none"
 
     def __init__(self, master: Frame, initSize: int):
-        self.placedPatternsMenu = None
-        self.master = master
         self.size = initSize
+        self.canvasFrame = Frame(master, height=self.size, width=self.size)
+        self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size)
+        self.distortionPlotter = DistortionPlotter(self)
+        self.placedPatternsMenu = None
         self.xmax = initSize
         self.ymax = initSize
         self.points = []
         self.faces = []
         self.patterns = {}
         self.flatObjectOnCanvas = []
-        self.distortionOnCanvas = []
         self.rulers = []
         self.selectedPattern = None
 
@@ -34,9 +34,7 @@ class CanvasManager:
         return (X,Y)
 
     def plot(self, points, faces, areaDistortions, angularDistortions):
-        self.areaDistortions = areaDistortions
-        self.angularDistortions = angularDistortions
-        self.faces = faces    
+        self.faces = faces
         pointsNew = translator.moveToPositiveArea(points)
 #        self.scale, self.points = translator.scale(pointsNew, self.size)
         self.points = pointsNew
@@ -50,8 +48,7 @@ class CanvasManager:
         for index, p in enumerate(self.points):
             self.points[index] = list(self.P(p[0], p[1]))
 
-
-        self.plotDistortion = "none"
+        self.distortionPlotter.plot(self.points, self.faces, areaDistortions, angularDistortions)
         self.plotFaces = False
 
         self.placedPatternsMenu.deleteAll()
@@ -99,21 +96,15 @@ class CanvasManager:
         
 
     def onDistortionPress(self, distortion:str = "none"):
-        if self.plotDistortion == distortion: 
-            self.plotDistortion = "none"
-        else:
-            self.plotDistortion = distortion
+        self.distortionPlotter.setDistortion(distortion)
         self.show()
 
     def show(self):
         self.clear(True, True)
         self.plotRulers()
-        self.showDistortion()
+        self.distortionPlotter.showDistortion()
         self.showFlatObject()
         
-    def showDistortion(self):
-        if self.plotDistortion == "area": self.showAreaDistortion()
-        if self.plotDistortion == "angle": self.showAngleDistortion()
             
     def showFlatObject(self):
         if self.plotFaces:
@@ -135,65 +126,9 @@ class CanvasManager:
                 self.flatObjectOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
 
 
-    def showAreaDistortion(self):
-        for index, face in enumerate(self.faces):
-            if index not in self.areaDistortions: continue
-
-            x = list(self.points[face[0]-1])
-            y = list(self.points[face[1]-1])
-            z = list(self.points[face[2]-1])
-
-            maxDistort = 20
-            distortion = self.areaDistortions[index]
-
-            if distortion > 1:
-                distFac = distortion
-                if distFac > maxDistort:
-                    distFac = maxDistort
-                if distFac < 1:
-                    distFac = 1
-
-                distFac = distFac-1
-                distFac = distFac/(maxDistort-1)
-                distFac = 1-distFac
-
-                colorFac = int(round(distFac * 255, 0))
-                color = '#%02x%02x%02x' % (255, colorFac, colorFac)
-
-            else:
-                blueFac = distortion
-                colorFac = int(round(blueFac * 255, 0))
-                color = '#%02x%02x%02x' % (colorFac, colorFac, 255)
-            
-            self.distortionOnCanvas.append(
-            self.canvas.create_polygon(x, y, z, fill=color))
-
-
-    def showAngleDistortion(self):
-        for index, face in enumerate(self.faces):
-            if index not in self.angularDistortions: continue
-
-            x = list(self.points[face[0]-1])
-            y = list(self.points[face[1]-1])
-            z = list(self.points[face[2]-1])
-            
-            distortion = self.angularDistortions[index]/30
-            if distortion > 1:
-                distortion = 1
-
-            distFac = 1-distortion
-            colorFac = int(round(distFac * 255, 0))
-            color = '#%02x%02x%02x' % (colorFac, 255, colorFac)
-            
-            self.distortionOnCanvas.append(
-                self.canvas.create_polygon(x, y, z, fill=color))
-
-
 
     def build(self):
-        canvasFrame = Frame(self.master, height=self.size, width=self.size)
-        self.canvas = Canvas(canvasFrame, height=self.size, width=self.size)
-        canvasFrame.pack(side=LEFT, anchor=N)
+        self.canvasFrame.pack(side=LEFT, anchor=N)
         self.canvas.pack(side=LEFT)
         self.plotRulers()
 
@@ -204,7 +139,7 @@ class CanvasManager:
 
     def clear(self, object:bool, distortion:bool, rulers:bool=True):
         if distortion:
-            self.clearList(self.distortionOnCanvas)
+            self.distortionPlotter.clear()
         if object:
             self.clearList(self.flatObjectOnCanvas)
         if rulers:
