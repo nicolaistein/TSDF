@@ -6,6 +6,7 @@ from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
 from gui.canvas.plotter.distortions import DistortionPlotter
 from gui.canvas.plotter.patterns import PatternPlotter
+from gui.canvas.plotter.object import ObjectPlotter
 
 class CanvasManager:
 
@@ -16,7 +17,8 @@ class CanvasManager:
         self.canvasFrame = Frame(master, height=self.size, width=self.size)
         self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size)
         self.distortionPlotter = DistortionPlotter(self)
-        self.patternPlotter = PatternPlotter(self)
+        self.distortionPlotter = DistortionPlotter(self)
+        self.objectPlotter = ObjectPlotter(self)
         self.placedPatternsMenu = None
         self.xmax = initSize
         self.ymax = initSize
@@ -37,20 +39,19 @@ class CanvasManager:
     def plot(self, points, faces, areaDistortions, angularDistortions):
         self.faces = faces
         pointsNew = translator.moveToPositiveArea(points)
-#        self.scale, self.points = translator.scale(pointsNew, self.size)
         self.points = pointsNew
         maxValue = 0
         for p in pointsNew:
             for x in p:
                 if maxValue < x: maxValue = x
-
         self.xmax = self.ymax = round(maxValue, 2)
 
         for index, p in enumerate(self.points):
             self.points[index] = list(self.P(p[0], p[1]))
 
         self.distortionPlotter.plot(self.points, self.faces, areaDistortions, angularDistortions)
-        self.plotFaces = False
+        self.objectPlotter.plot(self.points, self.faces)
+        self.objectPlotter.plotFaces = False
 
         self.placedPatternsMenu.deleteAll()
         self.show()
@@ -81,11 +82,10 @@ class CanvasManager:
         self.rulers.extend([l1, l2, l3, l4, l5, l6])
 
     def onFaces(self):
-        self.plotFaces = not self.plotFaces
+        self.objectPlotter.plotFaces = not self.objectPlotter.plotFaces
         self.clear(True, False, False)
-        self.showFlatObject()
+        self.objectPlotter.show()
         
-
     def onDistortionPress(self, distortion:str = "none"):
         self.distortionPlotter.setDistortion(distortion)
         self.show()
@@ -94,45 +94,20 @@ class CanvasManager:
         self.clear(True, True)
         self.plotRulers()
         self.distortionPlotter.showDistortion()
-        self.showFlatObject()
+        self.objectPlotter.show()
         
-            
-    def showFlatObject(self):
-        if self.plotFaces:
-            for face in self.faces:
-                x = list(self.points[face[0]-1])
-                y = list(self.points[face[1]-1])
-                z = list(self.points[face[2]-1])
-
-                #Border
-                self.createLine(x, y)
-                self.createLine(y, z)
-                self.createLine(z, x)
-
-        else:
-            for point in self.points:
-                x = point[0]
-                y = point[1]
-                r = 0
-                self.flatObjectOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
-
-
-
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)
         self.canvas.pack(side=LEFT)
         self.plotRulers()
 
-    def clearList(self, list):
-        for point in list:
-            self.canvas.delete(point)
-        list.clear()
-
     def clear(self, object:bool, distortion:bool, rulers:bool=True):
         if distortion:
             self.distortionPlotter.clear()
         if object:
-            self.clearList(self.flatObjectOnCanvas)
+            self.objectPlotter.clear()
         if rulers:
-            self.clearList(self.rulers)
+            for point in self.rulers:
+                self.canvas.delete(point)
+            self.rulers.clear()
 
