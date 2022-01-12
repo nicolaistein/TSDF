@@ -37,7 +37,7 @@ canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 
 AllPatterns(allPatternsContainer, mainColor, placedPatterns).build("top")
-plotter.build()
+plotter.show()
 
 allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))
 

@@ -3,7 +3,7 @@ import gui.canvas.translator as translator
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
 
-M = 4  
+M = 4
 W = 900
 H = 900
 xmin = 0
@@ -58,6 +58,25 @@ class CanvasManager:
     def createLine(self, x1, x2):
         self.flatObjectOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
+
+    def plotRulers(self):
+
+        max = self.size - 4
+        min = 4
+        length = 860
+
+        topLeft = self.size-length
+        bottomRight = length
+        diff = 10
+
+        self.canvas.create_line(min, max, min, topLeft)
+        self.canvas.create_line(min, max, length, max)
+
+        self.canvas.create_line(4, topLeft, min+diff, topLeft+diff)
+        self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
+
+        self.canvas.create_text(min+10,topLeft-10,fill="darkblue",font=("Purisa", 10), text=str(H))
+        self.canvas.create_text(bottomRight+20,max-5,fill="darkblue",font=("Purisa", 10), text=str(H))
 
     def onFaces(self):
         self.plotFaces = not self.plotFaces
@@ -161,6 +180,7 @@ class CanvasManager:
         self.canvas = Canvas(canvasFrame, height=self.size, width=self.size)
         canvasFrame.pack(side=LEFT, anchor=N)
         self.canvas.pack(side=LEFT)
+        self.plotRulers()
 
     def clear(self, object:bool, distortion:bool):
         if distortion:

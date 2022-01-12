@@ -19,7 +19,8 @@ class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master, width=360, height=480)
-        
+        self.faces = []
+        self.vertices = []
         self.faceColors = []
         self.showEdges = False
 
@@ -57,7 +58,6 @@ class Mesh3DPlotter:
         button3 = TkinterCustomButton(master=leftSide, text="Hide Edges" if self.showEdges else "Show Edges",
                 command=self.changeEdgeView, corner_radius=60, height=25, width=120)
         button3.pack(side=TOP, pady=(10,0))
-
         leftSide.pack(side=LEFT, anchor=N, padx=(10,0))
 
         
@@ -106,11 +106,12 @@ class Mesh3DPlotter:
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
 
-        p3dc = ax.plot_trisurf(self.vertices[:, 0], self.vertices[:,1],
-         triangles=self.faces, Z=self.vertices[:,2])
-        p3dc.set_fc(self.faceColors)
-        if self.showEdges:
-            p3dc.set_edgecolor("black")
+        if len(self.faces) > 0:
+            p3dc = ax.plot_trisurf(self.vertices[:, 0], self.vertices[:,1],
+            triangles=self.faces, Z=self.vertices[:,2])
+            p3dc.set_fc(self.faceColors)
+            if self.showEdges:
+                p3dc.set_edgecolor("black")
 
 
         self.canvas = FigureCanvasTkAgg(fig, master=root)

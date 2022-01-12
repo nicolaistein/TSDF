@@ -75,5 +75,5 @@ def plotFaceColors(vertices:List[List[float]], faces:List[List[int]], colors:Lis
             colors[index] = x + "ff"
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
-         color='lightpink', facecolor=colors, edgeColopacity=1)])
+         color='lightpink', facecolor=colors, opacity=1)])
     offline.plot(fig, filename='FaceColorPlot.html')
