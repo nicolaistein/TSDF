@@ -1,10 +1,5 @@
 from tkinter import *
 
-from PIL.Image import init
-import gui.canvas.translator as translator
-from patterns.gcode_cmd import GCodeCmd
-from gui.pattern_model import PatternModel
-
 class DistortionPlotter:
     plotDistortion:str = "none"
 
@@ -35,8 +30,7 @@ class DistortionPlotter:
         
     def showDistortion(self):
         if self.plotDistortion == "area": self.showAreaDistortion()
-        if self.plotDistortion == "angle": self.showAngleDistortion()
-            
+        if self.plotDistortion == "angle": self.showAngleDistortion()   
 
     def showAreaDistortion(self):
         for index, face in enumerate(self.faces):

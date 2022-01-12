@@ -1,10 +1,5 @@
 from tkinter import *
 
-from PIL.Image import init
-import gui.canvas.translator as translator
-from patterns.gcode_cmd import GCodeCmd
-from gui.pattern_model import PatternModel
-
 class ObjectPlotter:
     plotFaces:bool = False
 

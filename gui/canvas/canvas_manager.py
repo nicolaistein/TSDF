@@ -4,9 +4,9 @@ from PIL.Image import init
 import gui.canvas.translator as translator
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
-from gui.canvas.plotter.distortions import DistortionPlotter
-from gui.canvas.plotter.patterns import PatternPlotter
-from gui.canvas.plotter.object import ObjectPlotter
+from gui.canvas.plotter.distortion_plotter import DistortionPlotter
+from gui.canvas.plotter.pattern_plotter import PatternPlotter
+from gui.canvas.plotter.object_plotter import ObjectPlotter
 
 class CanvasManager:
 
@@ -17,7 +17,7 @@ class CanvasManager:
         self.canvasFrame = Frame(master, height=self.size, width=self.size)
         self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size)
         self.distortionPlotter = DistortionPlotter(self)
-        self.distortionPlotter = DistortionPlotter(self)
+        self.patternPlotter = PatternPlotter(self)
         self.objectPlotter = ObjectPlotter(self)
         self.placedPatternsMenu = None
         self.xmax = initSize
@@ -95,7 +95,7 @@ class CanvasManager:
         self.plotRulers()
         self.distortionPlotter.showDistortion()
         self.objectPlotter.show()
-        
+
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)
         self.canvas.pack(side=LEFT)
