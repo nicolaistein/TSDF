@@ -2,11 +2,13 @@ from __future__ import print_function
 from tkinter import *
 import tkinter.ttk as ttk
 from gui.button import TkinterCustomButton
+from gui.pattern_input.custom_text import CustomText
 
 
 class PatternSliderInput:
 
-    def __init__(self, title: str, key:str, currentVal:float, maxVal:int):
+    def __init__(self, window, title: str, key:str, currentVal:float, maxVal:int):
+        self.window = window
         self.currentVal = currentVal
         self.slider_val = DoubleVar()
         if currentVal is not None:
@@ -74,29 +76,10 @@ class PatternSliderInput:
         try:
             num = float(self.text.get("1.0", END)[:-1])
             self.slider_val.set(round(num,2))
+            self.window.onValueChange()
         except ValueError:
             pass
 
     def onKeyPress(self, event):
         if not event.char in "1234567890.":
             return "break"
-
-
-
-class CustomText(Text):
-    def __init__(self, *args, **kwargs):
-        """A text widget that report on internal widget commands"""
-        Text.__init__(self, *args, **kwargs)
-
-        self._orig = self._w + "_orig"
-        self.tk.call("rename", self._w, self._orig)
-        self.tk.createcommand(self._w, self.proxy)
-
-    def proxy(self, command, *args):
-        cmd = (self._orig, command) + args
-        result = self.tk.call(cmd)
-
-        if command in ("insert", "delete", "replace"):
-            self.event_generate("<<TextModified>>")
-
-        return result

@@ -2,11 +2,13 @@ from functools import partial
 from tkinter import *
 from typing import List, Mapping
 from gui.button import TkinterCustomButton
+from gui.pattern_input.custom_text import CustomText
 
 
 class PatternInputLine:
 
-    def __init__(self, title: str, values: Mapping, isNumeric: bool = True):
+    def __init__(self, window, title: str, values: Mapping, isNumeric: bool = True):
+        self.window = window
         self.values = values
         self.title = title
         self.isNumeric = isNumeric
@@ -40,6 +42,17 @@ class PatternInputLine:
         if not event.char in "1234567890." and self.isNumeric:
             return "break"
 
+    def onInputCHange(self, event):
+        try:
+            for k, t in self.texts.items():
+                num = float(t.get("1.0", END)[:-1])
+
+            # Make sure everything is initialized
+    #        if len(self.texts) == len(self.values):
+            self.window.onValueChange()
+        except ValueError:
+            pass
+
     def build(self, master: Frame, pady: float, textWidth=4):
         self.pady = pady
         self.mainContainer = Frame(master)
@@ -52,11 +65,12 @@ class PatternInputLine:
 
         for key, value in self.values.items():
             Label(self.mainContainer, text=key + "=").pack(side=LEFT)
-            text = Text(self.mainContainer, width=textWidth, height=1)
+            text = CustomText(self.mainContainer, width=textWidth, height=1)
             text.bind('<Return>', self.cancelInput)
             text.bind('<Tab>', self.cancelInput)
             text.bind('<BackSpace>', self.allowInput)
             text.bind('<KeyPress>', self.onKeyPress)
+            text.bind('<<TextModified>>', self.onInputCHange)
             text.insert(END, value)
             self.texts[key] = text
             text.pack(side=LEFT, padx=(0, 10))

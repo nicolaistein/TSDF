@@ -39,7 +39,7 @@ class PlacedPatternsMenu:
 
     def edit(self, pattern: PatternModel):
         PatternInputWindow(self.mainFrame, pattern,
-                           self.onEditFinished).openWindow()
+                           self.onEditFinished, self.canvasManager, True).openWindow()
 
     def addPattern(self, pattern: PatternModel):
         self.patterns.append(pattern)

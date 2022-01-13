@@ -2,22 +2,38 @@ from logging import error
 from os import name
 from tkinter import *
 from typing import List
+from copy import copy
 from gui.pattern_model import PatternModel
 from gui.button import TkinterCustomButton
 from gui.pattern_input.pattern_input_line import PatternInputLine
 from gui.pattern_input.pattern_slider_input import PatternSliderInput
+from gui.canvas.canvas_manager import CanvasManager
 
 
 class PatternInputWindow:
 
-    def __init__(self, root, pattern: PatternModel, onComplete):
+    def __init__(self, root, pattern: PatternModel, onComplete, canvasManager:CanvasManager, isEditMode:bool):
         self.window = Toplevel(root)
+        self.oldObject = copy(pattern)
+        self.isEditMode = isEditMode
         self.pattern = pattern
         self.onComplete = onComplete
+        self.canvasManager = canvasManager
+        self.initialized = False
 
     def abort(self):
+        if not self.isEditMode:
+            self.canvasManager.patternPlotter.deletePattern(self.pattern)
+
+        #Reset values
+        self.pattern.name = self.oldObject.name
+        self.pattern.params = self.oldObject.params
+        self.pattern.x = self.oldObject.x
+        self.pattern.y = self.oldObject.y
+        self.pattern.rotation = self.oldObject.rotation
         self.deleteButtons()
         self.window.destroy()
+        self.onComplete(self.pattern)
 
     def deleteButtons(self):
         self.buttonAccept.delete()
@@ -27,19 +43,27 @@ class PatternInputWindow:
         self.positionInput.deleteButton()
         self.rotationInput.deleteButton()
 
+    def onValueChange(self):
+        self.collectValues()
+        self.canvasManager.patternPlotter.refreshPattern(self.pattern)
+
+
     def completed(self):
-        self.pattern.updateParams(self.parameterInput.getValues())
-
-        self.pattern.setName(self.nameInput.getValues()["name"])
-        self.pattern.rotation = round(float(self.rotationInput.getValue()), 2)
-
-        loc = self.positionInput.getValues()
-        self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
-
+        self.collectValues()
         self.deleteButtons()
         self.window.destroy()
-
         self.onComplete(self.pattern)
+
+    def collectValues(self):
+        if self.initialized:
+            self.pattern.updateParams(self.parameterInput.getValues())
+
+            self.pattern.setName(self.nameInput.getValues()["name"])
+            self.pattern.rotation = round(float(self.rotationInput.getValue()), 2)
+
+            loc = self.positionInput.getValues()
+            self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
+
 
     def openWindow(self):
         self.window.title(
@@ -51,28 +75,30 @@ class PatternInputWindow:
 
         pattern = self.pattern
         # Name row
-        self.nameInput = PatternInputLine(
+        self.nameInput = PatternInputLine(self,
             "Name", {"name": pattern.name}, isNumeric=False)
         self.nameInput.build(mainContainer, 10, textWidth=10)
         self.nameInput.display()
 
         # Parameter row
-        self.parameterInput = PatternInputLine(
+        self.parameterInput = PatternInputLine(self,
             "Parameters", self.pattern.params)
         self.parameterInput.build(mainContainer, 15)
         if len(self.pattern.params) > 0:
             self.parameterInput.display()
 
+        # Rotation row
+        self.rotationInput = PatternSliderInput(self,"Rotation", "degrees", pattern.rotation, 360)
+        self.rotationInput.build(mainContainer, 15)
+        self.rotationInput.display()
+
         # Position row
-        self.positionInput = PatternInputLine(
+        self.positionInput = PatternInputLine(self,
             "Position", {"x": pattern.x, "y": pattern.y})
         self.positionInput.build(mainContainer, 15)
         self.positionInput.display()
 
-        # Rotation row
-        self.rotationInput = PatternSliderInput("Rotation", "degrees", pattern.rotation, 360)
-        self.rotationInput.build(mainContainer, 15)
-        self.rotationInput.display()
+        self.initialized = True
 
         # buttons
         buttonFrame = Frame(mainContainer)

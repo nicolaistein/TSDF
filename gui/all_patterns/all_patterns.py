@@ -7,19 +7,22 @@ from PIL import ImageTk, Image
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
+from gui.canvas.canvas_manager import CanvasManager
 import os
 
 
 class AllPatterns:
 
-    def __init__(self, master: Frame, mainColor: str, patternList: PlacedPatternsMenu):
+    def __init__(self, master: Frame, mainColor: str,
+     patternList: PlacedPatternsMenu, canvasManager:CanvasManager):
+        self.canvasManager = canvasManager
         self.mainFrame = Frame(master, bg=mainColor)
         self.patternList = patternList
         self.content = Frame(self.mainFrame, padx=0, pady=20)
 
     def place(self, patternFolderName):
         PatternInputWindow(self.mainFrame, PatternModel(patternFolderName),
-                           self.patternList.addPattern).openWindow()
+                           self.patternList.addPattern, self.canvasManager, False).openWindow()
 
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.innerContent)

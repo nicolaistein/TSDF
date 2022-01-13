@@ -43,6 +43,7 @@ class PatternPlotter:
             self.selectedPattern = None
 
     def removePatternFromCanvas(self, pattern:PatternModel):
+        if pattern not in self.patterns: return
         for shape in self.patterns[pattern]:
             self.canvas.delete(shape)
         self.patterns[pattern] = []
@@ -52,6 +53,7 @@ class PatternPlotter:
         self.addPattern(pattern)
 
     def addPattern(self, pattern:PatternModel):
+        self.removePatternFromCanvas(pattern)
         result, commands = pattern.getGcode()
         color = "blue"
         #Change color to red if selected

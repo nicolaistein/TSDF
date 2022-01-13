@@ -36,7 +36,7 @@ leftContainer.pack(side="left", anchor=N, padx=(0, 20))
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 
-AllPatterns(allPatternsContainer, mainColor, placedPatterns).build("top")
+AllPatterns(allPatternsContainer, mainColor, placedPatterns, canvasManager).build("top")
 plotter.show()
 
 allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))
