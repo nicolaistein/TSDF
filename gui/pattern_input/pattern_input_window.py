@@ -7,6 +7,7 @@ from gui.pattern_model import PatternModel
 from gui.button import TkinterCustomButton
 from gui.pattern_input.pattern_input_line import PatternInputLine
 from gui.pattern_input.pattern_slider_input import PatternSliderInput
+from gui.pattern_input.patterin_location_input import PatternLocationInput
 from gui.canvas.canvas_manager import CanvasManager
 
 
@@ -19,21 +20,54 @@ class PatternInputWindow:
         self.pattern = pattern
         self.onComplete = onComplete
         self.canvasManager = canvasManager
+        self.canvas = canvasManager.canvas
+        self.pickingLocation = False
+        canvas = canvasManager.canvas
+        canvas.bind("<Motion>", self.onMouseMoved)
+        canvas.bind("<Button-1>", self.onCanvasClickLeft)
+        canvas.bind("<Button-2>", self.onCanvasClickRight)
+        canvas.bind("<Button-3>", self.onCanvasClickRight)
         self.initialized = False
 
-    def abort(self):
-        if not self.isEditMode:
-            self.canvasManager.patternPlotter.deletePattern(self.pattern)
+    def pickLocation(self):
+        prev = self.positionInput.getValues()
+        self.previousLocation = {"x": float(prev["x"]), "y": float(prev["y"])}
+        self.pickingLocation = True
 
+    def onCanvasClickLeft(self, event):
+        self.pickingLocation = False
+
+    def onCanvasClickRight(self, event):
+        self.pickingLocation = False
+        self.positionInput.setValues(self.previousLocation)
+
+    def onMouseMoved(self, event):
+        x, y = self.canvasManager.reverseP(event.x, event.y)
+    #    self.canvas.itemconfigure(self.tag, text="(%r, %r)" % (x, y))
+        if self.pickingLocation:
+            self.collectValues()
+            self.pattern.x = x
+            self.pattern.y = y
+            self.canvasManager.patternPlotter.refreshPattern(self.pattern)
+            self.positionInput.setValues({"x":x, "y":y})
+
+
+    def abort(self):
         #Reset values
         self.pattern.name = self.oldObject.name
         self.pattern.params = self.oldObject.params
         self.pattern.x = self.oldObject.x
         self.pattern.y = self.oldObject.y
         self.pattern.rotation = self.oldObject.rotation
+
+        if not self.isEditMode:
+            self.canvasManager.patternPlotter.deletePattern(self.pattern)
+        else:
+            self.canvasManager.patternPlotter.refreshPattern(self.pattern)
+
         self.deleteButtons()
         self.window.destroy()
-        self.onComplete(self.pattern)
+#        self.onComplete(self.pattern)
 
     def deleteButtons(self):
         self.buttonAccept.delete()
@@ -66,6 +100,7 @@ class PatternInputWindow:
 
 
     def openWindow(self):
+ #       self.tag = self.canvas.create_text(10, 10, text="", anchor="nw") 
         self.window.title(
             "Place Pattern " + self.pattern.id if not self.pattern.name
             else "Edit Pattern " + self.pattern.name)
@@ -93,7 +128,7 @@ class PatternInputWindow:
         self.rotationInput.display()
 
         # Position row
-        self.positionInput = PatternInputLine(self,
+        self.positionInput = PatternLocationInput(self,
             "Position", {"x": pattern.x, "y": pattern.y})
         self.positionInput.build(mainContainer, 15)
         self.positionInput.display()

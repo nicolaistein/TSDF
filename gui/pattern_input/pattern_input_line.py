@@ -23,6 +23,12 @@ class PatternInputLine:
             result[key] = currentValue if currentValue or not self.isNumeric else "0.0"
         return result
 
+    def setValues(self, values:Mapping):
+        for k, v in self.texts.items():
+            if k in values:
+                v.delete(1.0, END)
+                v.insert(END, str(round(values[k],2)))
+
     def reset(self):
         for key, textField in self.texts.items():
             textField.delete(1.0, END)

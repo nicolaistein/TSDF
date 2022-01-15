@@ -32,6 +32,15 @@ class CanvasManager:
         Y = M + (1-(y/self.ymax)) * (self.size-2*M)
         return (X,Y)
 
+    def reverseP(self, X,Y):
+        """
+        Transform point from Canvas (X,Y) to cartesian (x,y)
+        """
+        M=4
+        x = (X-M) * self.xmax / (self.size-2*M)
+        y = (Y-M-self.size+2*M) * self.ymax / (self.size-2*M) * -1
+        return (x,y)
+
     def plot(self, points, faces, areaDistortions, angularDistortions):
         self.faces = faces
         pointsNew = translator.moveToPositiveArea(points)

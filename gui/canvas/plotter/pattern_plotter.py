@@ -7,7 +7,6 @@ class PatternPlotter:
     def __init__(self, canvasManager):
         self.cv = canvasManager
         self.canvas = canvasManager.canvas
-        self.canvas.bind("<Motion>", self.onMouseMoved)
         self.build()
         self.placedPatternsMenu = None
         self.patterns = {}
@@ -17,8 +16,6 @@ class PatternPlotter:
     def build(self):
         self.tag = self.canvas.create_text(10, 10, text="", anchor="nw") 
 
-    def onMouseMoved(self, event):
-        self.canvas.itemconfigure(self.tag, text="(%r, %r)" % (event.x, event.y))
 
     def selectPattern(self, pattern: PatternModel):
         selected = self.selectedPattern
