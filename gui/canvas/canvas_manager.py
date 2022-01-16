@@ -11,7 +11,7 @@ class CanvasManager:
     def __init__(self, master: Frame, initSize: int):
         self.size = initSize
         self.canvasFrame = Frame(master, height=self.size, width=self.size)
-        self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size)
+        self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size, bd=0, highlightthickness=0)
         self.distortionPlotter = DistortionPlotter(self)
         self.patternPlotter = PatternPlotter(self)
         self.objectPlotter = ObjectPlotter(self)
@@ -27,7 +27,7 @@ class CanvasManager:
         """
         Transform point from cartesian (x,y) to Canvas (X,Y)
         """
-        M=4
+        M=1
         X = M + (x/self.xmax) * (self.size-2*M)
         Y = M + (1-(y/self.ymax)) * (self.size-2*M)
         return (X,Y)
@@ -36,7 +36,7 @@ class CanvasManager:
         """
         Transform point from Canvas (X,Y) to cartesian (x,y)
         """
-        M=4
+        M=1
         x = (X-M) * self.xmax / (self.size-2*M)
         y = (Y-M-self.size+2*M) * self.ymax / (self.size-2*M) * -1
         return (x,y)
@@ -67,8 +67,8 @@ class CanvasManager:
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
     def plotRulers(self):
-        max = self.size - 4
-        min = 4
+        max = self.size-1
+        min = 0
         length = 820
 
         topLeft = self.size-length
@@ -78,10 +78,10 @@ class CanvasManager:
         l1 = self.canvas.create_line(min, max, min, topLeft)
         l2 =self.canvas.create_line(min, max, length, max)
 
-        l3 =self.canvas.create_line(4, topLeft, min+diff, topLeft+diff)
+        l3 =self.canvas.create_line(min, topLeft, min+diff, topLeft+diff)
         l4 =self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
 
-        l5 =self.canvas.create_text(min+20,topLeft-10,fill="darkblue",font=("Purisa", 10), text=str(self.ymax))
+        l5 =self.canvas.create_text(min+15,topLeft-10,fill="darkblue",font=("Purisa", 10), text=str(self.ymax))
         l6 =self.canvas.create_text(bottomRight+25,max-5,fill="darkblue",font=("Purisa", 10), text=str(self.xmax))
 
         self.rulers.extend([l1, l2, l3, l4, l5, l6])
