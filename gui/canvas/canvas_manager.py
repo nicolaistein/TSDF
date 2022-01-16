@@ -81,8 +81,8 @@ class CanvasManager:
         l3 =self.canvas.create_line(min, topLeft, min+diff, topLeft+diff)
         l4 =self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
 
-        l5 =self.canvas.create_text(min+15,topLeft-10,fill="darkblue",font=("Purisa", 10), text=str(self.ymax))
-        l6 =self.canvas.create_text(bottomRight+25,max-5,fill="darkblue",font=("Purisa", 10), text=str(self.xmax))
+        l5 =self.canvas.create_text(min+5, topLeft-2, anchor="sw", fill="darkblue",font=("Purisa", 10), text=str(self.ymax))
+        l6 =self.canvas.create_text(bottomRight+5, max, anchor="sw", fill="darkblue",font=("Purisa", 10), text=str(self.xmax))
 
         self.rulers.extend([l1, l2, l3, l4, l5, l6])
 
