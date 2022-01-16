@@ -98,7 +98,6 @@ class PatternInputWindow:
             loc = self.positionInput.getValues()
             self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
 
-
     def openWindow(self):
  #       self.tag = self.canvas.create_text(10, 10, text="", anchor="nw") 
         self.window.title(
@@ -150,4 +149,7 @@ class PatternInputWindow:
         buttonFrame.pack(side=TOP, anchor=W, pady=(30, 0))
 
         mainContainer.pack(anchor=N)
+
+        self.window.protocol("WM_DELETE_WINDOW", self.abort)
         self.window.mainloop()
+

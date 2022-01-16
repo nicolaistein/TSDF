@@ -20,7 +20,7 @@ class PlacedPatternsItem:
     def edit(self):
         self.menu.edit(self.pattern)
 
-    def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 70):
+    def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 80):
         keyValFrame = Frame(parent)
         keyLabel = Label(keyValFrame, text=key, width=7,
                          anchor=W, justify=LEFT, wraplength=50)
