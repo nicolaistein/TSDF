@@ -7,7 +7,7 @@ from gui.left_side_menu.file_menu import FileMenu
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
-from gui.canvas.mesh3dplotter import Mesh3DPlotter
+from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 
 mainColor = "#cccccc"
 root = Tk()

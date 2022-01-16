@@ -63,7 +63,7 @@ class Charts:
         k, v = zip(*borders.items())
         idx = max(v)
         bb = k[v.index(idx)]
-        print("max: " + str(max))
+        log("max: " + str(max))
         for index, val in enumerate(self.charts):
             if val == chart: self.charts[index] = bb
 

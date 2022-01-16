@@ -2,7 +2,7 @@ from ctypes import pointer, string_at
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
-from gui.canvas.mesh3dplotter import Mesh3DPlotter
+from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 import igl
 import os
 
