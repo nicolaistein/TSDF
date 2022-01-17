@@ -42,14 +42,10 @@ class Segmenter:
         return faceToChart, chartKeys
 
     def clearFolder(self):
-        print("cwd: " + str(os.getcwd()))
         if os.path.isdir(os.getcwd() + "/" + folder):
             shutil.rmtree(folder)
 
         os.mkdir(folder)
-
-        #Delete folder
-        #Create folder
 
 
     def extract(self, faceToChart, key):
@@ -62,18 +58,6 @@ class Segmenter:
                         usedVertices[v] = counter
                         counter += 1
 
-        print("usedVertices")
-        print(usedVertices)
-
-
-   #     sortedVertices = {k: v for k, v in sorted(usedVertices, key=lambda item: item[0])}
-
-   #     sortedVertices = {k: v for k, v in sorted(usedVertices.items(), key=lambda item: item[1])}
-
-        
-
-        print("sortedVertices")
-        print(usedVertices)
 
         file = open(folder + "/" + str(key) + ".obj", "w")
         for k, v in usedVertices.items():

@@ -16,6 +16,7 @@ class PatternInputWindow:
     def __init__(self, root, pattern: PatternModel, onComplete, canvasManager:CanvasManager, isEditMode:bool):
         self.window = Toplevel(root)
         self.oldObject = copy(pattern)
+        self.oldObject.params = copy(pattern.params)
         self.isEditMode = isEditMode
         self.pattern = pattern
         self.onComplete = onComplete
