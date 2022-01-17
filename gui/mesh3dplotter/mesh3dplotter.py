@@ -47,6 +47,7 @@ class Mesh3DPlotter:
         self.buttons = [button1, button2, button3]
         
         rightSide = Frame(self.mainFrame)
+        
 
         rightSide.pack(side=LEFT, anchor=N, padx=(0,10))
 

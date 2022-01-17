@@ -9,6 +9,7 @@ from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 import os
+from gui.listview import getListview
 
 
 class AllPatterns:
@@ -62,20 +63,7 @@ class AllPatterns:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
-        self.canvas = Canvas(self.content, height=320, width=340)
-        self.innerContent = Frame(self.canvas)
-
-        self.canvas.pack(side=LEFT, fill=BOTH, expand=1)
-        # Add A Scrollbar To The Canvas
-        my_scrollbar = ttk.Scrollbar(self.content, orient=VERTICAL, command=self.canvas.yview)
-        my_scrollbar.pack(side=RIGHT, fill=Y)
-
-        # Configure The Canvas
-        self.canvas.configure(yscrollcommand=my_scrollbar.set)
-        self.canvas.bind('<Configure>', lambda e: self.canvas.configure(scrollregion = self.canvas.bbox("all")))
-
-        # Add that New frame To a Window In The Canvas
-        self.canvas.create_window((0,0), window=self.innerContent, anchor="nw")
+        self.innerContent = getListview(self.content, width=340, height=320, padx=0)
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file) and file.startswith("pattern"):
