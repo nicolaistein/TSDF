@@ -3,42 +3,74 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
+from gui.listview import getListview
 import igl
 import os
 
 
 class FileMenu:
-    path = ""
     triangleCount = 0
+    triangles = []
+    v = []
+    currentObject = ""
+    currentChart = ""
 
     def __init__(self, master: Frame, plotter:Mesh3DPlotter):
         self.plotter = plotter
+        plotter.notifyFileMenu = self.onChartSelect
         self.mainFrame = Frame(master)
         self.content = Frame(self.mainFrame, width=220,
                              height=180, padx=20, pady=20)
 
+    def onChartSelect(self, chart:int):
+        if chart == -1: 
+            self.currentChart = ""
+        else:
+            self.currentChart = os.getcwd() + "/algorithms/segmentation/result/" + str(chart) + ".obj"
+        self.refreshInfo()
+
+    def refreshInfo(self):
+
+        filename = self.currentObject.split("/")[-1]
+        fileText = filename if filename else "-"
+
+        chart = self.currentChart.split("/")[-1]
+        chart = chart.split(".")[0]
+        chartText= "#" + str(chart) if chart else "-"
+        
+        if self.currentObject:
+            self.v, self.triangles = igl.read_triangle_mesh(os.path.join(os.getcwd(),
+                self.currentChart if self.currentChart else self.currentObject))
+
+        for child in self.list.winfo_children():
+            child.destroy()
+
+        self.getKeyValueFrame(self.list, "Name", fileText)
+        self.getKeyValueFrame(self.list, "Chart", chartText)
+        self.getKeyValueFrame(self.list, "Vertices", str(len(self.v)))
+        self.getKeyValueFrame(self.list, "Faces", str(len(self.triangles)))
+
     def onSelectFile(self):
-        filename = askopenfilename(
+        obj = askopenfilename(
             filetypes=[("Object files", ".obj")])
 
-        if os.path.isfile(filename):
-            self.path = filename
-            self.fileNameLabel.configure(text=filename.split("/")[-1])
-            self.verticesLabel.configure(text="Reading...")
-            self.facesLabel.configure(text="Reading...")
+        if os.path.isfile(obj):
+            self.currentObject = obj
+            self.currentChart = ""
+            self.refreshInfo()
+            self.plotter.plotFile(self.v, self.triangles)
+        
+    def getPath(self):
+        return self.currentChart if self.currentChart else self.currentObject
 
-            v, self.triangles = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
-            self.verticesLabel.configure(text=str(len(v)))
-            self.facesLabel.configure(text=str(len(self.triangles)))
-            self.plotter.plotFile(v, self.triangles)
 
-    def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str, valueLength: float = 85):
         keyValFrame = Frame(parent)
         keyLabel = Label(keyValFrame, text=key, width=8,
                          anchor=W, justify=LEFT, wraplength=70)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        valLabel = Label(keyValFrame, text="-", wraplength=valueLength)
+        valLabel = Label(keyValFrame, text=value, wraplength=valueLength)
         valLabel.pack(side=LEFT)
 
         keyValFrame.pack(side="top", anchor="w")
@@ -46,8 +78,6 @@ class FileMenu:
 
 
     def build(self):
-        self.content.pack_propagate(0)
-
         title = Label(self.content, text="Select")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill=BOTH, side=TOP, pady=(0, 10))
@@ -64,10 +94,11 @@ class FileMenu:
         button.pack(side=LEFT, padx=5)
         chooseFrame.pack(side=TOP, pady=(0, 10))
 
-        self.fileNameLabel = self.getKeyValueFrame(fileSelectionFrame, "Name")
-        self.verticesLabel = self.getKeyValueFrame(fileSelectionFrame, "Vertices")
-        self.facesLabel = self.getKeyValueFrame(fileSelectionFrame, "Faces")
+        infoFrame = Frame(fileSelectionFrame)
+        self.list = getListview(infoFrame, 160, 50, 0)
+        self.refreshInfo()
 
+        infoFrame.pack(side=TOP, anchor=N)
         fileSelectionFrame.pack(side=TOP, anchor=W)
 
         self.content.pack(side="top")

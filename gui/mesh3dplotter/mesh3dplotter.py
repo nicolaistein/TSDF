@@ -9,6 +9,7 @@ from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
 from gui.listview import getListview
 
+
 class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
@@ -50,13 +51,14 @@ class Mesh3DPlotter:
         self.buttons.extend([button1, button2, button3])
         
         rightSide = Frame(self.mainFrame)
-        self.list = getListview(rightSide, width=130, height=150)
+        self.list = getListview(rightSide, width=180, height=150)
 
-        rightSide.pack(side=LEFT, anchor=N, padx=(60,10))
+        rightSide.pack(side=LEFT, anchor=N, padx=(20,10))
         self.mainFrame.pack(side=TOP, pady=(20,0))
 
     def selectChart(self, chart):
         self.selectedChart = chart if self.selectedChart != chart else -1
+        self.notifyFileMenu(self.selectedChart)
         self.faceColors = self.refreshColors(self.selectedChart)
         self.show()
 
@@ -68,9 +70,12 @@ class Mesh3DPlotter:
         cols = self.faceColors
         for ch in self.chartList:
             if self.selectedChart != ch and self.selectedChart != -1: continue
-            b = TkinterCustomButton(master=self.list, text="Select" if self.selectedChart != ch else "Deselect",
+            text = "Select" if self.selectedChart != ch else "Deselect"
+            text += " Chart #" + str(ch)
+
+            b = TkinterCustomButton(master=self.list, text=text,
              fg_color=cols[ch][:7], hover_color=cols[ch][:7], command=partial(self.selectChart, ch),
-              corner_radius=60, height=25, width=120)
+              corner_radius=60, height=25, width=170)
             b.pack(side=TOP, pady=(10,0))
             self.buttons.append(b)
 
@@ -100,12 +105,14 @@ class Mesh3DPlotter:
         self.faces = faces
         self.chartList = []
         self.faceColors = ["#1f77b4ff"] * len(faces)
+        self.selectedChart = -1
         self.show()
 
 
     def segment(self):
         self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
         self.faceColors = self.refreshColors()
+        self.selectedChart = -1
         self.show()
 
 

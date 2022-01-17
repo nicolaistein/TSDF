@@ -28,7 +28,7 @@ class AlgorithmMenu:
         self.v.set(0)
 
     def calculate(self):
-        file = self.fileMenu.path
+        file = self.fileMenu.getPath()
         if not file:
             return
 
