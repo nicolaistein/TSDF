@@ -40,7 +40,7 @@ def plotFeatureDistance(vertices:List[List[float]], faces:List[List[int]], featu
     offline.plot(fig, filename='faceColorPlot.html')
 
 
-distinctColors = ["#808080", "#dcdcdc", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
+distinctColors = ["#808080", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
     "#008b8b", "#000080", "#9acd32", "#8fbc8f", "#800080", "#b03060", "#ff0000", "#ffff00",
     "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
     "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]

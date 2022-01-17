@@ -1,13 +1,13 @@
-from functools import total_ordering
 from tkinter import *
+from functools import partial
 from matplotlib.backends.backend_tkagg import (
     FigureCanvasTkAgg, NavigationToolbar2Tk)
 from matplotlib.backend_bases import key_press_handler
 import matplotlib.pyplot as plt
-import numpy as np
 from gui.button import TkinterCustomButton
 from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
+from gui.listview import getListview
 
 class Mesh3DPlotter:
 
@@ -15,8 +15,11 @@ class Mesh3DPlotter:
         self.mainFrame = Frame(master, width=360, height=480)
         self.buttons = []
         self.faces = []
+        self.chartList = []
         self.vertices = []
         self.faceColors = []
+        self.charts = []
+        self.selectedChart = -1
         self.showEdges = False
 
     def viewBrowser(self):
@@ -44,23 +47,48 @@ class Mesh3DPlotter:
         button3.pack(side=TOP, pady=(10,0))
         leftSide.pack(side=LEFT, anchor=N, padx=(10,0))
 
-        self.buttons = [button1, button2, button3]
+        self.buttons.extend([button1, button2, button3])
         
         rightSide = Frame(self.mainFrame)
-        
+        self.list = getListview(rightSide, width=130, height=150)
 
-        rightSide.pack(side=LEFT, anchor=N, padx=(0,10))
-
+        rightSide.pack(side=LEFT, anchor=N, padx=(60,10))
         self.mainFrame.pack(side=TOP, pady=(20,0))
 
+    def selectChart(self, chart):
+        self.selectedChart = chart if self.selectedChart != chart else -1
+        self.faceColors = self.refreshColors(self.selectedChart)
+        self.show()
 
-    def getColors(self, faces, charts, chartList):
+    def refreshList(self):
+        for child in self.list.winfo_children():
+            child.destroy()
+
+        cols = self.refreshColors()
+        cols = self.faceColors
+        for ch in self.chartList:
+            if self.selectedChart != ch and self.selectedChart != -1: continue
+            b = TkinterCustomButton(master=self.list, text="Select" if self.selectedChart != ch else "Deselect",
+             fg_color=cols[ch][:7], hover_color=cols[ch][:7], command=partial(self.selectChart, ch),
+              corner_radius=60, height=25, width=120)
+            b.pack(side=TOP, pady=(10,0))
+            self.buttons.append(b)
+
+    def refreshColors(self, selectedChart:int=-1):
         chartToColor = {}
-        for index, val in enumerate(chartList):
-            chartToColor[val] = distinctColors[index % len(distinctColors)]
+        if selectedChart == -1:
+            for index, val in enumerate(self.chartList):
+                chartToColor[val] = distinctColors[index % len(distinctColors)]
+            
+        else:
+            for index, val in enumerate(self.chartList):
+                if val == selectedChart:
+                    chartToColor[val] = "#a81818"
+                else:
+                    chartToColor[val] = "#ffffff"
 
-        colors = ["green"]*len(faces)
-        for index, x in enumerate(charts): 
+        colors = ["green"]*len(self.faces)
+        for index, x in enumerate(self.charts): 
             color = chartToColor[x] + "ff"
             colors[index] = color
 
@@ -70,13 +98,14 @@ class Mesh3DPlotter:
     def plotFile(self, vertices, faces):
         self.vertices = vertices
         self.faces = faces
-        self.faceColors = ["#1f77b4"] * len(faces)
+        self.chartList = []
+        self.faceColors = ["#1f77b4ff"] * len(faces)
         self.show()
 
 
     def segment(self):
-        charts, chartList = Segmenter(self.vertices, self.faces).calc()
-        self.faceColors = self.getColors(self.faces, charts, chartList)
+        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
+        self.faceColors = self.refreshColors()
         self.show()
 
 
@@ -107,3 +136,5 @@ class Mesh3DPlotter:
 
         self.canvas.mpl_connect("key_press_event", key_press_handler)
         self.canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
+
+        self.refreshList()
