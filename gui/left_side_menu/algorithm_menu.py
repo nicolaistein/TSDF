@@ -6,6 +6,7 @@ from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
 import gui.canvas.area_distortion as AreaDistortion
 import gui.canvas.angular_distortion as AngularDistortion
+from logger import log
 
 
 class AlgorithmMenu:
@@ -44,7 +45,7 @@ class AlgorithmMenu:
         if(chosen == 2):
             time, points, pointsBefore, faces, facesBefore = executeARAP(file)
 
-        print("time: " + str(time) + ", points: " + str(len(points)))
+        log("time: " + str(time) + ", points: " + str(len(points)))
         areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
         angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=chosen==0)
 

@@ -6,5 +6,6 @@
 *.spec
 *.txt
 *.html
+*.log
 
 test.py

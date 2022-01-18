@@ -1,6 +1,7 @@
 from tkinter import *
 from typing import List
 import numpy as np
+from logger import log
 
 def subtract(p1:List[float], p2:List[float]):
     x = p1[0] - p2[0]
@@ -23,7 +24,7 @@ def faceToArea(face, points):
     return triangleArea(points[indexX], points[indexY], points[indexZ])
 
 def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]]):
-    print("compute area distortion: before=" + str(len(pointsBefore))
+    log("compute area distortion: before=" + str(len(pointsBefore))
      + ", after=" + str(len(pointsAfter))
       + ", facesBefore=" + str(len(facesBefore))
        + ", facesAfter=" + str(len(facesAfter)))
@@ -49,7 +50,7 @@ def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], faces
 
     avg = totalAVG/len(distortionsAVG)
 
-    print("min area distortion: " + str(minDistortion))
-    print("max area distortion: " + str(maxDistortion))
-    print("average area distortion: " + str(avg))
+    log("min area distortion: " + str(minDistortion))
+    log("max area distortion: " + str(maxDistortion))
+    log("average area distortion: " + str(avg))
     return distortionsAVG, avg

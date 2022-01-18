@@ -2,6 +2,7 @@ from tkinter import *
 from typing import List
 import numpy as np
 import math
+from logger import log
 
 
 def unit_vector(vector):
@@ -48,8 +49,8 @@ def getAngles(a:List[float], b:List[float], c:List[float], debug:bool=False):
     angle3 = angle_between(bc, ab)
 
     if debug:
-        print("faceToAngles ab: " + str(ab) + ", ac: " + str(ac) + ", bc: " + str(bc))
-        print("faceToAngles angle1: " + str(angle1) + ", angle2: " + str(angle2) + ", angle3: " + str(angle3))
+        log("faceToAngles ab: " + str(ab) + ", ac: " + str(ac) + ", bc: " + str(bc))
+        log("faceToAngles angle1: " + str(angle1) + ", angle2: " + str(angle2) + ", angle3: " + str(angle3))
 
     return angle1, angle2, angle3
 
@@ -67,7 +68,7 @@ def perm(a1, a2, a3, b1, b2, b3):
     return abs(b1-a1) + abs(b2-a2) + abs(b3-a3)
 
 def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]], isBFF:bool=False):
-    print("compute angular distortion: before=" + str(len(pointsBefore))
+    log("compute angular distortion: before=" + str(len(pointsBefore))
      + ", after=" + str(len(pointsAfter))
       + ", facesBefore=" + str(len(facesBefore))
        + ", facesAfter=" + str(len(facesAfter)))
@@ -102,7 +103,7 @@ def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], faces
     avg = total/len(list(distortions))
 
 
-    print("min angular distortion: " + str(minDistortion))
-    print("max angular distortion: " + str(maxDistortion))
-    print("average angular distortion: " + str(avg))
+    log("min angular distortion: " + str(minDistortion))
+    log("max angular distortion: " + str(maxDistortion))
+    log("average angular distortion: " + str(avg))
     return distortions, avg

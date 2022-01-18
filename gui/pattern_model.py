@@ -4,6 +4,7 @@ from PIL import ImageTk, Image
 from patterns.pattern1.pattern import Pattern as Pattern1
 from patterns.pattern2.pattern import Pattern as Pattern2
 from patterns.pattern3.pattern import Pattern as Pattern3
+from logger import log
 
 
 def parsePatternAttributes(folderName: str):
@@ -73,10 +74,10 @@ class PatternModel:
         self.params.update(mapping)
 
     def print(self):
-        print("Pattern " + self.name)
-        print("Params: " + str(self.params))
-        print("Location" + self.getPosition())
-        print("Rotation: " + str(self.rotation))
+        log("Pattern " + self.name)
+        log("Params: " + str(self.params))
+        log("Location" + self.getPosition())
+        log("Rotation: " + str(self.rotation))
 
     def getPosition(self):
         return str(self.x) + ", " + str(self.y)
