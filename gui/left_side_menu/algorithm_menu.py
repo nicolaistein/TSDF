@@ -1,11 +1,15 @@
+from functools import partial
+from pyclbr import Function
 from tkinter import *
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
+from algorithms.segmentation.segmentation import folder
 import gui.canvas.area_distortion as AreaDistortion
 import gui.canvas.angular_distortion as AngularDistortion
+import os
 from logger import log
 
 
@@ -34,23 +38,56 @@ class AlgorithmMenu:
             return
 
         chosen = self.v.get()
-        algo, id = self.algorithms[chosen]
+        algoName, id = self.algorithms[chosen]
 
         if(chosen == 0):
             coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
-            time, points, pointsBefore, faces, facesBefore = executeBFF(file, coneCount)
-            algo = "BFF with " + str(coneCount) + " cones"
+            algorithmFunc = partial(executeBFF, coneCount)
+            algoName = "BFF with " + str(coneCount) + " cones"
         if(chosen == 1):
-            time, points, pointsBefore, faces, facesBefore = executeLSCM(file)
+            algorithmFunc = executeLSCM
         if(chosen == 2):
-            time, points, pointsBefore, faces, facesBefore = executeARAP(file)
+            algorithmFunc = executeARAP
 
-        log("time: " + str(time) + ", points: " + str(len(points)))
+        chartList = []
+        if self.fileMenu.plotter.isSegmented():
+            folderName = os.getcwd() + "/" + folder
+            fileList = os.listdir(folderName)
+            for file in fileList:
+                chartList.append(folderName + "/" + file)
+        else:
+            chartList = [file]
+            
+        log("Chartlist: " + str(chartList))
+
+        computeStart = time.time()
+        results = []
+        areaDists = []
+        angularDists = []
+        for ch in chartList:
+            res, areaDist, angularDist = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
+            results.append(res)
+            areaDists.append(areaDist)
+            angularDists.append(angularDist)
+
+        computeEnd = time.time()
+
+        self.canvasManager.plot(results)
+
+        avgAreaDist = sum(areaDists)/len(areaDists)
+        avgAngleDist = sum(angularDists)/len(angularDists)
+        self.compInfo.updateInfo(algoName, computeEnd-computeStart, avgAreaDist, avgAngleDist)
+
+
+    def calculateSingleFile(self, file, algorithm:Function, isBFF):
+
+        time, points, pointsBefore, faces, facesBefore = algorithm(file)
+
+        log("file: " + file + ", time: " + str(time) + ", points: " + str(len(points)))
         areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
-        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=chosen==0)
+        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=isBFF)
 
-        self.canvasManager.plot(points, faces, areaDistortions, angularDistortions)
-        self.compInfo.updateInfo(algo, time, avgAreaDistortion, avgAngularDistortion)
+        return (points, faces, areaDistortions, angularDistortions), avgAreaDistortion, avgAngularDistortion
 
 
     def build(self):

@@ -46,7 +46,7 @@ class FileMenu:
             child.destroy()
 
         self.getKeyValueFrame(self.list, "Name", fileText)
-        self.getKeyValueFrame(self.list, "Chart", chartText)
+#        self.getKeyValueFrame(self.list, "Chart", chartText)
         self.getKeyValueFrame(self.list, "Vertices", str(len(self.v)))
         self.getKeyValueFrame(self.list, "Faces", str(len(self.triangles)))
 
@@ -78,6 +78,7 @@ class FileMenu:
 
 
     def build(self):
+        self.content.pack_propagate(False)
         title = Label(self.content, text="Select")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill=BOTH, side=TOP, pady=(0, 10))
@@ -95,10 +96,12 @@ class FileMenu:
         chooseFrame.pack(side=TOP, pady=(0, 10))
 
         infoFrame = Frame(fileSelectionFrame)
-        self.list = getListview(infoFrame, 160, 50, 0)
+        self.list = infoFrame
+    #    self.list = getListview(infoFrame, 160, 50, 0)
         self.refreshInfo()
 
-        infoFrame.pack(side=TOP, anchor=N)
+
+        infoFrame.pack(side=TOP, anchor=W)
         fileSelectionFrame.pack(side=TOP, anchor=W)
 
         self.content.pack(side="top")

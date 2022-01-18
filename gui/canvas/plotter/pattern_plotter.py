@@ -27,6 +27,9 @@ class PatternPlotter:
             self.selectedPattern = None
         self.refreshPattern(pattern)
         
+    def refresh(self):
+        for p in self.patterns.keys():
+            self.refreshPattern(p)
 
     def clear(self):
         for point in self.objectsOnCanvas:

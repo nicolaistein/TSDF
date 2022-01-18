@@ -1,36 +1,32 @@
 from tkinter import *
+from gui.canvas.distortion import Distortion
 
 class DistortionPlotter:
-    plotDistortion:str = "none"
+    plotDistortion:Distortion = Distortion.NO_DIST
 
-    def __init__(self,canvasManager):
+    def __init__(self,canvasManager, points, faces, areaDistortions, angularDistortions):
         self.cv = canvasManager
         self.canvas = canvasManager.canvas
+        self.areaDistortions = areaDistortions
+        self.angularDistortions = angularDistortions
+        self.faces = faces    
+        self.points = points
         self.distortionOnCanvas = []
 
     def createLine(self, x1, x2):
         self.distortionOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
-    def setDistortion(self, distortion:str = "none"):
-        if self.plotDistortion == distortion: 
-            self.plotDistortion = "none"
-        else:
-            self.plotDistortion = distortion
-
-    def plot(self, points, faces, areaDistortions, angularDistortions):
-        self.areaDistortions = areaDistortions
-        self.angularDistortions = angularDistortions
-        self.faces = faces    
-        self.points = points
+    def setDistortion(self, distortion:Distortion = Distortion.NO_DIST):
+        self.plotDistortion = distortion
 
     def refresh(self):
         self.clear()
         self.showDistortion()
         
     def showDistortion(self):
-        if self.plotDistortion == "area": self.showAreaDistortion()
-        if self.plotDistortion == "angle": self.showAngleDistortion()   
+        if self.plotDistortion == Distortion.AREA: self.showAreaDistortion()
+        if self.plotDistortion == Distortion.ANGLE: self.showAngleDistortion()   
 
     def showAreaDistortion(self):
         for index, face in enumerate(self.faces):

@@ -60,8 +60,8 @@ def faceToAngles(face, points, debug:bool=False):
     indexZ = face[2]-1
     a1, a2, a3 = getAngles(points[indexX], points[indexY], points[indexZ], debug)
     if debug:
-        print("face: " + str(face))
-        print("faceToAngles a1: " + str(a1) + ", a2: " + str(a2) + ", a3: " + str(a3))
+        log("face: " + str(face))
+        log("faceToAngles a1: " + str(a1) + ", a2: " + str(a2) + ", a3: " + str(a3))
     return a1, a2, a3
 
 def perm(a1, a2, a3, b1, b2, b3):

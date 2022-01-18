@@ -1,5 +1,6 @@
 import subprocess
 import platform
+from logger import log
 
 
 class BFF:
@@ -12,7 +13,7 @@ class BFF:
 
     def execute(self):
         # Select binary depending on the os
-        print("Platform: " + platform.system())
+        log("Platform: " + platform.system())
         commandPath = "./algorithms/bff/unix/bff-command-line"
         if(platform.system() == "Windows"):
             commandPath = "./algorithms/bff/windows/bff-command-line.exe"

@@ -1,6 +1,7 @@
 import igl
 import numpy as np
 import os
+from logger import log
 
 
 class LSCM:
@@ -12,14 +13,17 @@ class LSCM:
 
         # Load a mesh in OFF format
         v, f = igl.read_triangle_mesh(os.path.join(root_folder, self.objPath))
-        print("Vertices: " + str(len(v)))
-        print("Faces: " + str(len(f)))
+        log("Vertices: " + str(len(v)))
+        log("Faces: " + str(len(f)))
 
+        if len(f) > 0 and type(f[0]) is not np.ndarray:
+            f = np.matrix([list(f)])
+            
         # Fix two points on the boundary
         b = np.array([2, 1])
 
         bnd = igl.boundary_loop(f)
-        print("Boundary loop length: " + str(len(bnd)))
+        log("Boundary loop length: " + str(len(bnd)))
 
         b[0] = bnd[0]
         b[1] = bnd[int(bnd.size / 2)]

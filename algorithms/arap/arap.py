@@ -1,6 +1,9 @@
+from array import array
+from typing import List
 import numpy as np
 import os
 import igl
+from logger import log
 
 
 class ARAP:
@@ -9,16 +12,18 @@ class ARAP:
 
     def execute(self):
         root_folder = os.getcwd()
-        # meshplot.offline()
 
         # Load a mesh in OFF format
         v, f = igl.read_triangle_mesh(os.path.join(root_folder, self.objPath))
-        print("Vertices: " + str(len(v)))
-        print("Faces: " + str(len(f)))
+        log("Vertices: " + str(len(v)))
+        log("Faces: " + str(len(f)))
+
+        if len(f) > 0 and type(f[0]) is not np.ndarray:
+            f = np.matrix([list(f)])
 
         # Find the open boundary
         bnd = igl.boundary_loop(f)
-        print("Boundary loop length: " + str(len(bnd)))
+        log("Boundary loop length: " + str(len(bnd)))
 
         # Map the boundary to a circle, preserving edge proportions
         bnd_uv = igl.map_vertices_to_circle(v, bnd)

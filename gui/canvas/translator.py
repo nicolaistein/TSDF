@@ -1,3 +1,4 @@
+from typing import List
 from algorithms.bff.main import *
 import sys
 
@@ -47,4 +48,11 @@ def moveToPositiveArea(points):
         for point in points:
             point[1] += minY
 
+    return points
+
+def moveToPosition(points:List[List[float]], x:float, y:float):
+    for point in points:
+        point[0] += x
+        point[1] += y
+    
     return points

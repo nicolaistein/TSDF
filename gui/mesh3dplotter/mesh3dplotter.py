@@ -23,6 +23,8 @@ class Mesh3DPlotter:
         self.selectedChart = -1
         self.showEdges = False
 
+    def isSegmented(self): return len(self.chartList) != 0
+
     def viewBrowser(self):
         plotFaceColors(self.vertices, self.faces, self.faceColors)
 

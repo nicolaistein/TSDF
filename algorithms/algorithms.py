@@ -33,7 +33,7 @@ def getFaces(objPath:str):
             faces.append([x1, x2, x3])
     return faces
 
-def executeBFF(file: str, coneCount: int):
+def executeBFF(coneCount: int, file: str):
     return executeAlgo(BFF(coneCount, file), False)
 
 def executeLSCM(file: str):
