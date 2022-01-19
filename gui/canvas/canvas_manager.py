@@ -56,7 +56,7 @@ class CanvasManager:
             _, _, _, _, _, id = rect
             idToRect[id] = rect
 
-
+        log("idToRect: " + str(idToRect))
         # Move shapes according to rectangle results
         log("RECTS CALC FINISHED LENGTH: " + str(len(rects)))
         for index, rect in enumerate(rects):
@@ -78,7 +78,7 @@ class CanvasManager:
         # Delete old borders
         for point in self.borders:
             self.canvas.delete(point)
-        self.rulers.clear()
+        self.borders.clear()
 
         # Draw new borders
         for index, shape in enumerate(shapes):
@@ -151,6 +151,7 @@ class CanvasManager:
         self.canvas.pack(side=LEFT)
         self.refreshRulers()
 
+
     def refreshRulers(self):
         for point in self.rulers:
             self.canvas.delete(point)
@@ -165,12 +166,12 @@ class CanvasManager:
         diff = 10
 
         l1 = self.canvas.create_line(min, max, min, topLeft)
-        l2 =self.canvas.create_line(min, max, length, max)
+        l2 = self.canvas.create_line(min, max, length, max)
 
-        l3 =self.canvas.create_line(min, topLeft, min+diff, topLeft+diff)
-        l4 =self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
+        l3 = self.canvas.create_line(min, topLeft, min+diff, topLeft+diff)
+        l4 = self.canvas.create_line(bottomRight, max, bottomRight-diff, max-diff)
 
-        l5 =self.canvas.create_text(min+5, topLeft-2, anchor="sw", fill="darkblue",font=("Purisa", 10), text=str(self.ymax))
-        l6 =self.canvas.create_text(bottomRight+5, max, anchor="sw", fill="darkblue",font=("Purisa", 10), text=str(self.xmax))
+        l5 = self.canvas.create_text(min+5, topLeft-2, anchor="sw", fill="blue",font=("Purisa", 10), text=str(self.ymax))
+        l6 = self.canvas.create_text(bottomRight+5, max, anchor="sw", fill="blue",font=("Purisa", 10), text=str(self.xmax))
 
-        self.rulers.extend([l1, l2, l3, l4, l5, l6])
+        self.rulers = [l1, l2, l3, l4, l5, l6]
