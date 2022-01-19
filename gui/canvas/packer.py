@@ -6,7 +6,7 @@ import sys
 from logger import log
 
 def calc(rects, size):
-    packer = newPacker(sort_algo=SORT_DIFF, rotation=False, pack_algo=SkylineBl)
+    packer = newPacker(rotation=False)
 
     bins = [(float2dec(r[0], 3), float2dec(r[1], 3)) for r in [(size, size)]]
     bins = [(size,size)]
