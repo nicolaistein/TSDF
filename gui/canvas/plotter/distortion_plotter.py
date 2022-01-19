@@ -1,3 +1,4 @@
+from logger import log
 from tkinter import *
 from gui.canvas.distortion import Distortion
 
@@ -25,6 +26,7 @@ class DistortionPlotter:
         self.showDistortion()
         
     def showDistortion(self):
+        log("Show distortion: " + str(self.plotDistortion))
         if self.plotDistortion == Distortion.AREA: self.showAreaDistortion()
         if self.plotDistortion == Distortion.ANGLE: self.showAngleDistortion()   
 

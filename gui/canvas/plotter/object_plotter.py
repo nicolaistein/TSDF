@@ -1,22 +1,26 @@
+import sys
 from tkinter import *
 from gui.canvas.plotter.distortion_plotter import DistortionPlotter
 
 class ObjectPlotter:
     plotFaces:bool = False
 
-    def __init__(self, canvasManager, points, faces, areaDists, angleDists):
+    def __init__(self, canvasManager, points, faces, areaDists, angleDists,
+     plotFaces:bool=False, rect=None):
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
+        self.rect = rect
         self.points = points
         self.faces = faces
-        self.plotFaces = len(faces) < 1000
+        self.plotFaces = plotFaces
         self.objectsOnCanvas = []
         self.distortionPlotter = DistortionPlotter(canvasManager, points, faces, areaDists, angleDists)
 
-    def createLine(self, x1, x2):
+    def createLine(self, x1, x2, fill="black"):
         self.objectsOnCanvas.append(
-            self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
+            self.canvas.create_line(x1[0], x1[1], x2[0], x2[1], fill=fill))
             
+
     def show(self):
         self.distortionPlotter.showDistortion()
         if self.plotFaces:

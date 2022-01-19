@@ -38,15 +38,25 @@ def moveToPositiveArea(points):
         if(minY > y):
             minY = y
 
-    if minX < 0:
-        minX *= -1
-        for point in points:
-            point[0] += minX
+#    if minX < 0:
+#        minX *= -1
+#        for point in points:
+#            point[0] += minX
 
-    if minY < 0:
-        minY *= -1
-        for point in points:
-            point[1] += minY
+#    if minY < 0:
+#        minY *= -1
+#        for point in points:
+#            point[1] += minY
+
+
+    minX *= -1
+    for point in points:
+        point[0] += minX
+
+        
+    minY *= -1
+    for point in points:
+        point[1] += minY
 
     return points
 

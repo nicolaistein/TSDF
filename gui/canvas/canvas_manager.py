@@ -1,3 +1,4 @@
+import sys
 from tkinter import *
 from typing import List
 import gui.canvas.translator as translator
@@ -13,6 +14,7 @@ class CanvasManager:
     plotDistortion:str = Distortion.NO_DIST
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
+    borders = []
 
     def __init__(self, master: Frame, initSize: int):
         self.size = initSize
@@ -53,14 +55,20 @@ class CanvasManager:
 
         rects = pack(shapes)
 
+        idToRect = {}
+        for rect in rects:
+            _, _, _, _, _, id = rect
+            idToRect[id] = rect
 
+
+        # Move shapes according to rectangle results
         log("RECTS CALC FINISHED LENGTH: " + str(len(rects)))
         for index, rect in enumerate(rects):
             id, x, y, _, _, rid = rect
-            shapes[index] = translator.moveToPosition(shapes[index], x, y)
+            shapes[rid] = translator.moveToPosition(shapes[rid], x, y)
 
 
-        #Calculate max and adjust points
+        # Calculate max and adjust points
 
         maxValue = 0
         for shape in shapes:
@@ -70,13 +78,41 @@ class CanvasManager:
 
         self.xmax = self.ymax = round(maxValue, 2)
 
+
+        # Draw borders
+        for point in self.borders:
+            self.canvas.delete(point)
+        self.rulers.clear()
+
+        for index, shape in enumerate(shapes):
+            _, x, y, w, h, id = idToRect[index]
+
+            minX  = sys.float_info.max
+            minY  = sys.float_info.max
+            for p in shape:
+                if p[0] < minX: minX = p[0]
+                if p[1] < minY: minY = p[1]
+
+            xR = minX
+            yR = minY
+            upper = yR+h
+            right = xR+w
+
+            self.borders.append(self.canvas.create_line(self.P(xR,yR), self.P(right, yR), fill="red"))
+            self.borders.append(self.canvas.create_line(self.P(xR,yR), self.P(xR, upper), fill="red"))
+            
+            self.borders.append(self.canvas.create_line(self.P(right, upper), self.P(right, yR), fill="red"))
+            self.borders.append(self.canvas.create_line(self.P(right, upper), self.P(xR, upper), fill="red"))
+
+
+        # Transform to canvas coordinates
         for index, shape in enumerate(shapes):
             for index2, point in enumerate(shape):
                 shapes[index][index2] = self.P(point[0], point[1])
 
 
-        #Reset everything plotted to this point
 
+        #Reset everything plotted to this point
         self.placedPatternsMenu.deleteAll()
 
         for el in self.objectPlotters:
@@ -86,11 +122,11 @@ class CanvasManager:
         self.refreshRulers()
 
 
-
+        self.plotFaces = True
 
         for index, shape in enumerate(shapes):
             _, faces, areaDists, angleDists = list[index]
-            op = ObjectPlotter(self, shape, faces, areaDists, angleDists)
+            op = ObjectPlotter(self, shape, faces, areaDists, angleDists, self.plotFaces, idToRect[index])
             op.show()
             self.objectPlotters.append(op)
 

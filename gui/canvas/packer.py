@@ -1,16 +1,31 @@
+from re import X
 from typing import List
-from rectpack import newPacker
+from rectpack import *
 import gui.canvas.translator as translator
 import sys
+from logger import log
+
 
 def pack(shapes):
     rectangles = []
     for s in shapes:
         rectangles.append(shapeToRectangle(s))
 
-    bins = [(110, 110)]
+    xTotal = yTotal = 0
 
-    packer = newPacker()
+    for x, y in rectangles:
+        xTotal += x
+        yTotal += y
+
+    log("x total: " + str(xTotal))
+    log("y total: " + str(yTotal))
+
+    maxT = max([xTotal, yTotal])
+    log("max: " + str(maxT))
+
+    bins = [(maxT, maxT)]
+
+    packer = newPacker(sort_algo=SORT_DIFF, rotation=False)
 
     # Add the rectangles to packing queue
     for index, r in enumerate(rectangles):
@@ -24,7 +39,7 @@ def pack(shapes):
     packer.pack()
 
     all_rects = packer.rect_list()
-    print("All result: " + str(all_rects))
+    log("All rects result: " + str(all_rects))
     return all_rects
 
 def shapeToRectangle(vertices: List[List[float]]):
