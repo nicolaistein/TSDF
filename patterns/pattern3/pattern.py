@@ -16,9 +16,7 @@ class Pattern(PatternParent):
         r = b2 / 10
 
         self.reset()
-        self.absoluteMode()
 
-        self.moveTo()
         self.moveTo(y=(b2-b1)/2)
         self.workHeight()
 

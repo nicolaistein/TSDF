@@ -5,9 +5,6 @@ import numpy as np
 from patterns.gcode_cmd import GCodeCmd
 
 
-
-
-
 class PatternParent:
     def __init__(self, values: Mapping, workHeight:float, freeMoveHeight:float, 
                 startX: float, startY: float, rotation:float):

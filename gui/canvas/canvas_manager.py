@@ -104,7 +104,7 @@ class CanvasManager:
             op.show()
             self.objectPlotters.append(op)
 
-        self.patternPlotter.refresh()
+    #    self.patternPlotter.refresh()
 
 
     def createLine(self, x1, x2):
