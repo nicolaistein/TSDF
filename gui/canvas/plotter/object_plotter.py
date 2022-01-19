@@ -1,18 +1,23 @@
 import sys
 from tkinter import *
 from gui.canvas.plotter.distortion_plotter import DistortionPlotter
+from gui.canvas.distortion import Distortion
+from logger import log
 
 class ObjectPlotter:
-    plotFaces:bool = False
+
+    plotEdges:bool = False
+    plotColors:bool = False
 
     def __init__(self, canvasManager, points, faces, areaDists,
-     angleDists, color:str, plotFaces:bool=False):
+     angleDists, color:str, plotColors:bool=False):
         self.color = color
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
         self.points = points
         self.faces = faces
-        self.plotFaces = plotFaces
+        self.plotColors = plotColors
+        self.plotEdges = plotColors
         self.objectsOnCanvas = []
         self.distortionPlotter = DistortionPlotter(canvasManager, points, faces, areaDists, angleDists)
 
@@ -23,20 +28,22 @@ class ObjectPlotter:
 
     def show(self):
         self.distortionPlotter.showDistortion()
-        if self.plotFaces:
+        if self.plotEdges or self.plotColors:
             for face in self.faces:
                 
                 x = list(self.points[face[0]-1])
                 y = list(self.points[face[1]-1])
                 z = list(self.points[face[2]-1])
 
-                self.objectsOnCanvas.append(
-                    self.canvas.create_polygon(x, y, z, fill=self.color))
+                if self.plotColors:
+                    self.objectsOnCanvas.append(
+                        self.canvas.create_polygon(x, y, z, fill=self.color))
 
-                #Border
-                self.createLine(x, y)
-                self.createLine(y, z)
-                self.createLine(z, x)
+                #Edges
+                if self.plotEdges:
+                    self.createLine(x, y)
+                    self.createLine(y, z)
+                    self.createLine(z, x)
 
         else:
             for point in self.points:
@@ -45,8 +52,14 @@ class ObjectPlotter:
                 r = 0
                 self.objectsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
 
-    def setPlotFaces(self, plot:bool):
-        self.plotFaces = plot
+    def setPlotColors(self, plot:bool):
+        if plot:
+            self.setDistortion(Distortion.NO_DIST)
+        self.plotColors = plot
+        self.refresh()
+
+    def ssetPlotEdges(self, plot:bool):
+        self.plotEdges = plot
         self.refresh()
 
     def setDistortion(self, dist):

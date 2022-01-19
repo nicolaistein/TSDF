@@ -8,12 +8,14 @@ from gui.button import TkinterCustomButton
 from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
 from gui.listview import getListview
+from logger import log
 
 
 class Mesh3DPlotter:
 
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master, width=360, height=480)
+        self.fig = plt.figure()
         self.buttons = []
         self.faces = []
         self.chartList = []
@@ -81,22 +83,25 @@ class Mesh3DPlotter:
             b.pack(side=TOP, pady=(10,0))
             self.buttons.append(b)
 
+    def getChartColor(self, chart:int):
+        return self.chartToColor[chart]
+
     def refreshColors(self, selectedChart:int=-1):
-        chartToColor = {}
+        self.chartToColor = {}
         if selectedChart == -1:
             for index, val in enumerate(self.chartList):
-                chartToColor[val] = distinctColors[index % len(distinctColors)]
+                self.chartToColor[val] = distinctColors[index % len(distinctColors)]
             
         else:
             for index, val in enumerate(self.chartList):
                 if val == selectedChart:
-                    chartToColor[val] = "#a81818"
+                    self.chartToColor[val] = "#a81818"
                 else:
-                    chartToColor[val] = "#ffffff"
+                    self.chartToColor[val] = "#ffffff"
 
         colors = ["green"]*len(self.faces)
         for index, x in enumerate(self.charts): 
-            color = chartToColor[x] + "ff"
+            color = self.chartToColor[x] + "ff"
             colors[index] = color
 
         return colors
@@ -129,8 +134,9 @@ class Mesh3DPlotter:
         
         root = self.plotContainer
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
+        self.fig.clf()
+        
+        ax = self.fig.add_subplot(111, projection='3d')
 
         if len(self.faces) > 0:
             p3dc = ax.plot_trisurf(self.vertices[:, 0], self.vertices[:,1],
@@ -140,7 +146,7 @@ class Mesh3DPlotter:
                 p3dc.set_edgecolor("black")
 
 
-        self.canvas = FigureCanvasTkAgg(fig, master=root)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.canvas.draw()
 
         self.canvas.mpl_connect("key_press_event", key_press_handler)

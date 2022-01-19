@@ -11,7 +11,8 @@ from gui.canvas.packer import pack
 from logger import log
 
 class CanvasManager:
-    plotFaces:bool = False
+    plotColors:bool = False
+    plotEdges:bool = False
     plotDistortion:str = Distortion.NO_DIST
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
@@ -47,7 +48,7 @@ class CanvasManager:
 
     def plot(self, shapeList):
         shapes = []
-        for vertices, _, _, _ in shapeList:
+        for _, vertices, _, _, _ in shapeList:
             shapes.append(translator.moveToPositiveArea(vertices))
 
         # Calculate packing
@@ -73,7 +74,7 @@ class CanvasManager:
         self.xmax = self.ymax = round(maxValue, 2)
 
 
-        self.drawBorders(shapes, idToRect)
+#        self.drawBorders(shapes, idToRect)
 
         # Transform to canvas coordinates
         for index, shape in enumerate(shapes):
@@ -91,10 +92,15 @@ class CanvasManager:
 
         # Plot all again
         self.refreshRulers()
-        self.plotFaces = True
+        self.plotColors = True
+        self.plotEdges = True
         for index, shape in enumerate(shapes):
-            _, faces, areaDists, angleDists = shapeList[index]
-            op = ObjectPlotter(self, shape, faces, areaDists, angleDists, self.plotFaces)
+            chartKey, _, faces, areaDists, angleDists = shapeList[index]
+
+            color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
+
+            op = ObjectPlotter(self, shape, faces, areaDists, angleDists,
+            color, self.plotColors)
             op.show()
             self.objectPlotters.append(op)
 
@@ -106,9 +112,15 @@ class CanvasManager:
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
     def onFaces(self):
-        self.plotFaces = not self.plotFaces
+        self.plotColors = not self.plotColors
         for op in self.objectPlotters: 
-            op.setPlotFaces(self.plotFaces)
+            op.setPlotColors(self.plotColors)
+        self.patternPlotter.refresh()
+
+    def onEdges(self):
+        self.plotEdges = not self.plotEdges
+        for op in self.objectPlotters: 
+            op.ssetPlotEdges(self.plotEdges)
         self.patternPlotter.refresh()
         
     def onDistortionPress(self, distortion:Distortion):

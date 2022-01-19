@@ -50,21 +50,25 @@ class ComputationInfo:
         self.areaDist = self.getKeyValueFrame(self.content, "Area Distortion")
         self.angleDist = self.getKeyValueFrame(self.content, "Angle Distortion")
 
-        buttons = Frame(self.content)
-        TkinterCustomButton(master=buttons, text="Area Dist.",
+        buttonsTop = Frame(self.content)
+        TkinterCustomButton(master=buttonsTop, text="Area Dist.",
                         command=self.showAreaDistortion,
                         corner_radius=60, height=25, width=95).pack(side=LEFT)
         
-        TkinterCustomButton(master=buttons, text="Faces", command=self.canvasManager.onFaces,
+        TkinterCustomButton(master=buttonsTop, text="Faces", command=self.canvasManager.onFaces,
                         corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
-                        
-                        
-        
-        buttons.pack(side=TOP, anchor=W, pady=(10,0))
+        buttonsTop.pack(side=TOP, anchor=W, pady=(10,0))
 
-        TkinterCustomButton(master=self.content, text="Angle Dist.",
+
+        buttonsBottom = Frame(self.content)
+        TkinterCustomButton(master=buttonsBottom, text="Angle Dist.",
                         command=self.showAngleDistortion,
-                        corner_radius=60, height=25, width=95).pack(side=LEFT, pady=(10,0))
+                        corner_radius=60, height=25, width=95).pack(side=LEFT)
+        
+        TkinterCustomButton(master=buttonsBottom, text="Edges", command=self.canvasManager.onEdges,
+                        corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
+
+        buttonsBottom.pack(side=TOP, anchor=W, pady=(10,0))
 
         self.content.pack(side=LEFT)
         self.mainFrame.pack(side=side, pady=(20, 0), anchor=N)

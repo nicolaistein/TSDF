@@ -54,9 +54,10 @@ class AlgorithmMenu:
             folderName = os.getcwd() + "/" + folder
             fileList = os.listdir(folderName)
             for file in fileList:
-                chartList.append(folderName + "/" + file)
+                chartKey = int(file.split(".")[0])
+                chartList.append((chartKey, folderName + "/" + file))
         else:
-            chartList = [file]
+            chartList = [(-1, file)]
             
         log("Chartlist: " + str(chartList))
 
@@ -64,9 +65,9 @@ class AlgorithmMenu:
         results = []
         areaDists = []
         angularDists = []
-        for ch in chartList:
+        for key, ch in chartList:
             res, areaDist, angularDist = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
-            results.append(res)
+            results.append((key,) + res)
             areaDists.append(areaDist)
             angularDists.append(angularDist)
 
