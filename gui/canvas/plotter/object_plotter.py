@@ -5,8 +5,9 @@ from gui.canvas.plotter.distortion_plotter import DistortionPlotter
 class ObjectPlotter:
     plotFaces:bool = False
 
-    def __init__(self, canvasManager, points, faces, areaDists, angleDists,
-     plotFaces:bool=False):
+    def __init__(self, canvasManager, points, faces, areaDists,
+     angleDists, color:str, plotFaces:bool=False):
+        self.color = color
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
         self.points = points
@@ -24,9 +25,13 @@ class ObjectPlotter:
         self.distortionPlotter.showDistortion()
         if self.plotFaces:
             for face in self.faces:
+                
                 x = list(self.points[face[0]-1])
                 y = list(self.points[face[1]-1])
                 z = list(self.points[face[2]-1])
+
+                self.objectsOnCanvas.append(
+                    self.canvas.create_polygon(x, y, z, fill=self.color))
 
                 #Border
                 self.createLine(x, y)

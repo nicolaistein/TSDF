@@ -23,7 +23,7 @@ allPatternsContainer = Frame(root, bg=mainColor)
 plotter = Mesh3DPlotter(allPatternsContainer)
 
 leftContainer = Frame(root, bg=mainColor)
-canvasManager = CanvasManager(root, canvasSize)
+canvasManager = CanvasManager(root, canvasSize, plotter)
 fileMenu = FileMenu(leftContainer, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
 
