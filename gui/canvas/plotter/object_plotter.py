@@ -6,19 +6,18 @@ class ObjectPlotter:
     plotFaces:bool = False
 
     def __init__(self, canvasManager, points, faces, areaDists, angleDists,
-     plotFaces:bool=False, rect=None):
+     plotFaces:bool=False):
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
-        self.rect = rect
         self.points = points
         self.faces = faces
         self.plotFaces = plotFaces
         self.objectsOnCanvas = []
         self.distortionPlotter = DistortionPlotter(canvasManager, points, faces, areaDists, angleDists)
 
-    def createLine(self, x1, x2, fill="black"):
+    def createLine(self, x1, x2):
         self.objectsOnCanvas.append(
-            self.canvas.create_line(x1[0], x1[1], x2[0], x2[1], fill=fill))
+            self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
             
 
     def show(self):

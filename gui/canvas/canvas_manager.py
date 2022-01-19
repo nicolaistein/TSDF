@@ -44,10 +44,6 @@ class CanvasManager:
         return (x,y)
 
     def plot(self, list):
- #       pointsNew = translator.moveToPositiveArea(points)
- #       self.points = pointsNew
-
-        self.list = list
 
         shapes = []
         for vertices, _, _, _ in list:
@@ -79,11 +75,12 @@ class CanvasManager:
         self.xmax = self.ymax = round(maxValue, 2)
 
 
-        # Draw borders
+        # Delete old borders
         for point in self.borders:
             self.canvas.delete(point)
         self.rulers.clear()
 
+        # Draw new borders
         for index, shape in enumerate(shapes):
             _, x, y, w, h, id = idToRect[index]
 
@@ -126,23 +123,11 @@ class CanvasManager:
 
         for index, shape in enumerate(shapes):
             _, faces, areaDists, angleDists = list[index]
-            op = ObjectPlotter(self, shape, faces, areaDists, angleDists, self.plotFaces, idToRect[index])
+            op = ObjectPlotter(self, shape, faces, areaDists, angleDists, self.plotFaces)
             op.show()
             self.objectPlotters.append(op)
 
         self.patternPlotter.refresh()
-
-       
-#        for index, p in enumerate(self.points):
-#            self.points[index] = list(self.P(p[0], p[1]))
-
-#        for chart in list:    
-#            points, faces, areaDistortions, angularDistortions = chart
-
-    #        self.distortionPlotter.plot(self.points, faces, areaDistortions, angularDistortions)
-
-    #        ObjectPlotter(self).plot(self.points, faces)
-
 
 
     def createLine(self, x1, x2):

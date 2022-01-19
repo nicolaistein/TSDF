@@ -21,11 +21,12 @@ def pack(shapes):
     log("y total: " + str(yTotal))
 
     maxT = max([xTotal, yTotal])
-    log("max: " + str(maxT))
+    minT = min([xTotal, yTotal])
+    log("min: " + str(minT) + ", max: " + str(maxT))
 
-    bins = [(maxT, maxT)]
+    bins = [(minT, maxT)]
 
-    packer = newPacker(sort_algo=SORT_DIFF, rotation=False)
+    packer = newPacker(sort_algo=SORT_DIFF, rotation=False, pack_algo=SkylineBl)
 
     # Add the rectangles to packing queue
     for index, r in enumerate(rectangles):
