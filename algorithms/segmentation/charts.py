@@ -5,16 +5,13 @@ import bisect
 from algorithms.segmentation.data_parser import SegmentationParser
 from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
 from algorithms.segmentation.priority_queue import PriorityQueue
+from logger import log
 
-prefix = "[Charts] "
 epsilonFactor = 1/3.5
 seedMinFeatureDistance = 4
 minChartSizeFactor = 1/40
 localMaximumSeedCount = 80
 globalMaximumSeedCount = 20
-
-def log(msg:str):
-    print(prefix + msg)
 
 class Charts:
     def __init__(self, parser:SegmentationParser):
@@ -281,6 +278,9 @@ class Charts:
     #        facet Fopp ← the opposite facet of F relative to h
             fopp = self.getOppositeFace(h, f)
 
+            # Opposite face does not exist (edge part of boundary loop)
+            if fopp == -1: continue
+
     #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:
     #            add Fopp to chart(F)
@@ -302,7 +302,6 @@ class Charts:
 #            max_dist(chart(F )) - dist(F ) < ε and
 #            max_dist(chart(Fopp)) - dist(F ) < ε ) then
             else:
-    #            log("ELSE CALLED MEEEEEEEEEEEEEEEEEEEEEEEEEEEEP")
 
                 if (self.chartOf(fopp) != self.chartOf(f)):
                     if self.max_dist(f) - dist[f] < self.epsilon:
