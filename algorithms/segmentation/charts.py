@@ -26,7 +26,7 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-#        self.removeSmallCharts()
+        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -40,29 +40,61 @@ class Charts:
 
     def getBorderCharts(self, face:int, chart:int):
         result = []
-        for fc in self.parser.mesh.ff(self.parser.faceHandles[face]):
-            id = fc.idx()
-            if self.charts[id] == chart: continue
-            else: result.append(self.charts[id])
+        for edge in self.parser.mesh.fe(self.parser.faceHandles[face]):
+            edgeId = edge.idx()
+            oppFace = self.getOppositeFace(edgeId, face)
+            oppChart = self.charts[oppFace]
+            if oppFace == -1 or oppChart == chart: continue
+            result.append((oppChart, self.parser.SOD[edgeId]))
+
+        log("result: " + str(result))
         return result
 
 
     def removeChart(self, chart:int):
         log("Removing chart " + str(chart))
-        borders = {}
+
+        # chart => number of faces of this chart that are next to the currentChart
+        borderChartCount = {}
+        # chart => total sod count of the border edges which separate chart and the currentChart
+        borderSod = {}
+        if chart==3292: log(str(self.charts))
         for index, ic in enumerate(self.charts):
             if ic == chart:
-                for b in self.getBorderCharts(index, chart):
-                    if b not in borders: borders[b] = 0
-                    borders[b] += 1
-        print(borders)
-        
-        k, v = zip(*borders.items())
-        idx = max(v)
-        bb = k[v.index(idx)]
-        log("max: " + str(idx))
+                if chart==3292: log("chart found")
+                for chart, sod in self.getBorderCharts(index, chart):
+                    log("chart: " + str(chart) + ", sod: " + str(sod))
+                    log("before adding: " + str(borderChartCount))
+                    if chart not in borderChartCount: 
+                        borderChartCount[chart] = 0
+                        borderSod[chart] = 0
+
+                    borderChartCount[chart] += 1
+                    borderSod[chart] += sod
+                    log("after adding: " + str(borderChartCount))
+
+        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
+        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
+
+        evaluation = {}
+        for chart, count in borderChartCount.items():
+            evaluation[chart] = borderSod[chart] / count
+
+        k = list(evaluation.keys())
+        log("values: " + str(evaluation.values()))
+        v = list(evaluation.values())
+        log("values list: " + str(v))
+
+
+        if len(v) == 0:return
+
+
+        maxValue = min(v)
+        largestNeighborId = k[v.index(maxValue)]
+        log("max: " + str(maxValue))
+        log("largestNeighborId: " + str(largestNeighborId))
         for index, val in enumerate(self.charts):
-            if val == chart: self.charts[index] = bb
+            if val == chart: self.charts[index] = largestNeighborId
 
 
     def removeSmallCharts(self):
@@ -178,7 +210,7 @@ class Charts:
             if len(toRemove) > 0: log("Removing " + str(len(toRemove)) + " elements")
 
             for f in toRemove:
-                log("removing " + str(f) + ", lastExpanded: " + str(self.lastExpanded[f]))
+    #            log("removing " + str(f) + ", lastExpanded: " + str(self.lastExpanded[f]))
                 if self.lastExpanded[f] != -1: self.localMaxima.append(self.lastExpanded[f])
                 del self.currentFeatureDistance[f]
         

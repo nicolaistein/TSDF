@@ -15,11 +15,12 @@ tao = 23
 
 epsilonFactor = 1/3.5
 
+# The minimum distance to a feature a face must have in order to
 seedMinFeatureDistance = 2
 
 # The fraction of total faces a chart has to contain in order not to
 # be "deleted"
-minChartSizeFactor = 1/40
+minChartSizeFactor = 1/20
 
 # Absolute count of seeds used for chart generation
 localMaximumSeedCount = 20
