@@ -28,6 +28,8 @@ class Segmenter:
     def calc(self):
         self.parser.parse(self.vertices, self.faces, True)
         log("parsing finished")
+
+        # features = edges to feature mapping
         features = self.features.computeFeatures()
         self.features.saveResult()
         self.features.plotResult()

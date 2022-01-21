@@ -19,6 +19,6 @@ seedMinFeatureDistance = 2
 
 minChartSizeFactor = 1/40
 
-localMaximumSeedCount = 80
+localMaximumSeedCount = 20
 
-globalMaximumSeedCount = 20
+globalMaximumSeedCount = 0

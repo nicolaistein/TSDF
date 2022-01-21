@@ -26,7 +26,7 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-    #    self.removeSmallCharts()
+        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -86,7 +86,7 @@ class Charts:
         for key, val in enumerate(self.charts):
             if val == -1: found.append(key)
 
-        while found:
+        while len(found) > 0:
             face = found.pop(0)
             adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
                                 if self.charts[f.idx()] != -1]
@@ -135,10 +135,10 @@ class Charts:
         self.featureBorders = [[]]*self.parser.edgeCount
         self.maxDistance = 0
         self.currentFeatureDistance = {}
-        log("self features: " + str(self.features))
-        for f in self.features:
-            self.featureBorders[f] = [f]
-            self.currentFeatureDistance[f] = 0
+        for index, f in enumerate(self.features):
+            if f:
+                self.featureBorders[index] = [index]
+                self.currentFeatureDistance[index] = 0
 
         for index, _ in enumerate(self.parser.faces):
             self.featureDistances[index] = -1
@@ -148,13 +148,13 @@ class Charts:
         self.lastExpanded = [-1]*self.parser.edgeCount
 
         while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
-            if handledFaces / faceCount < 0.4:
-                self.plotCurrentFeatureDistance()
-            log(str(handledFaces*100/len(self.parser.faces)) + ", remaining features: " + str(len(self.currentFeatureDistance)))
+    #        if handledFaces / faceCount < 0.4:
+    #            self.plotCurrentFeatureDistance()
+    #        log(str(handledFaces*100/len(self.parser.faces)) + ", remaining features: " + str(len(self.currentFeatureDistance)))
             toRemove = []
             for feature, distance in self.currentFeatureDistance.items():
                 expanded = False
-                log("feature " + str(feature) + ": New round! expanded: " + str(expanded) + ", " + str(self.currentFeatureDistance))
+    #            log("feature " + str(feature) + ": New round! expanded: " + str(expanded) + ", " + str(self.currentFeatureDistance))
                 for edge in self.featureBorders[feature]:
                     
                     fc = self.expandEdge(feature, edge, distance)
@@ -162,16 +162,16 @@ class Charts:
                     handledFaces += fc
     #                log("feature " + str(feature) + ": expanded before: " + str(expanded))
                     if fc>0: 
-                        if not expanded: log("feature " + str(feature) + ": expanded changed to True")
+   #                     if not expanded: log("feature " + str(feature) + ": expanded changed to True")
                         expanded = True
                         
         #            log("expanded after: " + str(expanded) + ", fc: " + str(fc))
 
-                    if not expanded: log("feature " + str(feature) + ": failed to expand: " + str(expanded))
+   #                 if not expanded: log("feature " + str(feature) + ": failed to expand: " + str(expanded))
 
                 self.currentFeatureDistance[feature] += 1
                 if not expanded: 
-                    log("feature " + str(feature) + ": ACTUALLY FAILED: " + str(expanded))
+    #                log("feature " + str(feature) + ": ACTUALLY FAILED: " + str(expanded))
                     toRemove.append(feature)
     #            else: print("feature was actually expanded")
 
@@ -296,6 +296,9 @@ class Charts:
 
             # Opposite face does not exist (edge part of boundary loop)
             if fopp == -1: continue
+
+            # Do not go beyond features
+            if self.features[h]: continue
 
     #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:
