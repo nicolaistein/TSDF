@@ -26,7 +26,7 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-        self.removeSmallCharts()
+#        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -60,7 +60,7 @@ class Charts:
         k, v = zip(*borders.items())
         idx = max(v)
         bb = k[v.index(idx)]
-        log("max: " + str(max))
+        log("max: " + str(idx))
         for index, val in enumerate(self.charts):
             if val == chart: self.charts[index] = bb
 
