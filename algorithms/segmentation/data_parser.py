@@ -3,11 +3,7 @@ from openmesh import *
 import numpy as np
 import array
 import math
-
-prefix = "[Halfedge Parser] "
-
-def log(msg:str):
-    print(prefix + msg)
+from logger import log
 
 class SegmentationParser:    
     """

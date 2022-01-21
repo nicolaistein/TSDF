@@ -117,6 +117,8 @@ class Mesh3DPlotter:
 
 
     def segment(self):
+        # abort if no file has been chosen
+        if len(self.vertices) == 0: return
         self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
         self.faceColors = self.refreshColors()
         self.selectedChart = -1

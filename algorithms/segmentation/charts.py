@@ -5,19 +5,19 @@ import bisect
 from algorithms.segmentation.data_parser import SegmentationParser
 from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
 from algorithms.segmentation.priority_queue import PriorityQueue
+from algorithms.segmentation.parameters import *
 from logger import log
 
-epsilonFactor = 1/3.5
-seedMinFeatureDistance = 4
-minChartSizeFactor = 1/40
-localMaximumSeedCount = 80
-globalMaximumSeedCount = 20
 
 class Charts:
     def __init__(self, parser:SegmentationParser):
         self.parser = parser
 
-    def plotCurrent(self):
+    def plotCurrentFeatureDistance(self):
+        plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
+
+
+    def plotCurrentCharts(self):
         ch = self.getCharts()
         plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
 
@@ -33,7 +33,7 @@ class Charts:
         log("Charts count: " + str(len(ch)))
         print([(key,val) for key, val in ch.items() if val > -1])
     #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
-    #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
+        self.plotCurrentFeatureDistance()
     #    print(self.featureDistances)
 
         return self.charts, ch.keys()
@@ -117,6 +117,7 @@ class Charts:
             self.featureDistances[face] = distance
             if distance > self.maxDistance: self.maxDistance = distance
             handledFaces += 1
+#            log("distance: " + str(distance) + ", minfeatDist: " + str(seedMinFeatureDistance))
             if distance >= seedMinFeatureDistance:
                 self.lastExpanded[feature] = face
             newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
@@ -134,6 +135,7 @@ class Charts:
         self.featureBorders = [[]]*self.parser.edgeCount
         self.maxDistance = 0
         self.currentFeatureDistance = {}
+        log("self features: " + str(self.features))
         for f in self.features:
             self.featureBorders[f] = [f]
             self.currentFeatureDistance[f] = 0
@@ -146,29 +148,43 @@ class Charts:
         self.lastExpanded = [-1]*self.parser.edgeCount
 
         while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
-            log("new round, handled faces: " + str(handledFaces) + ", remaining features: " + str(len(self.currentFeatureDistance)))
+            if handledFaces / faceCount < 0.4:
+                self.plotCurrentFeatureDistance()
+            log(str(handledFaces*100/len(self.parser.faces)) + ", remaining features: " + str(len(self.currentFeatureDistance)))
             toRemove = []
             for feature, distance in self.currentFeatureDistance.items():
                 expanded = False
+                log("feature " + str(feature) + ": New round! expanded: " + str(expanded) + ", " + str(self.currentFeatureDistance))
                 for edge in self.featureBorders[feature]:
                     
                     fc = self.expandEdge(feature, edge, distance)
 
                     handledFaces += fc
-                    expanded = True if fc>0 else expanded
-        #            log("expanded: " + str(expanded))
+    #                log("feature " + str(feature) + ": expanded before: " + str(expanded))
+                    if fc>0: 
+                        if not expanded: log("feature " + str(feature) + ": expanded changed to True")
+                        expanded = True
+                        
+        #            log("expanded after: " + str(expanded) + ", fc: " + str(fc))
+
+                    if not expanded: log("feature " + str(feature) + ": failed to expand: " + str(expanded))
 
                 self.currentFeatureDistance[feature] += 1
-                if not expanded: toRemove.append(feature)
+                if not expanded: 
+                    log("feature " + str(feature) + ": ACTUALLY FAILED: " + str(expanded))
+                    toRemove.append(feature)
     #            else: print("feature was actually expanded")
 
-        #    log("toRemove size: " + str(len(toRemove)))
+            if len(toRemove) > 0: log("Removing " + str(len(toRemove)) + " elements")
+
             for f in toRemove:
+                log("removing " + str(f) + ", lastExpanded: " + str(self.lastExpanded[f]))
                 if self.lastExpanded[f] != -1: self.localMaxima.append(self.lastExpanded[f])
                 del self.currentFeatureDistance[f]
-            
+        
+
         self.epsilon = self.maxDistance * epsilonFactor
-        log("MAXIMA COUNT: " + str(len(self.localMaxima)))
+        log("local maxima: " + str(len(self.localMaxima)))
         log("while loop end")
         log("handled faces: " + str(handledFaces))
         log("faceCount: " + str(faceCount))
@@ -256,7 +272,7 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-    #     self.plotCurrent()
+        self.plotCurrentCharts()
         log("initial charts")
         print(self.getCharts())
         counter = 0
