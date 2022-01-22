@@ -1,3 +1,4 @@
+import enum
 from typing import List
 import array
 import numpy as np
@@ -7,6 +8,7 @@ from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
 from algorithms.segmentation.priority_queue import PriorityQueue
 from algorithms.segmentation.parameters import *
 from logger import log
+from gui.canvas.area_distortion import faceToArea
 
 
 class Charts:
@@ -26,7 +28,7 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-        self.removeSmallCharts()
+#        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -51,7 +53,7 @@ class Charts:
         return result
 
     def removeChart(self, chart:int):
-#        if chart != 1202: return
+#        if chart != 696: return
         log("Removing chart " + str(chart))
         chartsBefore = self.getCharts()
 
@@ -64,22 +66,24 @@ class Charts:
             if ic == chart:
 #                if chart==3292: log("chart found: " + str(chart))
                 for chartRes, sod in self.getBorderCharts(index, chart):
-#                    log("chart: " + str(chartRes) + ", sod: " + str(sod))
-#                    log("before adding: " + str(borderChartCount))
+#                    log("[" + str(chart) + "] chart: " + str(chartRes) + ", sod: " + str(sod))
+#                    log("[" + str(chart) + "] before adding: " + str(borderChartCount))
                     if chartRes not in borderChartCount: 
                         borderChartCount[chartRes] = 0
                         borderSod[chartRes] = 0
 
                     borderChartCount[chartRes] += 1
                     borderSod[chartRes] += sod
- #                   log("after adding: " + str(borderChartCount))
+#                    log("[" + str(chart) + "] after adding: " + str(borderChartCount))
 
- #       log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
- #       log("chart " + str(chart) + " - borderSod: " + str(borderSod))
+        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
+        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
 
         evaluation = {}
-        for chart, count in borderChartCount.items():
-            evaluation[chart] = borderSod[chart] / count
+        for borderChart, borderCount in borderChartCount.items():
+            evaluation[borderChart] = borderSod[borderChart] / borderCount
+
+        log("evaluation: " + str(evaluation))
 
         k = list(evaluation.keys())
     #    log("values: " + str(evaluation.values()))
@@ -88,6 +92,7 @@ class Charts:
 
         
         log("Charts before: " + str(chartsBefore))
+        log("Chart: " + str(chart))
 
         if len(v) == 0:
             log("Aborted chart deletion because no neighbor could be found")
@@ -96,8 +101,8 @@ class Charts:
 
         maxValue = min(v)
         largestNeighborId = k[v.index(maxValue)]
-    #    log("max: " + str(maxValue))
-    #    log("largestNeighborId: " + str(largestNeighborId))
+        log("max: " + str(maxValue))
+        log("largestNeighborId: " + str(largestNeighborId))
         for index, val in enumerate(self.charts):
             if val == chart: self.charts[index] = largestNeighborId
 
@@ -114,15 +119,30 @@ class Charts:
         log("Differences: " + str(diff))
 
 
+    def getAreaOfChart(self, chart:int):
+        res = 0
+        for index, val in enumerate(self.charts):
+            if val == chart or chart == -1: 
+                res += faceToArea(self.parser.faces[index], self.parser.vertices)
+
+        log("chart: " + str(chart) + " => " + str(res))
+        return res
+
     def removeSmallCharts(self):
         log("Removing small charts")
         ch = self.getCharts()
         print(ch)
-        min = len(self.parser.faces)*minChartSizeFactor
+
+#        min = len(self.parser.faces)*minChartSizeFactor
+        min = self.getAreaOfChart(-1)*minChartSizeFactor
         log("removeSmallCharts min: " + str(min))
         toRemove = []
         for key, val in ch.items():
-            if val < min: toRemove.append(key)
+#            if val <= min:
+            if self.getAreaOfChart(key) <= min:
+                toRemove.append(key)
+
+        log("toRemove: " + str(toRemove))
 
         for chart in toRemove:
             self.removeChart(chart)

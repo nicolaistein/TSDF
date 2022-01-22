@@ -18,9 +18,9 @@ def triangleArea(a:List[float], b:List[float], c:List[float]):
     return 0.5 * norm
 
 def faceToArea(face, points):
-    indexX = face[0]-1
-    indexY = face[1]-1
-    indexZ = face[2]-1
+    indexX = face[0]
+    indexY = face[1]
+    indexZ = face[2]
     return triangleArea(points[indexX], points[indexY], points[indexZ])
 
 def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]]):
