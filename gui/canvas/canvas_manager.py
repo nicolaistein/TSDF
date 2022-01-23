@@ -5,7 +5,7 @@ import gui.canvas.translator as translator
 from gui.canvas.plotter.distortion_plotter import DistortionPlotter
 from gui.canvas.plotter.pattern_plotter import PatternPlotter
 from gui.canvas.plotter.object_plotter import ObjectPlotter
-from gui.canvas.distortion import Distortion
+from gui.canvas.distortions.distortion_type import DistortionType
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
 from logger import log
@@ -13,7 +13,7 @@ from logger import log
 class CanvasManager:
     plotColors:bool = False
     plotEdges:bool = False
-    plotDistortion:str = Distortion.NO_DIST
+    plotDistortion:str = DistortionType.NO_DIST
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
     borders = []
@@ -123,8 +123,8 @@ class CanvasManager:
             op.ssetPlotEdges(self.plotEdges)
         self.patternPlotter.refresh()
         
-    def onDistortionPress(self, distortion:Distortion):
-        self.plotDistortion = distortion if distortion != self.plotDistortion else Distortion.NO_DIST
+    def onDistortionPress(self, distortion:DistortionType):
+        self.plotDistortion = distortion if distortion != self.plotDistortion else DistortionType.NO_DIST
         for pl in self.objectPlotters:
             pl.setDistortion(self.plotDistortion)
         self.patternPlotter.refresh()

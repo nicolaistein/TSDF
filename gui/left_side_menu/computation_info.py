@@ -2,7 +2,7 @@ from tkinter import *
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
-from gui.canvas.distortion import Distortion
+from gui.canvas.distortions.distortion_type import DistortionType
 
 
 class ComputationInfo:
@@ -33,10 +33,10 @@ class ComputationInfo:
         return valLabel
 
     def showAreaDistortion(self):
-        self.canvasManager.onDistortionPress(Distortion.AREA)
+        self.canvasManager.onDistortionPress(DistortionType.AREA)
         
     def showAngleDistortion(self):
-        self.canvasManager.onDistortionPress(Distortion.ANGLE)
+        self.canvasManager.onDistortionPress(DistortionType.ANGLE)
 
 
     def build(self, side: str):
