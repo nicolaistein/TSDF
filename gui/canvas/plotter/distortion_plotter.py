@@ -33,9 +33,9 @@ class DistortionPlotter:
         for index, face in enumerate(self.faces):
             if index not in self.areaDistortions: continue
 
-            x = list(self.points[face[0]-1])
-            y = list(self.points[face[1]-1])
-            z = list(self.points[face[2]-1])
+            x = list(self.points[face[0]])
+            y = list(self.points[face[1]])
+            z = list(self.points[face[2]])
 
             maxDistort = 20
             distortion = self.areaDistortions[index]
@@ -67,9 +67,9 @@ class DistortionPlotter:
         for index, face in enumerate(self.faces):
             if index not in self.angularDistortions: continue
 
-            x = list(self.points[face[0]-1])
-            y = list(self.points[face[1]-1])
-            z = list(self.points[face[2]-1])
+            x = list(self.points[face[0]])
+            y = list(self.points[face[1]])
+            z = list(self.points[face[2]])
             
             distortion = self.angularDistortions[index]/30
             if distortion > 1:

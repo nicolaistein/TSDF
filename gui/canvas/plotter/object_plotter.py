@@ -31,9 +31,9 @@ class ObjectPlotter:
         if self.plotEdges or self.plotColors:
             for face in self.faces:
                 
-                x = list(self.points[face[0]-1])
-                y = list(self.points[face[1]-1])
-                z = list(self.points[face[2]-1])
+                x = list(self.points[face[0]])
+                y = list(self.points[face[1]])
+                z = list(self.points[face[2]])
 
                 if self.plotColors:
                     self.objectsOnCanvas.append(
