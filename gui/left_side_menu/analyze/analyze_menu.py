@@ -68,5 +68,5 @@ class AnalyzeMenu:
 
         
 
-        self.mainFrame.pack(side=TOP, pady=(20, 0))
+        self.mainFrame.pack(side=TOP, pady=(2, 0))
 

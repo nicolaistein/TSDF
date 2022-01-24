@@ -1,8 +1,12 @@
+from sqlite3 import PARSE_DECLTYPES
 from tkinter import *
+
+from matplotlib.pyplot import text
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
-from gui.canvas.distortions.distortion_type import DistortionType
+from gui.canvas.distortions.distortion_type import PlottingOption
+from logger import log
 
 
 class ComputationInfo:
@@ -10,8 +14,11 @@ class ComputationInfo:
     def __init__(self, master: Frame, canvasManager:CanvasManager):
         self.canvasManager = canvasManager
         self.mainFrame = Frame(master)
-        self.content = Frame(self.mainFrame, width=220,
-                             height=200, padx=20, pady=20)
+        self.viewOptions = [(e, e.value) for e in PlottingOption]
+        log("view options: " + str(self.viewOptions))
+        self.selectedView = IntVar()
+        self.selectedView.set(0)
+        self.mainFrame.pack(side=TOP, pady=(2, 0), anchor=N)
 
     def updateInfo(self, algo:str, time:int, areaDist:float, angleDist:float):
         self.algorithm.configure(text=algo)
@@ -32,14 +39,22 @@ class ComputationInfo:
         keyValFrame.pack(side="top", anchor="w")
         return valLabel
 
-    def showAreaDistortion(self):
-        self.canvasManager.onDistortionPress(DistortionType.AREA)
-        
-    def showAngleDistortion(self):
-        self.canvasManager.onDistortionPress(DistortionType.ANGLE)
+    def refreshView(self):
+        for child in self.mainFrame.winfo_children():
+            child.destroy()
+        self.build()
 
+    def onEdgeClick(self):
+        self.canvasManager.onEdges()
+        self.refreshView()
 
-    def build(self, side: str):
+    def showChoice(self):
+        log("currently selected: " + str(self.selectedView.get()))
+
+    def build(self):
+
+        self.content = Frame(self.mainFrame, width=220,
+                             height=280, padx=20, pady=20)
         self.content.pack_propagate(0)
 
         chooseFile = Label(self.content, text="Computation Info")
@@ -50,25 +65,41 @@ class ComputationInfo:
         self.areaDist = self.getKeyValueFrame(self.content, "Area Distortion")
         self.angleDist = self.getKeyValueFrame(self.content, "Angle Distortion")
 
-        buttonsTop = Frame(self.content)
-        TkinterCustomButton(master=buttonsTop, text="Area Dist.",
-                        command=self.showAreaDistortion,
-                        corner_radius=60, height=25, width=95).pack(side=LEFT)
-        
-        TkinterCustomButton(master=buttonsTop, text="Faces", command=self.canvasManager.onFaces,
-                        corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
-        buttonsTop.pack(side=TOP, anchor=W, pady=(10,0))
+        edgeText = "Show Edges" if not self.canvasManager.plotEdges else "Hide Edges"
+        TkinterCustomButton(master=self.content, text=edgeText, command=self.onEdgeClick,
+                        corner_radius=60, height=25, width=120).pack(side=LEFT)
+
+        bottomFrame = Frame(self.content)
+
+        for key, val in self.viewOptions:
+            viewOptionFrame = Frame(bottomFrame)
+            Radiobutton(viewOptionFrame,
+                            text="",
+                            height=2,
+                            wrap=None,
+                            variable=self.selectedView,
+                            command=self.showChoice,
+                            value=val).pack(anchor=W, side=LEFT)
+
+            rightFrame = Frame(viewOptionFrame)
+
+            topFrame = Frame(rightFrame)
+            opTitle = Label(topFrame, text=key.toString())
+            opTitle.configure(font=("Helvetica", 10, "bold"))
+            opTitle.pack(side=LEFT, anchor=W)
+            Label(topFrame, text="Distortion single value").pack(side=LEFT, padx=(10,0))
+            topFrame.pack(side=TOP, anchor=W)
+
+    #        bottomFrame=Frame(rightFrame)
+            canvas = Canvas(rightFrame, width=120, height=2)
+            #ToDo: make distortion object fill canvas with colorbar 
+            self.canvas.pack(side=TOP, pady=(2,0))
+    #        bottomFrame.pack(side=TOP, anchor=NW)
 
 
-        buttonsBottom = Frame(self.content)
-        TkinterCustomButton(master=buttonsBottom, text="Angle Dist.",
-                        command=self.showAngleDistortion,
-                        corner_radius=60, height=25, width=95).pack(side=LEFT)
-        
-        TkinterCustomButton(master=buttonsBottom, text="Edges", command=self.canvasManager.onEdges,
-                        corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
+            rightFrame.pack(side=LEFT, anchor=N)
+            viewOptionFrame.pack(side=TOP, anchor=W, pady=(10,0))
 
-        buttonsBottom.pack(side=TOP, anchor=W, pady=(10,0))
+        bottomFrame.pack(side=TOP, anchor=W, pady=(0,0))
 
         self.content.pack(side=LEFT)
-        self.mainFrame.pack(side=side, pady=(20, 0), anchor=N)

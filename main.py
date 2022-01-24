@@ -8,6 +8,7 @@ from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
+from gui.listview import getListview
 
 mainColor = "#cccccc"
 root = Tk()
@@ -22,7 +23,8 @@ canvasSize = 900
 allPatternsContainer = Frame(root, bg=mainColor)
 plotter = Mesh3DPlotter(allPatternsContainer)
 
-leftContainer = Frame(root, bg=mainColor)
+leftContainerParent = Frame(root, bg=mainColor)
+leftContainer = getListview(leftContainerParent, 220, 900, 0, mainColor)
 canvasManager = CanvasManager(root, canvasSize, plotter)
 fileMenu = FileMenu(leftContainer, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
@@ -30,8 +32,10 @@ computationInfo = ComputationInfo(leftContainer, canvasManager)
 fileMenu.build()
 AnalyzeMenu(leftContainer, fileMenu).build()
 AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo).build()
-computationInfo.build("top")
-leftContainer.pack(side="left", anchor=N, padx=(0, 20))
+computationInfo.build()
+leftContainerParent.pack(side="left", anchor=N, padx=(0, 20))
+
+
 
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)

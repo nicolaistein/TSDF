@@ -1,12 +1,14 @@
-from cmath import log
+from logger import log
 from typing import List, Mapping
 import abc
 import math 
 import numpy as np
+from gui.canvas.area_distortion import faceToArea
 
 
 class Distortion:
     distortions:Mapping = {}
+    totalDistortion = -1
 
     def __init__(self, verticesBefore:List[List[float]], facesBefore:List[List[int]],
         verticesAfter:List[List[float]], facesAfter:List[List[int]]):
@@ -15,14 +17,13 @@ class Distortion:
         self.verticesAfter = verticesAfter
         self.facesAfter = facesAfter
 
+
     def getVerticesOfFace(self, face:List[int], vertices:List[List[float]]):
         v1 = vertices[face[0]]
         v2 = vertices[face[1]]
         v3 = vertices[face[2]]
         return v1, v2, v3
 
-    def solveOne(self):
-        pass
 
     def solveThree(self, p1:List[float], p2:List[float], p3:List[float], res:List[float]):
         #Test if objects are changed or copied
@@ -74,10 +75,27 @@ class Distortion:
 
 
     def calculateDistortions(self):
+        """Calculates the distortion of the whole object and for every triangle"""
+
+        allAreas = {}
+        totalArea = sum(list(allAreas.values()))
+
+        for index, faceBefore in enumerate(self.facesBefore):
+            allAreas[index] = faceToArea(faceBefore, self.verticesBefore)
+
+        totalDistortion = 0
+
         for index, faceAfter in enumerate(self.facesAfter):
             self.distortions[index] = self.getDistortion(self.facesBefore[index], faceAfter)
+            weight = allAreas[index] / totalArea
+            totalDistortion += self.distortions[index] * weight
 
-        return self.distortions
+        log("maxDist: " + str(max(list(self.distortions.values()))))
+        log("minDist: " + str(min(list(self.distortions.values()))))
+            
+        return self.distortions, totalDistortion
+
+
 
 
     @abc.abstractmethod

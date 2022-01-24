@@ -1,9 +1,9 @@
 from logger import log
 from tkinter import *
-from gui.canvas.distortions.distortion_type import DistortionType
+from gui.canvas.distortions.distortion_type import PlottingOption
 
 class DistortionPlotter:
-    plotDistortion:DistortionType = DistortionType.NO_DIST
+    plotDistortion:PlottingOption = PlottingOption.NO_DIST
 
     def __init__(self,canvasManager, points, faces, areaDistortions, angularDistortions):
         self.cv = canvasManager
@@ -18,7 +18,7 @@ class DistortionPlotter:
         self.distortionOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
-    def setDistortion(self, distortion:DistortionType = DistortionType.NO_DIST):
+    def setDistortion(self, distortion:PlottingOption = PlottingOption.NO_DIST):
         self.plotDistortion = distortion
 
     def refresh(self):
@@ -26,8 +26,8 @@ class DistortionPlotter:
         self.showDistortion()
         
     def showDistortion(self):
-        if self.plotDistortion == DistortionType.AREA: self.showAreaDistortion()
-        if self.plotDistortion == DistortionType.ANGLE: self.showAngleDistortion()   
+        if self.plotDistortion == PlottingOption.AREA: self.showAreaDistortion()
+        if self.plotDistortion == PlottingOption.ANGLE: self.showAngleDistortion()   
 
     def showAreaDistortion(self):
         for index, face in enumerate(self.faces):

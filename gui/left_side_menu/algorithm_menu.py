@@ -103,7 +103,7 @@ class AlgorithmMenu:
         TkinterCustomButton(master=self.mainFrame, text="Calculate", command=self.calculate,
                             corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
 
-        self.mainFrame.pack(side=TOP, pady=(20, 0))
+        self.mainFrame.pack(side=TOP, pady=(2, 0))
 
     def ShowChoice(self):
         pass

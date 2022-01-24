@@ -1,7 +1,7 @@
 import sys
 from tkinter import *
 from gui.canvas.plotter.distortion_plotter import DistortionPlotter
-from gui.canvas.distortions.distortion_type import DistortionType
+from gui.canvas.distortions.distortion_type import PlottingOption
 from logger import log
 
 class ObjectPlotter:
@@ -54,7 +54,7 @@ class ObjectPlotter:
 
     def setPlotColors(self, plot:bool):
         if plot:
-            self.setDistortion(DistortionType.NO_DIST)
+            self.setDistortion(PlottingOption.NO_DIST)
         self.plotColors = plot
         self.refresh()
 
