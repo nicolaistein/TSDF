@@ -1,8 +1,8 @@
 import math
 from typing import List
-from gui.canvas.distortions.distortion import Distortion
+from gui.canvas.distortions.plotting_option_calculator import PlottingOptionCalculator
 
-class LscmDistortion(Distortion):
+class LscmDistortion(PlottingOptionCalculator):
 
     def getDistortion(self, faceBefore:List[int], faceAfter=List[int]):
         o1, o2 = self.getSingularValues(faceBefore, faceAfter)

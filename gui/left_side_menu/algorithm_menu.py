@@ -63,32 +63,42 @@ class AlgorithmMenu:
 
         computeStart = time.time()
         results = []
-        areaDists = []
-        angularDists = []
+   #     areaDists = []
+   #     angularDists = []
         for key, ch in chartList:
-            res, areaDist, angularDist = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
+            res = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
             results.append((key,) + res)
-            areaDists.append(areaDist)
-            angularDists.append(angularDist)
+    #        areaDists.append(areaDist)
+    #        angularDists.append(angularDist)
 
         computeEnd = time.time()
 
         self.canvasManager.plot(results)
 
-        avgAreaDist = sum(areaDists)/len(areaDists)
-        avgAngleDist = sum(angularDists)/len(angularDists)
-        self.compInfo.updateInfo(algoName, computeEnd-computeStart, avgAreaDist, avgAngleDist)
+    #    avgAreaDist = sum(areaDists)/len(areaDists)
+    #    avgAngleDist = sum(angularDists)/len(angularDists)
+        self.compInfo.updateInfo(algoName, computeEnd-computeStart)
 
 
     def calculateSingleFile(self, file, algorithm:Function, isBFF):
 
-        time, points, pointsBefore, faces, facesBefore = algorithm(file)
+        time, pointsBefore, facesBefore, pointsAfter, facesAfter = algorithm(file)
 
-        log("file: " + file + ", time: " + str(time) + ", points: " + str(len(points)))
-        areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
-        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=isBFF)
+        log("pointsBefore: " + str(pointsBefore))
+        log("facesBefore: " + str(facesBefore))
+        log("pointsAfter: " + str(pointsAfter))
+        log("facesAfter: " + str(facesAfter))
+    
+        log("pointsBefore length: " + str(len(pointsBefore)))
+        log("facesBefore length: " + str(len(facesBefore)))
+        log("pointsAfter length: " + str(len(pointsAfter)))
+        log("facesAfter length: " + str(len(facesAfter)))
 
-        return (points, faces, areaDistortions, angularDistortions), avgAreaDistortion, avgAngularDistortion
+        log("file: " + file + ", time: " + str(time) + ", points: " + str(len(pointsAfter)))
+    #    areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
+    #    angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=isBFF)
+
+        return (pointsBefore, facesBefore, pointsAfter, facesAfter)
 
 
     def build(self):

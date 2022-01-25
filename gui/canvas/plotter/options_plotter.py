@@ -1,41 +1,68 @@
+from typing import List
+
+from pyparsing import col
 from logger import log
 from tkinter import *
-from gui.canvas.distortions.distortion_type import PlottingOption
+from gui.canvas.distortions.plotting_option import PlottingOption
+from gui.canvas.distortions.plotting_option_calculator import PlottingOptionCalculator
 
-class DistortionPlotter:
-    plotDistortion:PlottingOption = PlottingOption.NO_DIST
+class OptionsPlotter:
 
-    def __init__(self,canvasManager, points, faces, areaDistortions, angularDistortions):
+    calculators:List[PlottingOptionCalculator] = []
+    currentOption:PlottingOption = PlottingOption.NO_DIST
+
+    def __init__(self,canvasManager, verticesToPlot, verticesBefore:List[List[float]], facesBefore:List[List[int]],
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], color):
         self.cv = canvasManager
         self.canvas = canvasManager.canvas
-        self.areaDistortions = areaDistortions
-        self.angularDistortions = angularDistortions
-        self.faces = faces    
-        self.points = points
+        self.verticesToPlot = verticesToPlot
+        self.color = color
+        self.faces = facesAfter   
         self.distortionOnCanvas = []
+        self.calculators = {e.value:e.getOptionCalculator(verticesBefore, facesBefore,
+            verticesAfter, facesAfter) for e in PlottingOption}
 
     def createLine(self, x1, x2):
         self.distortionOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
-    def setDistortion(self, distortion:PlottingOption = PlottingOption.NO_DIST):
-        self.plotDistortion = distortion
+    def setOption(self, distortion:PlottingOption = PlottingOption.NO_DIST):
+        self.currentOption = distortion
+        self.refresh()
+
 
     def refresh(self):
         self.clear()
-        self.showDistortion()
+        self.show()
         
-    def showDistortion(self):
-        if self.plotDistortion == PlottingOption.AREA: self.showAreaDistortion()
-        if self.plotDistortion == PlottingOption.ANGLE: self.showAngleDistortion()   
+    def show(self):
+        log("show called")
+        colors = self.calculators[self.currentOption.value].getColors()
+
+        for index, face in enumerate(self.faces):
+
+            x = list(self.verticesToPlot[face[0]])
+            y = list(self.verticesToPlot[face[1]])
+            z = list(self.verticesToPlot[face[2]])
+
+            self.distortionOnCanvas.append(
+                self.canvas.create_polygon(x, y, z, fill=colors[index]))
+
+    def clear(self):
+        for point in self.distortionOnCanvas:
+            self.canvas.delete(point)
+        self.distortionOnCanvas.clear()
+
+
+
 
     def showAreaDistortion(self):
         for index, face in enumerate(self.faces):
             if index not in self.areaDistortions: continue
 
-            x = list(self.points[face[0]])
-            y = list(self.points[face[1]])
-            z = list(self.points[face[2]])
+            x = list(self.verticesToPlot[face[0]])
+            y = list(self.verticesToPlot[face[1]])
+            z = list(self.verticesToPlot[face[2]])
 
             maxDistort = 20
             distortion = self.areaDistortions[index]
@@ -67,9 +94,9 @@ class DistortionPlotter:
         for index, face in enumerate(self.faces):
             if index not in self.angularDistortions: continue
 
-            x = list(self.points[face[0]])
-            y = list(self.points[face[1]])
-            z = list(self.points[face[2]])
+            x = list(self.vertices[face[0]])
+            y = list(self.vertices[face[1]])
+            z = list(self.vertices[face[2]])
             
             distortion = self.angularDistortions[index]/30
             if distortion > 1:
@@ -82,9 +109,4 @@ class DistortionPlotter:
             self.distortionOnCanvas.append(
                 self.canvas.create_polygon(x, y, z, fill=color))
 
-
-    def clear(self):
-        for point in self.distortionOnCanvas:
-            self.canvas.delete(point)
-        self.distortionOnCanvas.clear()
 

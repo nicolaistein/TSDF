@@ -61,7 +61,7 @@ def executeAlgo(algo, includeFaces:bool=True):
 
     computeEnd = time.time()
 
-    return computeEnd-computeStart, points, getPreviousVertices(algo.objPath), faces, facesBefore
+    return computeEnd-computeStart, getPreviousVertices(algo.objPath), facesBefore, points, faces 
     
 """
     max = -300

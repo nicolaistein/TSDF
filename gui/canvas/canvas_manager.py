@@ -2,18 +2,16 @@ import sys
 from tkinter import *
 from typing import List, Mapping
 import gui.canvas.translator as translator
-from gui.canvas.plotter.distortion_plotter import DistortionPlotter
 from gui.canvas.plotter.pattern_plotter import PatternPlotter
 from gui.canvas.plotter.object_plotter import ObjectPlotter
-from gui.canvas.distortions.distortion_type import PlottingOption
+from gui.canvas.distortions.plotting_option import PlottingOption
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
 from logger import log
 
 class CanvasManager:
-    plotColors:bool = False
     plotEdges:bool = False
-    plotDistortion:str = PlottingOption.NO_DIST
+#    plotDistortion:str = PlottingOption.NO_DIST
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
     borders = []
@@ -48,7 +46,7 @@ class CanvasManager:
 
     def plot(self, shapeList):
         shapes = []
-        for _, vertices, _, _, _ in shapeList:
+        for _, _, _, vertices, _ in shapeList:
             shapes.append(translator.moveToPositiveArea(vertices))
 
         # Calculate packing
@@ -92,15 +90,14 @@ class CanvasManager:
 
         # Plot all again
         self.refreshRulers()
-        self.plotColors = True
         self.plotEdges = True
         for index, shape in enumerate(shapes):
-            chartKey, _, faces, areaDists, angleDists = shapeList[index]
+            chartKey, verticesBefore, facesBefore, verticesAfter, facesAfter = shapeList[index]
 
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
-
-            op = ObjectPlotter(self, shape, faces, areaDists, angleDists,
-            color, self.plotColors)
+            
+            op = ObjectPlotter(self, shape, verticesBefore, facesBefore, verticesAfter, facesAfter,
+            color)
             op.show()
             self.objectPlotters.append(op)
 
@@ -111,23 +108,15 @@ class CanvasManager:
         self.rulers.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
-    def onFaces(self):
-        self.plotColors = not self.plotColors
-        for op in self.objectPlotters: 
-            op.setPlotColors(self.plotColors)
-        self.patternPlotter.refresh()
-
     def onEdges(self):
         self.plotEdges = not self.plotEdges
         for op in self.objectPlotters: 
-            op.ssetPlotEdges(self.plotEdges)
+            op.setPlotEdges(self.plotEdges)
         self.patternPlotter.refresh()
         
-    def onDistortionPress(self, distortion:PlottingOption):
-        self.plotDistortion = distortion if distortion != self.plotDistortion else PlottingOption.NO_DIST
+    def selectPlottingOption(self, distortion:PlottingOption):
         for pl in self.objectPlotters:
-            pl.setDistortion(self.plotDistortion)
-        self.patternPlotter.refresh()
+            pl.setPlottingOption(distortion)
 
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)

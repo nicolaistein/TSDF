@@ -1,31 +1,35 @@
-from sqlite3 import PARSE_DECLTYPES
 from tkinter import *
+from typing import List
 
 from matplotlib.pyplot import text
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
-from gui.canvas.distortions.distortion_type import PlottingOption
+from gui.canvas.distortions.plotting_option import PlottingOption
 from logger import log
 
 
 class ComputationInfo:
+    viewOptions = [(e, e.value) for e in PlottingOption]
+    currentDistortions = {e.value: -1 for e in PlottingOption}
+    """Contains all viewoptions (facecolor, distortions) displayed in the computation info widget"""
 
     def __init__(self, master: Frame, canvasManager:CanvasManager):
         self.canvasManager = canvasManager
         self.mainFrame = Frame(master)
-        self.viewOptions = [(e, e.value) for e in PlottingOption]
-        log("view options: " + str(self.viewOptions))
+ #       log("view options: " + str(self.viewOptions))
         self.selectedView = IntVar()
         self.selectedView.set(0)
-        self.mainFrame.pack(side=TOP, pady=(2, 0), anchor=N)
 
-    def updateInfo(self, algo:str, time:int, areaDist:float, angleDist:float):
+    def updateInfo(self, algo:str, time:int, verticesBefore:List[List[float]], facesBefore:List[List[int]],
+        verticesAfter:List[List[float]], facesAfter:List[List[int]]):
+        """Updates the info shown in the widget"""
+   #     self.verticesBefore = verticesBefore
+   #     self.facesBefore = facesBefore
+   #     self.verticesAfter = verticesAfter
+   #     self.facesAfter = facesAfter
         self.algorithm.configure(text=algo)
         self.time.configure(text=formatter.formatTime(time))
-        self.areaDist.configure(text=str(round(areaDist, 2)))
-        self.angleDist.configure(text=str(round(angleDist, 2)))
-
     
     def getKeyValueFrame(self, parent: Frame, key: str, keyWidth:float=14):
         keyValFrame = Frame(parent)
@@ -40,6 +44,7 @@ class ComputationInfo:
         return valLabel
 
     def refreshView(self):
+        self.edgeButton.delete()
         for child in self.mainFrame.winfo_children():
             child.destroy()
         self.build()
@@ -49,7 +54,16 @@ class ComputationInfo:
         self.refreshView()
 
     def showChoice(self):
-        log("currently selected: " + str(self.selectedView.get()))
+        selected = self.selectedView.get()
+        log("currently selected: " + str(selected))
+
+        self.canvasManager.selectPlottingOption(selected)
+        self.refreshView()
+
+    def setDistortionValues(self, values):
+        for distortion, distVal in values.items():
+            self.currentDistortions[distortion] = distVal
+        self.refreshView()
 
     def build(self):
 
@@ -62,39 +76,57 @@ class ComputationInfo:
 
         self.algorithm = self.getKeyValueFrame(self.content, "Algorithm", 10)
         self.time = self.getKeyValueFrame(self.content, "Time", 10)
-        self.areaDist = self.getKeyValueFrame(self.content, "Area Distortion")
-        self.angleDist = self.getKeyValueFrame(self.content, "Angle Distortion")
+#        self.areaDist = self.getKeyValueFrame(self.content, "Area Distortion")
+#        self.angleDist = self.getKeyValueFrame(self.content, "Angle Distortion")
 
         edgeText = "Show Edges" if not self.canvasManager.plotEdges else "Hide Edges"
-        TkinterCustomButton(master=self.content, text=edgeText, command=self.onEdgeClick,
-                        corner_radius=60, height=25, width=120).pack(side=LEFT)
+        self.edgeButton = TkinterCustomButton(master=self.content, text=edgeText, command=self.onEdgeClick,
+                        corner_radius=60, height=25, width=120)
+        self.edgeButton.pack(side=TOP, pady=(10,8))
 
         bottomFrame = Frame(self.content)
 
-        for key, val in self.viewOptions:
+        for distortion, distIndex in self.viewOptions:
             viewOptionFrame = Frame(bottomFrame)
             Radiobutton(viewOptionFrame,
                             text="",
-                            height=2,
+                            height=1,
                             wrap=None,
                             variable=self.selectedView,
                             command=self.showChoice,
-                            value=val).pack(anchor=W, side=LEFT)
+                            value=distIndex).pack(anchor=W, side=LEFT)
 
             rightFrame = Frame(viewOptionFrame)
 
-            topFrame = Frame(rightFrame)
-            opTitle = Label(topFrame, text=key.toString())
+            minDist, maxDist = distortion.getMinMax()
+
+
+            innerTopFrame = Frame(rightFrame)
+            opTitle = Label(innerTopFrame, text=distortion.toString())
             opTitle.configure(font=("Helvetica", 10, "bold"))
             opTitle.pack(side=LEFT, anchor=W)
-            Label(topFrame, text="Distortion single value").pack(side=LEFT, padx=(10,0))
-            topFrame.pack(side=TOP, anchor=W)
 
-    #        bottomFrame=Frame(rightFrame)
-            canvas = Canvas(rightFrame, width=120, height=2)
-            #ToDo: make distortion object fill canvas with colorbar 
-            self.canvas.pack(side=TOP, pady=(2,0))
-    #        bottomFrame.pack(side=TOP, anchor=NW)
+            distortionValue = self.currentDistortions[distortion.value]
+            if distortionValue != -1:
+                Label(innerTopFrame, text=str(distortionValue)).pack(side=LEFT, padx=(10,0))
+            innerTopFrame.pack(side=TOP, anchor=W)
+
+
+
+
+            if minDist != -1:
+                innerBottomFrame=Frame(rightFrame)
+                minValue = round(minDist,1)
+                Label(innerBottomFrame, text=str(minValue)).pack(side=LEFT, anchor=W)
+
+                canvas = Canvas(innerBottomFrame, width=100, height=5, bd=0, highlightthickness=0)
+                canvas.pack(side=LEFT, padx=(5,5))
+                distortion.getColormap(canvas, 100, 5)
+
+                maxValue = round(maxDist,1)
+                Label(innerBottomFrame, text=str(maxValue)).pack(side=LEFT, anchor=W)
+                innerBottomFrame.pack(side=TOP, anchor=NW)
+
 
 
             rightFrame.pack(side=LEFT, anchor=N)
@@ -103,3 +135,4 @@ class ComputationInfo:
         bottomFrame.pack(side=TOP, anchor=W, pady=(0,0))
 
         self.content.pack(side=LEFT)
+        self.mainFrame.pack(side=TOP, pady=(2, 0), anchor=N)

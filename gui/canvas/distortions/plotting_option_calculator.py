@@ -1,3 +1,4 @@
+from tkinter import Canvas
 from logger import log
 from typing import List, Mapping
 import abc
@@ -6,7 +7,7 @@ import numpy as np
 from gui.canvas.area_distortion import faceToArea
 
 
-class Distortion:
+class PlottingOptionCalculator:
     distortions:Mapping = {}
     totalDistortion = -1
 
@@ -16,6 +17,7 @@ class Distortion:
         self.facesBefore = facesBefore
         self.verticesAfter = verticesAfter
         self.facesAfter = facesAfter
+        self.calculateDistortions()
 
 
     def getVerticesOfFace(self, face:List[int], vertices:List[List[float]]):
@@ -25,21 +27,25 @@ class Distortion:
         return v1, v2, v3
 
 
+    def getDistortionValues(self):
+        if self.totalDistortion == -1: self.calculateDistortions()
+        return self.distortions, self.totalDistortion
+
+
     def solveThree(self, p1:List[float], p2:List[float], p3:List[float], res:List[float]):
         #Test if objects are changed or copied
 
         A = np.array([p1, p2, p3])
         B = np.array(res)
-        result = np.linalg.solve(A, B)
         log("A: " + str(A))
         log("B: " + str(B))
+        result = np.linalg.solve(A, B)
         log("result: " + str(result))
 
 
     def getTransformationMatrix(self, faceBefore:List[int], faceAfter=List[int]):
-        """
-        Returns the linear part of the tansformation matrix (2x2) with the first index being the row
-        """
+        """Returns the linear part of the tansformation matrix (2x2)
+         with the first index being the row"""
         x1, x2, x3 = self.getVerticesOfFace(faceBefore, self.verticesBefore)
         y1, y2, y3 = self.getVerticesOfFace(faceAfter, self.verticesAfter)
 
@@ -54,7 +60,6 @@ class Distortion:
 
         matrix = [r1Res[0:2], r2Res[0:2]]
         return matrix
-
 
 
     def getSingularValues(self, faceBefore:List[int], faceAfter=List[int]):
@@ -79,24 +84,29 @@ class Distortion:
 
         allAreas = {}
         totalArea = sum(list(allAreas.values()))
+            
+        log("verticesBefore length: " + str(len(self.verticesBefore)))
 
         for index, faceBefore in enumerate(self.facesBefore):
+            log("faceBefore: " + str(faceBefore))
             allAreas[index] = faceToArea(faceBefore, self.verticesBefore)
 
-        totalDistortion = 0
+        self.totalDistortion = 0
 
         for index, faceAfter in enumerate(self.facesAfter):
             self.distortions[index] = self.getDistortion(self.facesBefore[index], faceAfter)
             weight = allAreas[index] / totalArea
-            totalDistortion += self.distortions[index] * weight
+            self.totalDistortion += self.distortions[index] * weight
 
         log("maxDist: " + str(max(list(self.distortions.values()))))
         log("minDist: " + str(min(list(self.distortions.values()))))
             
-        return self.distortions, totalDistortion
+        return self.distortions, self.totalDistortion
 
-
-
+    @abc.abstractmethod
+    def getColors(self):
+        """Returns a list of colors where the indexes correspond to the indexes in the faces list"""
+        return
 
     @abc.abstractmethod
     def getDistortion(self, faceBefore:List[int], faceAfter=List[int]):
