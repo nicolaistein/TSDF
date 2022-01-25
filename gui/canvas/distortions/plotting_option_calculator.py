@@ -17,7 +17,6 @@ class PlottingOptionCalculator:
         self.facesBefore = facesBefore
         self.verticesAfter = verticesAfter
         self.facesAfter = facesAfter
-        self.calculateDistortions()
 
 
     def getVerticesOfFace(self, face:List[int], vertices:List[List[float]]):
@@ -31,6 +30,23 @@ class PlottingOptionCalculator:
         if self.totalDistortion == -1: self.calculateDistortions()
         return self.distortions, self.totalDistortion
 
+    def solveSix(self, p1:List[float], p2:List[float], p3:List[float], p4:List[float], p5:List[float], p6:List[float], res:List[float]):
+        #Test if objects are changed or copied
+
+        A = np.array([p1, p2, p3, p4, p5, p6])
+        B = np.array(res)
+        log("A: " + str(A))
+        log("B: " + str(B))
+        try:
+            result = np.linalg.solve(A, B)
+            log("result: " + str(result))
+            return result
+        except np.linalg.LinAlgError:
+            log("Linalg ERROR!")
+#            log("result: " + str([[1,0], [0,1]]))
+            return [1, 1, 1]
+
+
 
     def solveThree(self, p1:List[float], p2:List[float], p3:List[float], res:List[float]):
         #Test if objects are changed or copied
@@ -39,8 +55,14 @@ class PlottingOptionCalculator:
         B = np.array(res)
         log("A: " + str(A))
         log("B: " + str(B))
-        result = np.linalg.solve(A, B)
-        log("result: " + str(result))
+        try:
+            result = np.linalg.solve(A, B)
+            log("result: " + str(result))
+            return result
+        except np.linalg.LinAlgError:
+            log("Linalg ERROR!")
+#            log("result: " + str([[1,0], [0,1]]))
+            return [1, 1, 1]
 
 
     def getTransformationMatrix(self, faceBefore:List[int], faceAfter=List[int]):
@@ -48,6 +70,8 @@ class PlottingOptionCalculator:
          with the first index being the row"""
         x1, x2, x3 = self.getVerticesOfFace(faceBefore, self.verticesBefore)
         y1, y2, y3 = self.getVerticesOfFace(faceAfter, self.verticesAfter)
+
+        log("vertices after: " + str(self.verticesAfter))
 
 
         #First row of matrix
@@ -57,18 +81,49 @@ class PlottingOptionCalculator:
         #Second row of matrix
         r2 = [y1[1], y2[1], y3[1]]
         r2Res = self.solveThree(x1, x2, x3, r2)
+        
 
-        matrix = [r1Res[0:2], r2Res[0:2]]
+
+        #-----------------------Tests
+
+#        r3 = [y1[2], y2[2], y3[2]]
+#        r3Res = self.solveThree(x1, x2, x3, r3)
+
+#        q1 = list(r1Res)
+#        q2 = list(r2Res)
+#        q3 = list(r3Res)
+#        wholeTMatrix = [q1, q2, q3]
+#        log("MATRIX: " + str(wholeTMatrix))
+
+        #-----------------------Tests
+
+
+
+
+        part1 = list(r1Res[0:2])
+        part2 = list(r2Res[0:2])
+
+        log("part1: " + str(part1))
+        log("part2: " + str(part2))
+
+        matrix = [part1, part2]
+        log("result matrix: " + str(matrix))
         return matrix
 
 
     def getSingularValues(self, faceBefore:List[int], faceAfter=List[int]):
         matrix = self.getTransformationMatrix(faceBefore, faceAfter)
+        log("matrix: " + str(matrix))
 
-        a = matrix[0,0]
-        b = matrix[0,1]
-        c = matrix[1,0]
-        d = matrix[1,1]
+        a = matrix[0][0]
+        b = matrix[0][1]
+        c = matrix[1][0]
+        d = matrix[1][1]
+
+        log("a: " + str(a))
+        log("b: " + str(b))
+        log("c: " + str(c))
+        log("d: " + str(d))
 
         firstArg = math.sqrt(math.pow(b+c , 2) + math.pow(a-d, 2))
         secondArg = math.sqrt(math.pow(b-c , 2) + math.pow(a+d, 2))
@@ -100,13 +155,14 @@ class PlottingOptionCalculator:
 
         log("maxDist: " + str(max(list(self.distortions.values()))))
         log("minDist: " + str(min(list(self.distortions.values()))))
+
+        log("distortions: " + str(self.distortions))
             
         return self.distortions, self.totalDistortion
 
-    @abc.abstractmethod
     def getColors(self):
         """Returns a list of colors where the indexes correspond to the indexes in the faces list"""
-        return
+        return []
 
     @abc.abstractmethod
     def getDistortion(self, faceBefore:List[int], faceAfter=List[int]):

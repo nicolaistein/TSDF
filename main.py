@@ -1,4 +1,5 @@
 from tkinter import *
+from typing import List
 from gui.left_side_menu.computation_info import ComputationInfo
 from gui.all_patterns.all_patterns import AllPatterns
 from gui.left_side_menu.algorithm_menu import AlgorithmMenu
@@ -9,6 +10,7 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.listview import getListview
+import numpy as np
 
 mainColor = "#cccccc"
 root = Tk()
@@ -48,7 +50,25 @@ allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))
 placedPatterns.build()
 
 
-root.mainloop()
 
 
 #plotter.plotFile("algorithms/segmentation/plot.html")
+
+#p1 = [2,3,1]
+#p2 = [8,2,2]
+#p3 = [1,4,2]
+#res = [66,4,3]
+#A = np.array([p1, p2, p3])
+#B = np.array(res)
+#print("A: " + str(A))
+#print("B: " + str(B))
+#try:
+#    result = np.linalg.solve(A, B)
+#    print("result: " + str(result))
+#except np.linalg.LinAlgError:
+#    print("Linalg ERROR!")
+#            log("result: " + str([[1,0], [0,1]]))
+
+
+
+root.mainloop()

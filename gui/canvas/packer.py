@@ -60,7 +60,6 @@ def pack(shapes):
         size += step
         counter += 1
 
-    log("All rects result: " + str(result))
     return result
 
 def shapeToRectangle(vertices: List[List[float]]):

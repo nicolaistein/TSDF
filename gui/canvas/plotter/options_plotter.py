@@ -18,9 +18,13 @@ class OptionsPlotter:
         self.verticesToPlot = verticesToPlot
         self.color = color
         self.faces = facesAfter   
+
+        log("verticesToPlot: " + str(verticesToPlot))
+        log("verticesAfter: " + str(verticesAfter))
+
         self.distortionOnCanvas = []
         self.calculators = {e.value:e.getOptionCalculator(verticesBefore, facesBefore,
-            verticesAfter, facesAfter) for e in PlottingOption}
+            verticesAfter, facesAfter) for e in PlottingOption if e.hasCalculator()}
 
     def createLine(self, x1, x2):
         self.distortionOnCanvas.append(
@@ -36,9 +40,16 @@ class OptionsPlotter:
         self.show()
         
     def show(self):
-        log("show called")
-        colors = self.calculators[self.currentOption.value].getColors()
+    #    log("show called current: " + str(self.currentOption) + ", " + str(self.calculators))
+        if self.currentOption not in self.calculators: return
 
+        calculator = self.calculators[self.currentOption]
+        calculator.getDistortionValues()
+        colors = calculator.getColors()
+        
+        log("colors: " + str(colors))
+
+        if not colors: return
         for index, face in enumerate(self.faces):
 
             x = list(self.verticesToPlot[face[0]])

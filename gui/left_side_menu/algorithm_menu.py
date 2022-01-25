@@ -84,16 +84,6 @@ class AlgorithmMenu:
 
         time, pointsBefore, facesBefore, pointsAfter, facesAfter = algorithm(file)
 
-        log("pointsBefore: " + str(pointsBefore))
-        log("facesBefore: " + str(facesBefore))
-        log("pointsAfter: " + str(pointsAfter))
-        log("facesAfter: " + str(facesAfter))
-    
-        log("pointsBefore length: " + str(len(pointsBefore)))
-        log("facesBefore length: " + str(len(facesBefore)))
-        log("pointsAfter length: " + str(len(pointsAfter)))
-        log("facesAfter length: " + str(len(facesAfter)))
-
         log("file: " + file + ", time: " + str(time) + ", points: " + str(len(pointsAfter)))
     #    areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
     #    angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=isBFF)

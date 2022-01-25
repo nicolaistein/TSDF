@@ -46,8 +46,21 @@ class CanvasManager:
 
     def plot(self, shapeList):
         shapes = []
+        verticesAfterInitial = []
+        # copying a list
         for _, _, _, vertices, _ in shapeList:
-            shapes.append(translator.moveToPositiveArea(vertices))
+
+            vnew = translator.moveToPositiveArea(vertices)
+            vnew2 = []
+
+            for x in vnew:
+                vnew2.append(x.copy())
+
+            shapes.append(vnew)
+            verticesAfterInitial.append(vnew2)
+
+        log("shapes initial: " + str(shapes))
+        log("verticesAfterInitial 1: " + str(shapes))
 
         # Calculate packing
         rects = pack(shapes)
@@ -87,6 +100,7 @@ class CanvasManager:
             el.delete()
         self.objectPlotters.clear()
         
+        log("verticesAfterInitial 2: " + str(shapes))
 
         # Plot all again
         self.refreshRulers()
@@ -96,8 +110,8 @@ class CanvasManager:
 
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
             
-            op = ObjectPlotter(self, shape, verticesBefore, facesBefore, verticesAfter, facesAfter,
-            color)
+            op = ObjectPlotter(self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
+            color, len(facesAfter)<1000)
             op.show()
             self.objectPlotters.append(op)
 

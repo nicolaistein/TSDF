@@ -31,13 +31,15 @@ class PlottingOption(Enum):
           }
           return switcher[self.value]
      
-     def getColormap(self, canvas:Canvas, width:int, height:int):
-          width = canvas.winfo_width()
-          height = canvas.winfo_height()
-          width = 100
-          height = 5
-#          log("width: " + str(width) + ", height: " + str(height))
+     def hasCalculator(self):
+          switcher = {
+               0: False,
+               1: False,
+               2: True,
+          }
+          return switcher[self.value]
 
+     def getColormap(self, canvas:Canvas, width:int, height:int):
           if self == PlottingOption.LSCM:
                stepSize = 255/width
 
@@ -45,7 +47,6 @@ class PlottingOption(Enum):
                     for y in range(height):
                          
                          colorFac = int(round(stepSize*x, 0))
-               #          log("colorFac: " + str(colorFac))
                          color = '#%02x%02x%02x' % (255, 255-colorFac, 255-colorFac)
 
                          canvas.create_oval(x, y, x, y, fill=color, width=0)

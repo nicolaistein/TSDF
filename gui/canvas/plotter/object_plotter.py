@@ -1,5 +1,6 @@
 from tkinter import *
 from typing import List
+
 from gui.canvas.plotter.options_plotter import OptionsPlotter
 from gui.canvas.distortions.plotting_option import PlottingOption
 from logger import log
@@ -9,14 +10,15 @@ class ObjectPlotter:
     plotEdges:bool = False
 
     def __init__(self, canvasManager, verticesToPlot:List[List[float]], verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, plotEdges:bool):
         self.color = color
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
         self.objectsOnCanvas = []
         self.points = verticesToPlot
         self.faces = facesAfter
-        self.distortionPlotter = OptionsPlotter(canvasManager, verticesToPlot, verticesBefore,
+        self.plotEdges = plotEdges
+        self.optionsPlotter = OptionsPlotter(canvasManager, verticesToPlot, verticesBefore,
             facesBefore, verticesAfter, facesAfter, color)
 
     def createLine(self, x1, x2):
@@ -25,7 +27,7 @@ class ObjectPlotter:
             
 
     def show(self):
-        self.distortionPlotter.showDistortion()
+        self.optionsPlotter.refresh()
         if self.plotEdges:
             for face in self.faces:
                 
@@ -55,7 +57,8 @@ class ObjectPlotter:
         self.refresh()
 
     def setPlottingOption(self, opt):
-        self.distortionPlotter.setOption(opt)
+        log("opt: " + str(opt))
+        self.optionsPlotter.setOption(opt)
         self.refresh()
 
     def refresh(self):
@@ -69,5 +72,5 @@ class ObjectPlotter:
 
     def delete(self):
         self.clear()
-        self.distortionPlotter.clear()
+        self.optionsPlotter.clear()
 

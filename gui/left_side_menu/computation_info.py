@@ -21,8 +21,7 @@ class ComputationInfo:
         self.selectedView = IntVar()
         self.selectedView.set(0)
 
-    def updateInfo(self, algo:str, time:int, verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]]):
+    def updateInfo(self, algo:str, time:int):
         """Updates the info shown in the widget"""
    #     self.verticesBefore = verticesBefore
    #     self.facesBefore = facesBefore
