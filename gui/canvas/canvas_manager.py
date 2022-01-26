@@ -59,8 +59,8 @@ class CanvasManager:
             shapes.append(vnew)
             verticesAfterInitial.append(vnew2)
 
-        log("shapes initial: " + str(shapes))
-        log("verticesAfterInitial 1: " + str(shapes))
+#        log("shapes initial: " + str(shapes))
+#        log("verticesAfterInitial 1: " + str(shapes))
 
         # Calculate packing
         rects = pack(shapes)
@@ -100,7 +100,7 @@ class CanvasManager:
             el.delete()
         self.objectPlotters.clear()
         
-        log("verticesAfterInitial 2: " + str(shapes))
+#        log("verticesAfterInitial 2: " + str(shapes))
 
         # Plot all again
         self.refreshRulers()

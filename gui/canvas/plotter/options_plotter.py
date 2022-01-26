@@ -19,8 +19,8 @@ class OptionsPlotter:
         self.color = color
         self.faces = facesAfter   
 
-        log("verticesToPlot: " + str(verticesToPlot))
-        log("verticesAfter: " + str(verticesAfter))
+#        log("verticesToPlot: " + str(verticesToPlot))
+#        log("verticesAfter: " + str(verticesAfter))
 
         self.distortionOnCanvas = []
         self.calculators = {e.value:e.getOptionCalculator(verticesBefore, facesBefore,

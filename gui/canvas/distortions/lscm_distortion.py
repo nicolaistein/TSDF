@@ -7,6 +7,6 @@ class LscmDistortion(PlottingOptionCalculator):
 
     def getDistortion(self, faceBefore:List[int], faceAfter=List[int]):
         o1, o2 = self.getSingularValues(faceBefore, faceAfter)
-        log("o1: " + str(o1) + ", o2: " + str(o2))
-        return o1/o2
+#        log("o1: " + str(o1) + ", o2: " + str(o2))
+        return math.pow(o1-1, 2) + math.pow(o2-1, 2)
 #        return math.pow(o1-o2, 2)
