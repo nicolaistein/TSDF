@@ -12,7 +12,6 @@ class OptionsPlotter:
 
     def __init__(self,canvasManager, verticesToPlot, verticesBefore:List[List[float]], facesBefore:List[List[int]],
         verticesAfter:List[List[float]], facesAfter:List[List[int]], color=None):
-        log("color: " + str(color))
         self.cv = canvasManager
         self.canvas = canvasManager.canvas
         self.verticesToPlot = verticesToPlot
@@ -25,8 +24,6 @@ class OptionsPlotter:
             calc = e.getOptionCalculator(verticesBefore, facesBefore,
             verticesAfter, facesAfter, color)
             if calc is not None: self.calculators[e.value] = calc
-        
-        log("calculators: " + str(self.calculators))
 
     def createLine(self, x1, x2):
         self.distortionOnCanvas.append(

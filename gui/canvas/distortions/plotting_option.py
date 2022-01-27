@@ -37,7 +37,6 @@ class PlottingOption(Enum):
           }
 
           calculator = switcher[self.value]
-          log("calculator: " + str(calculator))
 
           return calculator(verticesBefore, facesBefore, verticesAfter, facesAfter, self, color)
 

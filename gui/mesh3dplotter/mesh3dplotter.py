@@ -60,6 +60,13 @@ class Mesh3DPlotter:
         rightSide.pack(side=LEFT, anchor=N, padx=(20,10))
         self.mainFrame.pack(side=TOP, pady=(20,0))
 
+    def deselectIfSelected(self):
+        if self.selectedChart != -1:
+            self.selectedChart = -1
+            self.faceColors = self.refreshColors(self.selectedChart)
+            self.show()
+
+
     def selectChart(self, chart):
         self.selectedChart = chart if self.selectedChart != chart else -1
         self.refreshChartDistortionInfo(self.selectedChart)

@@ -38,7 +38,7 @@ class Features:
         for edge in relevantFeatures:
             count += 1
             if count % 10 == 0:
-                log(str(round(count*100/len(relevantFeatures), 0)) + "%% - calculated features: " + str(count))
+                log(str(round(count*100/len(relevantFeatures), 0)) + "%% - (" + str(count) + "/" + str(len(relevantFeatures)) + ")")
                 
         #    if count % 50 == 0 and count <= 200:
         #        self.plotResult()

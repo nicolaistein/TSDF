@@ -8,10 +8,6 @@ from gui.canvas.area_distortion import faceToArea
 
 
 class PlottingOptionCalculator:
-#    colors:Mapping = {}
-#    distortions:Mapping = {}
-#    totalDistortion = -1
-#    option:PlottingOption = PlottingOption.NO_DIST
 
     def __init__(self, verticesBefore:List[List[float]], facesBefore:List[List[int]],
         verticesAfter:List[List[float]], facesAfter:List[List[int]], option, color:str):
@@ -101,40 +97,16 @@ class PlottingOptionCalculator:
         r2 = [y1[1], y2[1], y3[1]]
         r2Res = self.solveThree(x1, x2, x3, r2)
         
-
-
-        #-----------------------Tests
-#        y1.append(1)
-#        y2.append(1)
-#        y3.append(1)
-#        r3 = [y1[2], y2[2], y3[2]]
-#        r3Res = self.solveThree(x1, x2, x3, r3)
-#
-#        q1 = list(r1Res)
-#        q2 = list(r2Res)
-#        q3 = list(r3Res)
-#        wholeTMatrix = [q1, q2, q3]
-#        log("MATRIX: " + str(wholeTMatrix))
-
-        #-----------------------Tests
-
-
-
-
         part1 = list(r1Res[0:2])
         part2 = list(r2Res[0:2])
 
- #       log("part1: " + str(part1))
- #       log("part2: " + str(part2))
 
         matrix = [part1, part2]
- #       log("result matrix: " + str(matrix))
         return matrix
 
 
     def getSingularValues(self, faceBefore:List[int], faceAfter=List[int]):
         matrix = self.getTransformationMatrix(faceBefore, faceAfter)
-#        log("matrix: " + str(matrix))
 
         a = matrix[0][0]
         b = matrix[0][1]
@@ -164,7 +136,7 @@ class PlottingOptionCalculator:
 
         for index, faceAfter in enumerate(self.facesAfter):
             self.distortions[index] = self.getDistortion(self.facesBefore[index], faceAfter)
-            if index % 30 == 0: log(str(round(100*index/len(self.facesAfter), 2))
+            if index % 500 == 0: log(str(round(100*index/len(self.facesAfter), 2))
                 + "% (" + str(index) + "/" + str(len(self.facesAfter)) + ")")
 
             

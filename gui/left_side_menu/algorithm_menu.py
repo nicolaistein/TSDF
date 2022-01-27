@@ -64,8 +64,8 @@ class AlgorithmMenu:
                 chartList.append((chartKey, folderName + "/" + file))
         else:
             chartList = [(-1, file)]
-            
-        log("Chartlist: " + str(chartList))
+
+        #Todo: map charts to 1-n
 
         computeStart = time.time()
         results = []
@@ -73,7 +73,6 @@ class AlgorithmMenu:
             res = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
             results.append((key,) + res)
         computeEnd = time.time()
-
 
         self.canvasManager.plot(results)
         self.compInfo.updateInfo(algoName, computeEnd-computeStart)

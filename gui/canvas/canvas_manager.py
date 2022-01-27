@@ -44,6 +44,7 @@ class CanvasManager:
         return (x,y)
 
     def plot(self, shapeList):
+        self.plotter.deselectIfSelected()
         shapes = []
         verticesAfterInitial = []
         # copying a list
@@ -106,7 +107,7 @@ class CanvasManager:
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
             
             op = ObjectPlotter(chartKey, self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
-            color, len(facesAfter)<1000)
+            color, self.plotEdges)
             op.show()
             self.objectPlotters.append(op)
 

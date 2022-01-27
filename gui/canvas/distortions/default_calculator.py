@@ -7,3 +7,6 @@ class DefaultCalculator(PlottingOptionCalculator):
  
     def getColors(self):
         return {}
+
+    def getDistortionValues(self):
+        return self.distortions, self.totalDistortion

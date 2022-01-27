@@ -7,3 +7,6 @@ class FaceColorsCalculator(PlottingOptionCalculator):
     
     def getColors(self):
         return {index:self.color for index, _ in enumerate(self.facesAfter)}
+
+    def getDistortionValues(self):
+        return self.distortions, self.totalDistortion
