@@ -9,7 +9,7 @@ from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
-from gui.listview import getListview
+from gui.listview import ListView
 import numpy as np
 
 mainColor = "#cccccc"
@@ -25,7 +25,7 @@ canvasSize = 900
 allPatternsContainer = Frame(root, bg=mainColor)
 
 leftContainerParent = Frame(root, bg=mainColor)
-leftContainer = getListview(leftContainerParent, 220, 900, 0, mainColor)
+leftContainer = ListView(leftContainerParent, 220, 900, 0, mainColor).getFrame()
 
 plotter = Mesh3DPlotter(allPatternsContainer)
 canvasManager = CanvasManager(root, canvasSize, plotter)

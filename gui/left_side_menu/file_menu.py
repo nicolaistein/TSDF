@@ -3,7 +3,6 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
-from gui.listview import getListview
 import igl
 import os
 
@@ -97,7 +96,6 @@ class FileMenu:
 
         infoFrame = Frame(fileSelectionFrame)
         self.list = infoFrame
-    #    self.list = getListview(infoFrame, 160, 50, 0)
         self.refreshInfo()
 
 

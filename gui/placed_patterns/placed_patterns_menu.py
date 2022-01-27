@@ -5,7 +5,7 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_item import PlacedPatternsItem
-from gui.listview import getListview
+from gui.listview import ListView
 
 
 class PlacedPatternsMenu:
@@ -69,7 +69,7 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0,15))
 
-        self.innerContent = getListview(self.content, 310, 750)
+        self.innerContent = ListView(self.content, 310, 750).getFrame()
 
         self.placedPatternItems.clear()
         for pattern in self.patterns:

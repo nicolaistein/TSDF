@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from gui.button import TkinterCustomButton
 from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
-from gui.listview import getListview
+from gui.listview import ListView
 from logger import log
 
 
@@ -55,7 +55,7 @@ class Mesh3DPlotter:
         self.buttons.extend([button1, button2, button3])
         
         rightSide = Frame(self.mainFrame)
-        self.list = getListview(rightSide, width=180, height=150)
+        self.list = ListView(rightSide, width=180, height=150).getFrame()
 
         rightSide.pack(side=LEFT, anchor=N, padx=(20,10))
         self.mainFrame.pack(side=TOP, pady=(20,0))
