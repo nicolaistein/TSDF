@@ -96,7 +96,7 @@ class Mesh3DPlotter:
         else:
             for index, val in enumerate(self.chartList):
                 if val == selectedChart:
-                    self.chartToColor[val] = "#a81818"
+                    self.chartToColor[val] = distinctColors[index % len(distinctColors)]
                 else:
                     self.chartToColor[val] = "#ffffff"
 
