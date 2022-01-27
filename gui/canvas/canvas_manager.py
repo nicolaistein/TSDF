@@ -96,7 +96,6 @@ class CanvasManager:
             el.delete()
         self.objectPlotters.clear()
         
-#        log("verticesAfterInitial 2: " + str(shapes))
 
         # Plot all again
         self.refreshRulers()

@@ -154,8 +154,6 @@ class PlottingOptionCalculator:
         """Calculates the distortion of the whole object and for every triangle"""
 
         allAreas = {}
-            
-        log("verticesBefore length: " + str(len(self.verticesBefore)))
 
         for index, faceBefore in enumerate(self.facesBefore):
 #            log("faceBefore: " + str(faceBefore))
@@ -202,9 +200,7 @@ class PlottingOptionCalculator:
 
     def getColors(self):
         """Returns a list of colors where the indexes correspond to the indexes in the faces list"""
-        log("Colors size: " + str(len(self.colors)))
         if not self.colors:
-            log("Calculating colors")
             for index, _ in enumerate(self.facesAfter):
                 self.colors[index] = self.distortionToColor(self.distortions[index])
 

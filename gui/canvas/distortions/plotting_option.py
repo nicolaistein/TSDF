@@ -18,7 +18,7 @@ class PlottingOption(Enum):
      def toString(self):
           switcher = {
                0: "Default",
-               1: "Face Colors",
+               1: "Chart Colors",
                2: "LSCM Distortion",
                3: "Isometric Dist.",
                4: "Max. isom. Dist."
@@ -54,7 +54,7 @@ class PlottingOption(Enum):
      def getColor(self):
           switcher = {
                0: None,
-               1: "facecolors",
+               1: None,
                2: (255, 0, 0),
                3: (0, 0, 255),
                4: (255, 105, 36)

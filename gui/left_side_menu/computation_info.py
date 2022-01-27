@@ -24,7 +24,6 @@ class ComputationInfo:
 
     def updateInfo(self, algo:str, time:int):
         """Updates the info shown in the widget"""
-        log("time: " + str(time))
         self.algo = algo
         self.time = formatter.formatTime(time)
         self.currentDistortions = {e.value: -1 for e in PlottingOption}
@@ -63,12 +62,6 @@ class ComputationInfo:
         for distortion, distVal in values.items():
             self.currentDistortions[distortion] = distVal
 
-        log("incoming values: ")
-        for key, val in values.items():
-            print(str(key) + ": " + str(val))
-        log("registered values: ")
-        for key, val in self.currentDistortions.items():
-            print(str(key) + ": " + str(val))
         self.refreshView()
 
     def build(self):
