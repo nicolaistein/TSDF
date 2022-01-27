@@ -106,10 +106,8 @@ class ComputationInfo:
             distortionValue = self.currentDistortions[distortion.value]
             distText = str(round(distortionValue, 2)) if distortionValue != -1 else "-"
             if minDist is not None:
-                Label(innerTopFrame, text=distText, fg="blue").pack(side=LEFT, padx=(4,0))
+                Label(innerTopFrame, text=distText, fg="blue").pack(side=LEFT, padx=(0,0), pady=(1,0))
             innerTopFrame.pack(side=TOP, anchor=W)
-
-
 
 
             if minDist is not None:
@@ -124,7 +122,6 @@ class ComputationInfo:
                 maxValue = round(maxDist,1)
                 Label(innerBottomFrame, text=str(maxValue)).pack(side=LEFT, anchor=W)
                 innerBottomFrame.pack(side=TOP, anchor=NW)
-
 
 
             rightFrame.pack(side=LEFT, anchor=N)
