@@ -81,13 +81,8 @@ class AlgorithmMenu:
 
 
     def calculateSingleFile(self, file, algorithm:Function, isBFF):
-
         time, pointsBefore, facesBefore, pointsAfter, facesAfter = algorithm(file)
-
         log("file: " + file + ", time: " + str(time) + ", points: " + str(len(pointsAfter)))
-    #    areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
-    #    angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=isBFF)
-
         return (pointsBefore, facesBefore, pointsAfter, facesAfter)
 
 

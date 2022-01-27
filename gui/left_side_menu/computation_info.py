@@ -54,7 +54,6 @@ class ComputationInfo:
 
     def showChoice(self):
         selected = self.selectedView.get()
-        log("currently selected: " + str(selected))
 
         self.canvasManager.selectPlottingOption(selected)
         self.refreshView()
@@ -67,7 +66,7 @@ class ComputationInfo:
     def build(self):
 
         self.content = Frame(self.mainFrame, width=220,
-                             height=280, padx=20, pady=20)
+                             height=300, padx=20, pady=20)
         self.content.pack_propagate(0)
 
         chooseFile = Label(self.content, text="Computation Info")
@@ -113,7 +112,7 @@ class ComputationInfo:
 
 
 
-            if minDist != -1:
+            if minDist is not None:
                 innerBottomFrame=Frame(rightFrame)
                 minValue = round(minDist,1)
                 Label(innerBottomFrame, text=str(minValue)).pack(side=LEFT, anchor=W)

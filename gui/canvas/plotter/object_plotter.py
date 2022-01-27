@@ -57,7 +57,6 @@ class ObjectPlotter:
         self.refresh()
 
     def setPlottingOption(self, opt):
-        log("opt: " + str(opt))
         self.optionsPlotter.setOption(opt)
         self.refresh()
 

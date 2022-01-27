@@ -10,13 +10,16 @@ from gui.canvas.area_distortion import faceToArea
 class PlottingOptionCalculator:
     distortions:Mapping = {}
     totalDistortion = -1
+#    option:PlottingOption = PlottingOption.NO_DIST
 
     def __init__(self, verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]]):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], option, color:str):
         self.verticesBefore = verticesBefore
         self.facesBefore = facesBefore
         self.verticesAfter = verticesAfter
         self.facesAfter = facesAfter
+        self.option = option
+        self.color = color
 
 
     def getVerticesOfFace(self, face:List[int], vertices:List[List[float]]):
@@ -36,8 +39,6 @@ class PlottingOptionCalculator:
 
         A = np.array([p1, p2, p3])
         B = np.array(res)
-#        log("A: " + str(A))
-#        log("B: " + str(B))
         
         try:
             result = np.linalg.solve(A, B)
@@ -161,7 +162,7 @@ class PlottingOptionCalculator:
 
         for index, faceAfter in enumerate(self.facesAfter):
             self.distortions[index] = self.getDistortion(self.facesBefore[index], faceAfter)
-            if index % 10 == 0: log(str(round(100*index/len(self.facesAfter), 2))
+            if index % 30 == 0: log(str(round(100*index/len(self.facesAfter), 2))
                 + "% (" + str(index) + "/" + str(len(self.facesAfter)) + ")")
 
             
@@ -175,11 +176,33 @@ class PlottingOptionCalculator:
             
         return self.distortions, self.totalDistortion
 
-    def getColors(self):
-        """Returns a list of colors where the indexes correspond to the indexes in the faces list"""
-        return []
+    
+    def distortionToColor(self, distortion:float):
+        minD, maxD = self.option.getMinMax()
+        dist = abs(distortion-minD) / abs(maxD-minD)
 
-    @abc.abstractmethod
+        color = self.option.getColor()
+        r, g, b = color
+
+        stepSizeR = (255-r) * dist
+        stepSizeG = (255-g) * dist
+        stepSizeB = (255-b) * dist
+        
+        colorFacR = int(round(stepSizeR, 0))
+        colorFacG = int(round(stepSizeG, 0))
+        colorFacB = int(round(stepSizeB, 0))
+            
+        color = '#%02x%02x%02x' % (255-colorFacR, 255-colorFacG, 255-colorFacB)
+        return color
+
+    def getColors(self):
+        result = {}
+        """Returns a list of colors where the indexes correspond to the indexes in the faces list"""
+        for index, _ in enumerate(self.facesAfter):
+            result[index] = self.distortionToColor(self.distortions[index])
+
+        return result
+
     def getDistortion(self, faceBefore:List[int], faceAfter=List[int]):
         """Implements the concrete formula of the distortion"""
-        return
+        return -1
