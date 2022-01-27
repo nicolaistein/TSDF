@@ -8,8 +8,6 @@ from gui.canvas.distortions.plotting_option import PlottingOption
 from gui.canvas.distortions.plotting_option_calculator import PlottingOptionCalculator
 
 class OptionsPlotter:
-
-    calculators:List[PlottingOptionCalculator] = []
     currentOption:PlottingOption = PlottingOption.NO_DIST
 
     def __init__(self,canvasManager, verticesToPlot, verticesBefore:List[List[float]], facesBefore:List[List[int]],
@@ -19,17 +17,16 @@ class OptionsPlotter:
         self.canvas = canvasManager.canvas
         self.verticesToPlot = verticesToPlot
         self.color = color
-        self.faces = facesAfter   
-
-#        log("verticesToPlot: " + str(verticesToPlot))
-#        log("verticesAfter: " + str(verticesAfter))
-
+        self.faces = facesAfter
+        self.enabled = True
         self.distortionOnCanvas = []
         self.calculators = {}
         for e in PlottingOption:
             calc = e.getOptionCalculator(verticesBefore, facesBefore,
             verticesAfter, facesAfter, color)
             if calc is not None: self.calculators[e.value] = calc
+        
+        log("calculators: " + str(self.calculators))
 
     def createLine(self, x1, x2):
         self.distortionOnCanvas.append(
@@ -39,20 +36,21 @@ class OptionsPlotter:
         self.currentOption = distortion
         self.refresh()
 
+    def getDistortions(self):
+        return {typ: cal.totalDistortion for typ, cal in self.calculators.items()}
 
     def refresh(self):
         self.clear()
         self.show()
         
     def show(self):
-    #    log("show called current: " + str(self.currentOption) + ", " + str(self.calculators))
         if self.currentOption not in self.calculators: return
+        if not self.enabled: return
 
         calculator = self.calculators[self.currentOption]
         calculator.getDistortionValues()
         colors = calculator.getColors()
 
-#        if not colors: return
         for index, face in enumerate(self.faces):
 
             x = list(self.verticesToPlot[face[0]])
@@ -68,8 +66,9 @@ class OptionsPlotter:
             self.canvas.delete(point)
         self.distortionOnCanvas.clear()
 
-
-
+    def setEnabled(self, enabled:bool):
+        self.enabled = enabled
+        self.refresh()
 
     def showAreaDistortion(self):
         for index, face in enumerate(self.faces):

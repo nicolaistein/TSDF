@@ -24,13 +24,19 @@ class AlgorithmMenu:
     ]
 
     def __init__(self, master: Frame, canvasManager: CanvasManager,
-     fileMenu:FileMenu, compInfo:ComputationInfo):
+     fileMenu:FileMenu, compInfo:ComputationInfo, plotter):
         self.mainFrame = Frame(master, width=220, height=200, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
         self.compInfo = compInfo
+        plotter.refreshChartDistortionInfo = self.onChartSelect
+        canvasManager.refreshChartDistortionInfo = self.onChartSelect
         self.v = IntVar()
         self.v.set(0)
+
+    def onChartSelect(self, chart):
+        self.compInfo.setDistortionValues(self.canvasManager.getDistortionsOfChart(chart))
+        self.canvasManager.enableChart(chart)
 
     def calculate(self):
         file = self.fileMenu.getPath()
@@ -63,20 +69,13 @@ class AlgorithmMenu:
 
         computeStart = time.time()
         results = []
-   #     areaDists = []
-   #     angularDists = []
         for key, ch in chartList:
             res = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
             results.append((key,) + res)
-    #        areaDists.append(areaDist)
-    #        angularDists.append(angularDist)
 
         computeEnd = time.time()
 
         self.canvasManager.plot(results)
-
-    #    avgAreaDist = sum(areaDists)/len(areaDists)
-    #    avgAngleDist = sum(angularDists)/len(angularDists)
         self.compInfo.updateInfo(algoName, computeEnd-computeStart)
 
 

@@ -10,6 +10,8 @@ from logger import log
 
 
 class ComputationInfo:
+    algo = "-"
+    time = "-"
     viewOptions = [(e, e.value) for e in PlottingOption]
     currentDistortions = {e.value: -1 for e in PlottingOption}
     """Contains all viewoptions (facecolor, distortions) displayed in the computation info widget"""
@@ -17,26 +19,25 @@ class ComputationInfo:
     def __init__(self, master: Frame, canvasManager:CanvasManager):
         self.canvasManager = canvasManager
         self.mainFrame = Frame(master)
- #       log("view options: " + str(self.viewOptions))
         self.selectedView = IntVar()
         self.selectedView.set(0)
 
     def updateInfo(self, algo:str, time:int):
         """Updates the info shown in the widget"""
-   #     self.verticesBefore = verticesBefore
-   #     self.facesBefore = facesBefore
-   #     self.verticesAfter = verticesAfter
-   #     self.facesAfter = facesAfter
-        self.algorithm.configure(text=algo)
-        self.time.configure(text=formatter.formatTime(time))
+        log("time: " + str(time))
+        self.algo = algo
+        self.time = formatter.formatTime(time)
+        self.currentDistortions = {e.value: -1 for e in PlottingOption}
+        self.selectedView.set(0)
+        self.refreshView()
     
-    def getKeyValueFrame(self, parent: Frame, key: str, keyWidth:float=14):
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=keyWidth,
+        keyLabel = Label(keyValFrame, text=key, width=10,
                             anchor=W, justify=LEFT, wraplength=120)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        valLabel = Label(keyValFrame, text="-", wraplength=100)
+        valLabel = Label(keyValFrame, text=value, wraplength=100)
         valLabel.pack(side=LEFT)
 
         keyValFrame.pack(side="top", anchor="w")
@@ -56,26 +57,31 @@ class ComputationInfo:
         selected = self.selectedView.get()
 
         self.canvasManager.selectPlottingOption(selected)
-        self.refreshView()
+#        self.refreshView()
 
     def setDistortionValues(self, values):
         for distortion, distVal in values.items():
             self.currentDistortions[distortion] = distVal
+
+        log("incoming values: ")
+        for key, val in values.items():
+            print(str(key) + ": " + str(val))
+        log("registered values: ")
+        for key, val in self.currentDistortions.items():
+            print(str(key) + ": " + str(val))
         self.refreshView()
 
     def build(self):
 
         self.content = Frame(self.mainFrame, width=220,
-                             height=300, padx=20, pady=20)
+                             height=360, padx=20, pady=20)
         self.content.pack_propagate(0)
 
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))
 
-        self.algorithm = self.getKeyValueFrame(self.content, "Algorithm", 10)
-        self.time = self.getKeyValueFrame(self.content, "Time", 10)
-#        self.areaDist = self.getKeyValueFrame(self.content, "Area Distortion")
-#        self.angleDist = self.getKeyValueFrame(self.content, "Angle Distortion")
+        self.getKeyValueFrame(self.content, "Algorithm", self.algo)
+        self.getKeyValueFrame(self.content, "Time", self.time)
 
         edgeText = "Show Edges" if not self.canvasManager.plotEdges else "Hide Edges"
         self.edgeButton = TkinterCustomButton(master=self.content, text=edgeText, command=self.onEdgeClick,
@@ -105,8 +111,9 @@ class ComputationInfo:
             opTitle.pack(side=LEFT, anchor=W)
 
             distortionValue = self.currentDistortions[distortion.value]
-            if distortionValue != -1:
-                Label(innerTopFrame, text=str(distortionValue)).pack(side=LEFT, padx=(10,0))
+            distText = str(round(distortionValue, 2)) if distortionValue != -1 else "-"
+            if minDist is not None:
+                Label(innerTopFrame, text=distText, fg="blue").pack(side=LEFT, padx=(4,0))
             innerTopFrame.pack(side=TOP, anchor=W)
 
 

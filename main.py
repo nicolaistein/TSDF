@@ -23,17 +23,18 @@ root.configure(bg=mainColor, padx=20, pady=20)
 canvasSize = 900
 
 allPatternsContainer = Frame(root, bg=mainColor)
-plotter = Mesh3DPlotter(allPatternsContainer)
 
 leftContainerParent = Frame(root, bg=mainColor)
 leftContainer = getListview(leftContainerParent, 220, 900, 0, mainColor)
+
+plotter = Mesh3DPlotter(allPatternsContainer)
 canvasManager = CanvasManager(root, canvasSize, plotter)
-fileMenu = FileMenu(leftContainer, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
+fileMenu = FileMenu(leftContainer, plotter)
 
 fileMenu.build()
 AnalyzeMenu(leftContainer, fileMenu).build()
-AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo).build()
+AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo, plotter).build()
 computationInfo.build()
 leftContainerParent.pack(side="left", anchor=N, padx=(0, 20))
 
@@ -48,27 +49,5 @@ plotter.show()
 allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))
 
 placedPatterns.build()
-
-
-
-
-#plotter.plotFile("algorithms/segmentation/plot.html")
-
-#p1 = [2,3,1]
-#p2 = [8,2,2]
-#p3 = [1,4,2]
-#res = [66,4,3]
-#A = np.array([p1, p2, p3])
-#B = np.array(res)
-#print("A: " + str(A))
-#print("B: " + str(B))
-#try:
-#    result = np.linalg.solve(A, B)
-#    print("result: " + str(result))
-#except np.linalg.LinAlgError:
-#    print("Linalg ERROR!")
-#            log("result: " + str([[1,0], [0,1]]))
-
-
 
 root.mainloop()

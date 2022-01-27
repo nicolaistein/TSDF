@@ -11,7 +11,6 @@ from logger import log
 
 class CanvasManager:
     plotEdges:bool = False
-#    plotDistortion:str = PlottingOption.NO_DIST
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
     borders = []
@@ -58,9 +57,6 @@ class CanvasManager:
 
             shapes.append(vnew)
             verticesAfterInitial.append(vnew2)
-
-#        log("shapes initial: " + str(shapes))
-#        log("verticesAfterInitial 1: " + str(shapes))
 
         # Calculate packing
         rects = pack(shapes)
@@ -110,7 +106,7 @@ class CanvasManager:
 
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
             
-            op = ObjectPlotter(self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
+            op = ObjectPlotter(chartKey, self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
             color, len(facesAfter)<1000)
             op.show()
             self.objectPlotters.append(op)
@@ -128,15 +124,33 @@ class CanvasManager:
             op.setPlotEdges(self.plotEdges)
         self.patternPlotter.refresh()
         
-    def selectPlottingOption(self, distortion:PlottingOption):
+    def selectPlottingOption(self, option:PlottingOption):
         for pl in self.objectPlotters:
-            pl.setPlottingOption(distortion)
+            pl.setPlottingOption(option)
+
+        if len(self.objectPlotters) == 1:
+            self.refreshChartDistortionInfo(self.objectPlotters[0].id)
+            return
+        
+        selected = self.plotter.selectedChart
+        if self.plotter.isSegmented() and selected != -1:
+            self.refreshChartDistortionInfo(selected)
 
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)
         self.canvas.pack(side=LEFT)
         self.refreshRulers()
 
+    def getDistortionsOfChart(self, chart:int):
+        for op in self.objectPlotters: 
+            if op.id == chart: return op.getDistortions()
+
+        return {}
+
+    def enableChart(self, chart:int):
+        """Enables all charts if chart is -1 (no chart is selected)"""
+        for op in self.objectPlotters: 
+            op.setEnabled(True if chart == -1 else op.id == chart)
 
     def refreshRulers(self):
         for point in self.rulers:

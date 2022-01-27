@@ -4,6 +4,6 @@ from gui.canvas.distortions.plotting_option_calculator import PlottingOptionCalc
 from logger import log
 
 class DefaultCalculator(PlottingOptionCalculator):
-    
+ 
     def getColors(self):
         return {}

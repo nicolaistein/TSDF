@@ -62,7 +62,8 @@ class Mesh3DPlotter:
 
     def selectChart(self, chart):
         self.selectedChart = chart if self.selectedChart != chart else -1
-        self.notifyFileMenu(self.selectedChart)
+        log("selectChart called - selectedChart: " + str(self.selectedChart))
+        self.refreshChartDistortionInfo(self.selectedChart)
         self.faceColors = self.refreshColors(self.selectedChart)
         self.show()
 

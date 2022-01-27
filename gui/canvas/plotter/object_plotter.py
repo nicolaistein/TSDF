@@ -7,17 +7,17 @@ from logger import log
 
 class ObjectPlotter:
 
-    plotEdges:bool = False
-
-    def __init__(self, canvasManager, verticesToPlot:List[List[float]], verticesBefore:List[List[float]], facesBefore:List[List[int]],
+    def __init__(self, id, canvasManager, verticesToPlot:List[List[float]], verticesBefore:List[List[float]], facesBefore:List[List[int]],
         verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, plotEdges:bool):
         self.color = color
+        self.id = id
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
         self.objectsOnCanvas = []
         self.points = verticesToPlot
         self.faces = facesAfter
         self.plotEdges = plotEdges
+        self.enabled = True
         self.optionsPlotter = OptionsPlotter(canvasManager, verticesToPlot, verticesBefore,
             facesBefore, verticesAfter, facesAfter, color)
 
@@ -25,19 +25,17 @@ class ObjectPlotter:
         self.objectsOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
             
+    def getDistortions(self):
+        return self.optionsPlotter.getDistortions()
 
     def show(self):
-        self.optionsPlotter.refresh()
+        if not self.enabled: return
         if self.plotEdges:
             for face in self.faces:
                 
                 x = list(self.points[face[0]])
                 y = list(self.points[face[1]])
                 z = list(self.points[face[2]])
-
-    #            if self.plotColors:
-    #                self.objectsOnCanvas.append(
-    #                    self.canvas.create_polygon(x, y, z, fill=self.color))
 
                 #Edges
                 if self.plotEdges:
@@ -51,6 +49,11 @@ class ObjectPlotter:
                 y = point[1]
                 r = 0
                 self.objectsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
+
+    def setEnabled(self, enabled:bool):
+        self.enabled = enabled
+        self.optionsPlotter.setEnabled(enabled)
+        self.refresh()
 
     def setPlotEdges(self, plot:bool):
         self.plotEdges = plot

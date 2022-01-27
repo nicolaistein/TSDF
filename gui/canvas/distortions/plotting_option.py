@@ -6,19 +6,22 @@ from gui.canvas.distortions.lscm_calculator import LscmCalculator
 from gui.canvas.distortions.default_calculator import DefaultCalculator
 from gui.canvas.distortions.face_colors_calculator import FaceColorsCalculator
 from gui.canvas.distortions.arap_calculator import ArapCalculator
+from gui.canvas.distortions.maximal_isometric_calculator import MaximalIsometricCalculator
 
 class PlottingOption(Enum):
      NO_DIST = 0
      COLORS = 1
      LSCM = 2
      ARAP = 3
+     MAX_ISOMETRIC = 4
 
      def toString(self):
           switcher = {
                0: "Default",
                1: "Face Colors",
                2: "LSCM Distortion",
-               3: "ARAP Distortion"
+               3: "Isometric Dist.",
+               4: "Max. isom. Dist."
           }
           return switcher[self.value]
 
@@ -29,7 +32,8 @@ class PlottingOption(Enum):
                0: DefaultCalculator,
                1: FaceColorsCalculator,
                2: LscmCalculator,
-               3: ArapCalculator
+               3: ArapCalculator,
+               4: MaximalIsometricCalculator
           }
 
           calculator = switcher[self.value]
@@ -42,7 +46,8 @@ class PlottingOption(Enum):
                0: (None, None),
                1: (None, None),
                2: (0, 1),
-               3: (0, 100)
+               3: (0, 2),
+               4: (0, 4)
           }
           return switcher[self.value]
 
@@ -51,7 +56,8 @@ class PlottingOption(Enum):
                0: None,
                1: "facecolors",
                2: (255, 0, 0),
-               3: (0, 0, 255)
+               3: (0, 0, 255),
+               4: (255, 105, 36)
           }
           return switcher[self.value]
      

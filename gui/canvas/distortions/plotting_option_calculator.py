@@ -8,8 +8,9 @@ from gui.canvas.area_distortion import faceToArea
 
 
 class PlottingOptionCalculator:
-    distortions:Mapping = {}
-    totalDistortion = -1
+#    colors:Mapping = {}
+#    distortions:Mapping = {}
+#    totalDistortion = -1
 #    option:PlottingOption = PlottingOption.NO_DIST
 
     def __init__(self, verticesBefore:List[List[float]], facesBefore:List[List[int]],
@@ -20,6 +21,9 @@ class PlottingOptionCalculator:
         self.facesAfter = facesAfter
         self.option = option
         self.color = color
+        self.colors:Mapping = {}
+        self.distortions:Mapping = {}
+        self.totalDistortion = -1
 
 
     def getVerticesOfFace(self, face:List[int], vertices:List[List[float]]):
@@ -179,6 +183,7 @@ class PlottingOptionCalculator:
     
     def distortionToColor(self, distortion:float):
         minD, maxD = self.option.getMinMax()
+        if distortion > maxD: distortion = maxD
         dist = abs(distortion-minD) / abs(maxD-minD)
 
         color = self.option.getColor()
@@ -196,12 +201,14 @@ class PlottingOptionCalculator:
         return color
 
     def getColors(self):
-        result = {}
         """Returns a list of colors where the indexes correspond to the indexes in the faces list"""
-        for index, _ in enumerate(self.facesAfter):
-            result[index] = self.distortionToColor(self.distortions[index])
+        log("Colors size: " + str(len(self.colors)))
+        if not self.colors:
+            log("Calculating colors")
+            for index, _ in enumerate(self.facesAfter):
+                self.colors[index] = self.distortionToColor(self.distortions[index])
 
-        return result
+        return self.colors
 
     def getDistortion(self, faceBefore:List[int], faceAfter=List[int]):
         """Implements the concrete formula of the distortion"""
