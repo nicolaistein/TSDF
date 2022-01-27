@@ -72,8 +72,8 @@ class AlgorithmMenu:
         for key, ch in chartList:
             res = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
             results.append((key,) + res)
-
         computeEnd = time.time()
+
 
         self.canvasManager.plot(results)
         self.compInfo.updateInfo(algoName, computeEnd-computeStart)

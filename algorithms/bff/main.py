@@ -39,6 +39,6 @@ class BFF:
                 x1 = self.getTextureVertex(split[1])
                 x2 = self.getTextureVertex(split[2])
                 x3 = self.getTextureVertex(split[3])
-                faces.append([x1, x2, x3])
+                faces.append([x2, x3, x1])
 
         return vertices, faces

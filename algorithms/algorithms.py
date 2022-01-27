@@ -58,29 +58,9 @@ def executeAlgo(algo, includeFaces:bool=True):
         for index, f in enumerate(faces):
             for index2, f2 in enumerate(f):
                 faces[index][index2] = f2-1
+        
 
     computeEnd = time.time()
 
     return computeEnd-computeStart, getPreviousVertices(algo.objPath), facesBefore, points, faces 
     
-"""
-    max = -300
-    min = 100000000000000000000
-    for f in faces:
-        for f2 in f:
-            if f2 < min: min = f2
-            if f2 > max: max = f2 
-
-    log("faces min: " + str(min) + ", max: " + str(max))
-
-
-    max = -300
-    min = 100000000000000000000
-    for f in facesBefore:
-        for f2 in f:
-            if f2 < min: min = f2
-            if f2 > max: max = f2 
-
-    log("facesBefore min: " + str(min) + ", max: " + str(max))
-"""
-
