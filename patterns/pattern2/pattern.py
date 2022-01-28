@@ -44,8 +44,6 @@ class Pattern(PatternParent):
         self.printTo(x=0)
         self.freeMoveHeight()
 
-    #    print(self.result)
-
         return self.result, self.commands
 
     def add(self, val: str):

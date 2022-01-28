@@ -63,7 +63,7 @@ class AllPatterns:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
-        self.innerContent = ListView(self.content, width=340, height=320, padx=0).getFrame()
+        self.innerContent = ListView(self.content, width=340, height=320, padx=0).build()
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file) and file.startswith("pattern"):

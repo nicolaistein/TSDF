@@ -19,7 +19,7 @@ class ListView:
     def _on_mousewheel(self, event):
         self.canvas.yview_scroll(int(-1*(event.delta/120)), "units")
 
-    def getFrame(self):
+    def build(self):
         self.canvas = Canvas(self.container, height=self.height,
              width=self.width, bg=self.bg, bd=0, highlightthickness=0)
         innerContent = Frame(self.canvas, padx=self.padx, bg=self.bg)

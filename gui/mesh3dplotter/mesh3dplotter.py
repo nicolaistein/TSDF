@@ -55,7 +55,7 @@ class Mesh3DPlotter:
         self.buttons.extend([button1, button2, button3])
         
         rightSide = Frame(self.mainFrame)
-        self.list = ListView(rightSide, width=180, height=150).getFrame()
+        self.list = ListView(rightSide, width=180, height=150).build()
 
         rightSide.pack(side=LEFT, anchor=N, padx=(20,10))
         self.mainFrame.pack(side=TOP, pady=(20,0))
