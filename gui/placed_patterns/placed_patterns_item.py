@@ -1,13 +1,13 @@
 from tkinter import *
-from PIL import ImageTk
-from PIL import ImageTk, Image
-from typing import Mapping
 from gui.button import TkinterCustomButton
 from gui.pattern_model import PatternModel
-import os
 
 
 class PlacedPatternsItem:
+
+    #cde3fa
+    # #d1d1d1
+    color = "#cde3fa"
 
     def __init__(self, master: Frame, pattern: PatternModel, menu):
         self.pattern = pattern
@@ -21,13 +21,13 @@ class PlacedPatternsItem:
         self.menu.edit(self.pattern)
 
     def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 80):
-        keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=7,
+        keyValFrame = Frame(parent, bg=self.color,)
+        keyLabel = Label(keyValFrame, text=key, width=7, bg=self.color,
                          anchor=W, justify=LEFT, wraplength=50)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        Label(keyValFrame, text=value if value else "-", anchor=S, justify=LEFT, wraplength=valueLength
-              ).pack(side=LEFT)
+        Label(keyValFrame, text=value if value else "-", anchor=S,
+         bg=self.color, justify=LEFT, wraplength=valueLength).pack(side=LEFT)
 
         return keyValFrame
 
@@ -41,8 +41,8 @@ class PlacedPatternsItem:
 
     def build(self):
 
-        container = Frame(self.master, borderwidth=1, relief=SOLID, padx=10, pady=10)
-        topContent = Frame(container)
+        container = Frame(self.master, borderwidth=1, bg=self.color, padx=10, pady=10)
+        topContent = Frame(container, bg=self.color)
 
     #    container.pack_propagate(0)
         importantValues = {}
@@ -51,14 +51,14 @@ class PlacedPatternsItem:
         importantValues["position"] = self.pattern.getPosition()
         importantValues["rotation"] = str(self.pattern.rotation) + " degrees"
 
-        leftFrame = Frame(topContent)
+        leftFrame = Frame(topContent, bg=self.color)
         self.getKeyValueFrame(leftFrame, "name", self.pattern.name).pack(
             side=TOP, anchor=W)
         self.getKeyValueFrame(leftFrame, "id", self.pattern.id).pack(
             side=TOP, anchor=W)
         leftFrame.pack(side=LEFT, anchor=N)
 
-        rightFrame = Frame(topContent)
+        rightFrame = Frame(topContent, bg=self.color)
         self.getKeyValueFrame(rightFrame, "position", self.pattern.getPosition()).pack(
             side=TOP, anchor=W)
         self.getKeyValueFrame(rightFrame, "rotation", str(
@@ -77,7 +77,7 @@ class PlacedPatternsItem:
             self.getKeyValueFrame(container, "params", paramsText, 200).pack(
                 side=TOP, anchor=W, pady=(0, 0))
 
-        buttonContainer = Frame(container, width=280, height=30)
+        buttonContainer = Frame(container, bg=self.color, width=275, height=30)
         self.button1 = TkinterCustomButton(master=buttonContainer, text="Edit", command=self.edit,
                                             fg_color="#28a63f", hover_color="#54c76d",
                                            corner_radius=60, height=25, width=70)
@@ -95,4 +95,4 @@ class PlacedPatternsItem:
         buttonContainer.pack_propagate(0)
         buttonContainer.pack(side=TOP, anchor=N, pady=(10, 0))
 
-        container.pack(side=TOP, pady=(20, 0), anchor=N)
+        container.pack(side=TOP, pady=(10, 0), anchor=N)
