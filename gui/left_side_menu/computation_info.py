@@ -66,7 +66,7 @@ class ComputationInfo:
 
     def build(self):
 
-        self.content = Frame(self.mainFrame, width=220,
+        self.content = Frame(self.mainFrame, width=260,
                              height=360, padx=20, pady=20)
         self.content.pack_propagate(0)
 

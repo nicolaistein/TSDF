@@ -17,15 +17,15 @@ root = Tk()
 root.title("GCode Pattern Manager")
 root.resizable(False, False)
 # root.iconbitmap("Path/to/test.ico")
-root.geometry("1920x940")
-root.configure(bg=mainColor, padx=20, pady=20)
+root.geometry("1920x900")
+root.configure(bg=mainColor)
 
 canvasSize = 900
 
 allPatternsContainer = Frame(root, bg=mainColor)
 
 leftContainerParent = Frame(root, bg=mainColor)
-leftContainer = ListView(leftContainerParent, 220, 900, 0, mainColor).build()
+leftContainer = ListView(leftContainerParent, 260, 900, 0, mainColor).build()
 
 plotter = Mesh3DPlotter(allPatternsContainer)
 canvasManager = CanvasManager(root, canvasSize, plotter)

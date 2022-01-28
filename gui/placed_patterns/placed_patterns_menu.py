@@ -69,7 +69,7 @@ class PlacedPatternsMenu:
         valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True)
         valText.build().pack(side=LEFT)
 
-        keyValFrame.pack(side=TOP, anchor=W, padx=(87), pady=(5,0))
+        keyValFrame.pack(side=TOP, pady=(5,0))
         return valText
 
     def build(self):
@@ -99,6 +99,5 @@ class PlacedPatternsMenu:
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
                             corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
 
-        generationFrame.pack(side=TOP, anchor=N)
-
+        generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

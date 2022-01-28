@@ -44,9 +44,9 @@ class PlottingOption(Enum):
           switcher = {
                0: (None, None),
                1: (None, None),
-               2: (0, 1),
-               3: (0, 2),
-               4: (1, 4)
+               2: (0, 0.5),
+               3: (0, 1),
+               4: (1, 2)
           }
           return switcher[self.value]
 

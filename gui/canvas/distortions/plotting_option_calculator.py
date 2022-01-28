@@ -136,7 +136,7 @@ class PlottingOptionCalculator:
 
         for index, faceAfter in enumerate(self.facesAfter):
             self.distortions[index] = self.getDistortion(self.facesBefore[index], faceAfter)
-            if index % 500 == 0: log(str(round(100*index/len(self.facesAfter), 2))
+            if index % 2000 == 0 and index > 0: log(str(round(100*index/len(self.facesAfter), 2))
                 + "% (" + str(index) + "/" + str(len(self.facesAfter)) + ")")
 
             
