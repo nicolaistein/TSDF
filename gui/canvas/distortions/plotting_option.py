@@ -26,7 +26,7 @@ class PlottingOption(Enum):
           return switcher[self.value]
 
      def getOptionCalculator(self, verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]], color):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], color, totalArea:float):
 
           switcher = {
                0: DefaultCalculator,
@@ -38,7 +38,7 @@ class PlottingOption(Enum):
 
           calculator = switcher[self.value]
 
-          return calculator(verticesBefore, facesBefore, verticesAfter, facesAfter, self, color)
+          return calculator(verticesBefore, facesBefore, verticesAfter, facesAfter, self, color, totalArea)
 
      def getMinMax(self):
           switcher = {

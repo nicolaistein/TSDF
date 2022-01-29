@@ -3,30 +3,32 @@ from typing import List
 
 from gui.canvas.plotter.options_plotter import OptionsPlotter
 from gui.canvas.distortions.plotting_option import PlottingOption
+from gui.canvas.util import faceToArea
 from logger import log
 
 class ObjectPlotter:
 
     def __init__(self, id, canvasManager, verticesToPlot:List[List[float]], verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, plotEdges:bool):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, totalArea:float, plotEdges:bool):
         self.color = color
         self.id = id
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
         self.objectsOnCanvas = []
         self.points = verticesToPlot
+        self.verticesAfter = verticesAfter
         self.faces = facesAfter
         self.plotEdges = plotEdges
         self.enabled = True
         self.optionsPlotter = OptionsPlotter(canvasManager, verticesToPlot, verticesBefore,
-            facesBefore, verticesAfter, facesAfter, color)
+            facesBefore, verticesAfter, facesAfter, totalArea, color)
 
     def createLine(self, x1, x2):
         self.objectsOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
             
-    def getDistortions(self):
-        return self.optionsPlotter.getDistortions()
+    def getDistortions(self, wholeObject:bool=False):
+        return self.optionsPlotter.getDistortions(wholeObject)
 
     def show(self):
         if not self.enabled: return
@@ -49,6 +51,13 @@ class ObjectPlotter:
                 y = point[1]
                 r = 0
                 self.objectsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
+
+    def getArea(self):
+        sum = 0
+        for f in self.faces:
+            sum += faceToArea(f, self.verticesAfter)
+        return sum
+
 
     def setEnabled(self, enabled:bool):
         self.enabled = enabled

@@ -7,8 +7,6 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
 from algorithms.segmentation.segmentation import folder
-import gui.canvas.area_distortion as AreaDistortion
-import gui.canvas.angular_distortion as AngularDistortion
 import os
 from logger import log
 

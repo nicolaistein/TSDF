@@ -11,7 +11,7 @@ class OptionsPlotter:
     currentOption:PlottingOption = PlottingOption.NO_DIST
 
     def __init__(self,canvasManager, verticesToPlot, verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]], color=None):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], totalArea:float, color=None):
         self.cv = canvasManager
         self.canvas = canvasManager.canvas
         self.verticesToPlot = verticesToPlot
@@ -22,19 +22,21 @@ class OptionsPlotter:
         self.calculators = {}
         for e in PlottingOption:
             calc = e.getOptionCalculator(verticesBefore, facesBefore,
-            verticesAfter, facesAfter, color)
+            verticesAfter, facesAfter, color, totalArea)
             if calc is not None: self.calculators[e.value] = calc
 
     def createLine(self, x1, x2):
         self.distortionOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
-    def setOption(self, distortion:PlottingOption = PlottingOption.NO_DIST):
-        self.currentOption = distortion
+    def setOption(self, option:PlottingOption = PlottingOption.NO_DIST):
+        self.currentOption = option
         self.refresh()
 
-    def getDistortions(self):
-        return {typ: cal.totalDistortion for typ, cal in self.calculators.items()}
+    def getDistortions(self, wholeObject:bool=False):
+        if not wholeObject:
+            return {typ: cal.totalDistortion for typ, cal in self.calculators.items()}
+        return {typ: cal.totalDistortionWholeObject for typ, cal in self.calculators.items()}
 
     def refresh(self):
         self.clear()
@@ -42,10 +44,10 @@ class OptionsPlotter:
         
     def show(self):
         if self.currentOption not in self.calculators: return
-        if not self.enabled: return
-
         calculator = self.calculators[self.currentOption]
         calculator.getDistortionValues()
+        
+        if not self.enabled: return
         colors = calculator.getColors()
 
         for index, face in enumerate(self.faces):

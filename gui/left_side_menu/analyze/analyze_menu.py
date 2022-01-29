@@ -45,7 +45,7 @@ class AnalyzeMenu:
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
         self.mainFrame.pack_propagate(0)
-        Checkbutton(self.mainFrame, text="Object is closed", variable=self.closed).pack(
+        Checkbutton(self.mainFrame, text="Object is closed and not segmented", variable=self.closed).pack(
             side="top", anchor="w")
 
         Checkbutton(self.mainFrame, text="Object is a basic shape", variable=self.basicShape).pack(

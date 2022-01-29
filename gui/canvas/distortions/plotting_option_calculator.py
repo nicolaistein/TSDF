@@ -4,22 +4,25 @@ from typing import List, Mapping
 import abc
 import math 
 import numpy as np
-from gui.canvas.area_distortion import faceToArea
+from gui.canvas.util import faceToArea
 
 
 class PlottingOptionCalculator:
 
     def __init__(self, verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]], option, color:str):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], option, color:str,
+        wholeObjectArea:float):
         self.verticesBefore = verticesBefore
         self.facesBefore = facesBefore
         self.verticesAfter = verticesAfter
         self.facesAfter = facesAfter
         self.option = option
         self.color = color
+        self.wholeObjectArea:float = wholeObjectArea
         self.colors:Mapping = {}
         self.distortions:Mapping = {}
         self.totalDistortion = -1
+        self.totalDistortionWholeObject = -1
 
 
     def getVerticesOfFace(self, face:List[int], vertices:List[List[float]]):
@@ -31,22 +34,19 @@ class PlottingOptionCalculator:
 
     def getDistortionValues(self):
         if self.totalDistortion == -1: self.calculateDistortions()
-        return self.distortions, self.totalDistortion
+        return self.distortions, self.totalDistortion, self.totalDistortionWholeObject
 
 
     def solveThree(self, p1:List[float], p2:List[float], p3:List[float], res:List[float]):
-        #Test if objects are changed or copied
 
         A = np.array([p1, p2, p3])
         B = np.array(res)
         
         try:
             result = np.linalg.solve(A, B)
-#            log("linalg worked! result: " + str(result))
             return result
         except np.linalg.LinAlgError:
             log("Linalg ERROR!")
-#            log("result: " + str([[1,0], [0,1]]))
             return [1, 1, 1]
 
 
@@ -69,15 +69,9 @@ class PlottingOptionCalculator:
         x2New = [length12, 0, 1]
 
         length23 = np.linalg.norm(vector2)
-
         angle = self.angle_between(vector1, vector2)
-#        log("Angle: " + str(angle) + ", actual applied angle: " + str(math.cos(angle)))
-    
 
         x3New = [math.cos(angle) * length23, math.sin(angle) * length23, 1]
-
-#        log("x1: " + str(x1) + "x2: " + str(x2) + "x3: " + str(x3))
-#        log("x1New: " + str(x1New) + "x2New: " + str(x2New) + "x3New: " + str(x3New))
         return x1New, x2New, x3New
         
 
@@ -128,10 +122,10 @@ class PlottingOptionCalculator:
         allAreas = {}
 
         for index, faceBefore in enumerate(self.facesBefore):
-#            log("faceBefore: " + str(faceBefore))
             allAreas[index] = faceToArea(faceBefore, self.verticesBefore)
 
         self.totalDistortion = 0
+        self.totalDistortionWholeObject = 0
         totalArea = sum(list(allAreas.values()))
 
         for index, faceAfter in enumerate(self.facesAfter):
@@ -139,15 +133,16 @@ class PlottingOptionCalculator:
             if index % 2000 == 0 and index > 0: log(str(round(100*index/len(self.facesAfter), 2))
                 + "% (" + str(index) + "/" + str(len(self.facesAfter)) + ")")
 
-            
+
             weight = allAreas[index] / totalArea
-            self.totalDistortion += self.distortions[index] * weight
+            dist1 = self.distortions[index] * weight
+            self.totalDistortion += dist1
 
-        log("maxDist: " + str(max(list(self.distortions.values()))))
-        log("minDist: " + str(min(list(self.distortions.values()))))
+            weight2 = allAreas[index] / self.wholeObjectArea
+            dist2 = self.distortions[index] * weight2
+            self.totalDistortionWholeObject += dist2
 
-#        log("distortions: " + str(self.distortions))
-            
+
         return self.distortions, self.totalDistortion
 
     

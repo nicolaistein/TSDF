@@ -7,6 +7,7 @@ from gui.canvas.plotter.object_plotter import ObjectPlotter
 from gui.canvas.distortions.plotting_option import PlottingOption
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
+from gui.canvas.util import faceToArea
 from logger import log
 
 class CanvasManager:
@@ -98,6 +99,14 @@ class CanvasManager:
         self.objectPlotters.clear()
         
 
+        #Calculate total area
+        area = 0
+        for sh in shapeList:
+            chartKey, verticesBefore, facesBefore, verticesAfter, facesAfter = sh
+            for f in facesBefore:
+                area += faceToArea(f, verticesBefore)
+
+
         # Plot all again
         self.refreshRulers()
         self.plotEdges = True
@@ -107,11 +116,9 @@ class CanvasManager:
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
             
             op = ObjectPlotter(chartKey, self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
-            color, self.plotEdges)
+            color, area, self.plotEdges)
             op.show()
             self.objectPlotters.append(op)
-
-    #    self.patternPlotter.refresh()
 
 
     def createLine(self, x1, x2):
@@ -133,8 +140,8 @@ class CanvasManager:
             return
         
         selected = self.plotter.selectedChart
-        if self.plotter.isSegmented() and selected != -1:
-            self.refreshChartDistortionInfo(selected)
+        self.refreshChartDistortionInfo(selected)
+
 
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)
@@ -144,8 +151,16 @@ class CanvasManager:
     def getDistortionsOfChart(self, chart:int):
         for op in self.objectPlotters: 
             if op.id == chart: return op.getDistortions()
+        
+        dists = {}
+        for pl in self.objectPlotters:
+            d = pl.getDistortions(True)
+            for key, val in d.items():
+                if val == -1: continue
+                if key not in dists: dists[key] = 0
+                dists[key] += val
 
-        return {}
+        return dists
 
     def enableChart(self, chart:int):
         """Enables all charts if chart is -1 (no chart is selected)"""

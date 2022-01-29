@@ -1,7 +1,4 @@
 from tkinter import *
-from typing import List
-
-from matplotlib.pyplot import text
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
@@ -54,9 +51,7 @@ class ComputationInfo:
 
     def showChoice(self):
         selected = self.selectedView.get()
-
         self.canvasManager.selectPlottingOption(selected)
-#        self.refreshView()
 
     def setDistortionValues(self, values):
         for distortion, distVal in values.items():

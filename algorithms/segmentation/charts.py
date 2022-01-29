@@ -8,7 +8,7 @@ from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
 from algorithms.segmentation.priority_queue import PriorityQueue
 from algorithms.segmentation.parameters import *
 from logger import log
-from gui.canvas.area_distortion import faceToArea
+from gui.canvas.util import faceToArea
 
 
 class Charts:
