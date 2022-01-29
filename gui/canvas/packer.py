@@ -56,12 +56,10 @@ def pack(shapes):
     result = []
     counter = 0
     while len(result) != len(rectangles):
-        log("packer calc counter: " + str(counter))
         result = calc(rectangles, size)
         size += step
         counter += 1
 
-    log("All rects result: " + str(result))
     return result
 
 def shapeToRectangle(vertices: List[List[float]]):

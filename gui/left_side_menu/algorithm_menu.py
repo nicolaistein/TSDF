@@ -7,8 +7,6 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
 from algorithms.segmentation.segmentation import folder
-import gui.canvas.area_distortion as AreaDistortion
-import gui.canvas.angular_distortion as AngularDistortion
 import os
 from logger import log
 
@@ -24,13 +22,19 @@ class AlgorithmMenu:
     ]
 
     def __init__(self, master: Frame, canvasManager: CanvasManager,
-     fileMenu:FileMenu, compInfo:ComputationInfo):
-        self.mainFrame = Frame(master, width=220, height=200, padx=20, pady=20)
+     fileMenu:FileMenu, compInfo:ComputationInfo, plotter):
+        self.mainFrame = Frame(master, width=260, height=200, padx=20, pady=20)
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
         self.compInfo = compInfo
+        plotter.refreshChartDistortionInfo = self.onChartSelect
+        canvasManager.refreshChartDistortionInfo = self.onChartSelect
         self.v = IntVar()
         self.v.set(0)
+
+    def onChartSelect(self, chart):
+        self.compInfo.setDistortionValues(self.canvasManager.getDistortionsOfChart(chart))
+        self.canvasManager.enableChart(chart)
 
     def calculate(self):
         file = self.fileMenu.getPath()
@@ -58,44 +62,31 @@ class AlgorithmMenu:
                 chartList.append((chartKey, folderName + "/" + file))
         else:
             chartList = [(-1, file)]
-            
-        log("Chartlist: " + str(chartList))
+
+        #Todo: map charts to 1-n
 
         computeStart = time.time()
         results = []
-        areaDists = []
-        angularDists = []
         for key, ch in chartList:
-            res, areaDist, angularDist = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
+            res = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
             results.append((key,) + res)
-            areaDists.append(areaDist)
-            angularDists.append(angularDist)
-
         computeEnd = time.time()
 
         self.canvasManager.plot(results)
-
-        avgAreaDist = sum(areaDists)/len(areaDists)
-        avgAngleDist = sum(angularDists)/len(angularDists)
-        self.compInfo.updateInfo(algoName, computeEnd-computeStart, avgAreaDist, avgAngleDist)
+        self.compInfo.updateInfo(algoName, computeEnd-computeStart)
 
 
     def calculateSingleFile(self, file, algorithm:Function, isBFF):
-
-        time, points, pointsBefore, faces, facesBefore = algorithm(file)
-
-        log("file: " + file + ", time: " + str(time) + ", points: " + str(len(points)))
-        areaDistortions, avgAreaDistortion = AreaDistortion.compute(pointsBefore, points, facesBefore, faces)
-        angularDistortions, avgAngularDistortion = AngularDistortion.compute(pointsBefore, points, facesBefore, faces, isBFF=isBFF)
-
-        return (points, faces, areaDistortions, angularDistortions), avgAreaDistortion, avgAngularDistortion
+        time, pointsBefore, facesBefore, pointsAfter, facesAfter = algorithm(file)
+        log("file: " + file + ", time: " + str(time) + ", points: " + str(len(pointsAfter)))
+        return (pointsBefore, facesBefore, pointsAfter, facesAfter)
 
 
     def build(self):
 
         title = Label(self.mainFrame, text="Flatten")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 20))
+        title.pack(fill='both', side=TOP, pady=(0, 15))
 
         self.mainFrame.pack_propagate(0)
         self.assembleAlgoChooserFrame()
@@ -103,7 +94,7 @@ class AlgorithmMenu:
         TkinterCustomButton(master=self.mainFrame, text="Calculate", command=self.calculate,
                             corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
 
-        self.mainFrame.pack(side=TOP, pady=(20, 0))
+        self.mainFrame.pack(side=TOP, pady=(2, 0))
 
     def ShowChoice(self):
         pass

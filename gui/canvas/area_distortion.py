@@ -3,26 +3,6 @@ from typing import List
 import numpy as np
 from logger import log
 
-def subtract(p1:List[float], p2:List[float]):
-    x = p1[0] - p2[0]
-    y = p1[1] - p2[1]
-    z = p1[2] - p2[2] if len(p1) == 3 else 0
-    return [x, y, z]
-
-def triangleArea(a:List[float], b:List[float], c:List[float]):
-    ab = subtract(a, b)
-    ac = subtract(a, c)
-    cross = np.cross(np.array(ab), np.array(ac))
-
-    norm = np.linalg.norm(np.array(cross))
-    return 0.5 * norm
-
-def faceToArea(face, points):
-    indexX = face[0]-1
-    indexY = face[1]-1
-    indexZ = face[2]-1
-    return triangleArea(points[indexX], points[indexY], points[indexZ])
-
 def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], facesBefore:List[List[int]], facesAfter:List[List[int]]):
     log("compute area distortion: before=" + str(len(pointsBefore))
      + ", after=" + str(len(pointsAfter))

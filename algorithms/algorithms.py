@@ -1,3 +1,4 @@
+from logger import log
 from algorithms.bff.main import BFF
 from algorithms.arap.arap import ARAP
 from algorithms.lscm.lscm import LSCM
@@ -27,9 +28,9 @@ def getFaces(objPath:str):
             while "  " in line: 
                 line = line.replace("  ", " ")
             split = line.split(" ")
-            x1 = int(split[1].split("/")[0])
-            x2 = int(split[2].split("/")[0])
-            x3 = int(split[3].split("/")[0])
+            x1 = int(split[1].split("/")[0])-1
+            x2 = int(split[2].split("/")[0])-1
+            x3 = int(split[3].split("/")[0])-1
             faces.append([x1, x2, x3])
     return faces
 
@@ -46,12 +47,20 @@ def executeAlgo(algo, includeFaces:bool=True):
 
     faces = getFaces(algo.objPath)
     facesBefore = getFaces(algo.objPath)
+
     # execute algorithm
     computeStart = time.time()
     if includeFaces:
         points = algo.execute()
     else:
         points, faces = algo.execute()
+
+        for index, f in enumerate(faces):
+            for index2, f2 in enumerate(f):
+                faces[index][index2] = f2-1
+        
+
     computeEnd = time.time()
 
-    return computeEnd-computeStart, points, getPreviousVertices(algo.objPath), faces, facesBefore
+    return computeEnd-computeStart, getPreviousVertices(algo.objPath), facesBefore, points, faces 
+    

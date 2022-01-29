@@ -1,43 +1,43 @@
-import sys
 from tkinter import *
-from gui.canvas.plotter.distortion_plotter import DistortionPlotter
-from gui.canvas.distortion import Distortion
+from typing import List
+
+from gui.canvas.plotter.options_plotter import OptionsPlotter
+from gui.canvas.distortions.plotting_option import PlottingOption
+from gui.canvas.util import faceToArea
 from logger import log
 
 class ObjectPlotter:
 
-    plotEdges:bool = False
-    plotColors:bool = False
-
-    def __init__(self, canvasManager, points, faces, areaDists,
-     angleDists, color:str, plotColors:bool=False):
+    def __init__(self, id, canvasManager, verticesToPlot:List[List[float]], verticesBefore:List[List[float]], facesBefore:List[List[int]],
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, totalArea:float, plotEdges:bool):
         self.color = color
+        self.id = id
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
-        self.points = points
-        self.faces = faces
-        self.plotColors = plotColors
-        self.plotEdges = plotColors
         self.objectsOnCanvas = []
-        self.distortionPlotter = DistortionPlotter(canvasManager, points, faces, areaDists, angleDists)
+        self.points = verticesToPlot
+        self.verticesAfter = verticesAfter
+        self.faces = facesAfter
+        self.plotEdges = plotEdges
+        self.enabled = True
+        self.optionsPlotter = OptionsPlotter(canvasManager, verticesToPlot, verticesBefore,
+            facesBefore, verticesAfter, facesAfter, totalArea, color)
 
     def createLine(self, x1, x2):
         self.objectsOnCanvas.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
             
+    def getDistortions(self, wholeObject:bool=False):
+        return self.optionsPlotter.getDistortions(wholeObject)
 
     def show(self):
-        self.distortionPlotter.showDistortion()
-        if self.plotEdges or self.plotColors:
+        if not self.enabled: return
+        if self.plotEdges:
             for face in self.faces:
                 
-                x = list(self.points[face[0]-1])
-                y = list(self.points[face[1]-1])
-                z = list(self.points[face[2]-1])
-
-                if self.plotColors:
-                    self.objectsOnCanvas.append(
-                        self.canvas.create_polygon(x, y, z, fill=self.color))
+                x = list(self.points[face[0]])
+                y = list(self.points[face[1]])
+                z = list(self.points[face[2]])
 
                 #Edges
                 if self.plotEdges:
@@ -52,19 +52,24 @@ class ObjectPlotter:
                 r = 0
                 self.objectsOnCanvas.append(self.canvas.create_oval(x - r, y - r, x + r, y + r))
 
-    def setPlotColors(self, plot:bool):
-        if plot:
-            self.setDistortion(Distortion.NO_DIST)
-        self.plotColors = plot
+    def getArea(self):
+        sum = 0
+        for f in self.faces:
+            sum += faceToArea(f, self.verticesAfter)
+        return sum
+
+
+    def setEnabled(self, enabled:bool):
+        self.enabled = enabled
+        self.optionsPlotter.setEnabled(enabled)
         self.refresh()
 
-    def ssetPlotEdges(self, plot:bool):
+    def setPlotEdges(self, plot:bool):
         self.plotEdges = plot
         self.refresh()
 
-    def setDistortion(self, dist):
-        self.distortionPlotter.setDistortion(dist)
-        self.distortionPlotter.refresh()
+    def setPlottingOption(self, opt):
+        self.optionsPlotter.setOption(opt)
         self.refresh()
 
     def refresh(self):
@@ -78,5 +83,5 @@ class ObjectPlotter:
 
     def delete(self):
         self.clear()
-        self.distortionPlotter.clear()
+        self.optionsPlotter.clear()
 

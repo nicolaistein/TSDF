@@ -100,7 +100,7 @@ def compute(pointsBefore:List[List[float]], pointsAfter:List[List[float]], faces
         if dist < minDistortion:
             minDistortion = dist
 
-    avg = total/len(list(distortions))
+    avg = total/len(list(distortions)) if len(list(distortions)) > 0 else 0
 
 
     log("min angular distortion: " + str(minDistortion))

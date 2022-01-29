@@ -1,3 +1,4 @@
+import enum
 from typing import List
 import array
 import numpy as np
@@ -5,19 +6,20 @@ import bisect
 from algorithms.segmentation.data_parser import SegmentationParser
 from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
 from algorithms.segmentation.priority_queue import PriorityQueue
+from algorithms.segmentation.parameters import *
 from logger import log
+from gui.canvas.util import faceToArea
 
-epsilonFactor = 1/3.5
-seedMinFeatureDistance = 4
-minChartSizeFactor = 1/40
-localMaximumSeedCount = 80
-globalMaximumSeedCount = 20
 
 class Charts:
     def __init__(self, parser:SegmentationParser):
         self.parser = parser
 
-    def plotCurrent(self):
+    def plotCurrentFeatureDistance(self):
+        plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
+
+
+    def plotCurrentCharts(self):
         ch = self.getCharts()
         plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
 
@@ -26,54 +28,121 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-    #    self.removeSmallCharts()
+#        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
         log("Charts count: " + str(len(ch)))
         print([(key,val) for key, val in ch.items() if val > -1])
     #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
-    #    plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
+        self.plotCurrentFeatureDistance()
     #    print(self.featureDistances)
 
         return self.charts, ch.keys()
 
     def getBorderCharts(self, face:int, chart:int):
         result = []
-        for fc in self.parser.mesh.ff(self.parser.faceHandles[face]):
-            id = fc.idx()
-            if self.charts[id] == chart: continue
-            else: result.append(self.charts[id])
+        for edge in self.parser.mesh.fe(self.parser.faceHandles[face]):
+            edgeId = edge.idx()
+            oppFace = self.getOppositeFace(edgeId, face)
+            oppChart = self.charts[oppFace]
+            if oppFace == -1 or oppChart == chart: continue
+            result.append((oppChart, self.parser.SOD[edgeId]))
+
+   #     log("result: " + str(result))
         return result
 
-
     def removeChart(self, chart:int):
+#        if chart != 696: return
         log("Removing chart " + str(chart))
-        borders = {}
+        chartsBefore = self.getCharts()
+
+        # chart => number of faces of this chart that are next to the currentChart
+        borderChartCount = {}
+        # chart => total sod count of the border edges which separate chart and the currentChart
+        borderSod = {}
+#        if chart==3292: log(str(self.charts))
         for index, ic in enumerate(self.charts):
             if ic == chart:
-                for b in self.getBorderCharts(index, chart):
-                    if b not in borders: borders[b] = 0
-                    borders[b] += 1
-        print(borders)
-        
-        k, v = zip(*borders.items())
-        idx = max(v)
-        bb = k[v.index(idx)]
-        log("max: " + str(max))
-        for index, val in enumerate(self.charts):
-            if val == chart: self.charts[index] = bb
+#                if chart==3292: log("chart found: " + str(chart))
+                for chartRes, sod in self.getBorderCharts(index, chart):
+#                    log("[" + str(chart) + "] chart: " + str(chartRes) + ", sod: " + str(sod))
+#                    log("[" + str(chart) + "] before adding: " + str(borderChartCount))
+                    if chartRes not in borderChartCount: 
+                        borderChartCount[chartRes] = 0
+                        borderSod[chartRes] = 0
 
+                    borderChartCount[chartRes] += 1
+                    borderSod[chartRes] += sod
+#                    log("[" + str(chart) + "] after adding: " + str(borderChartCount))
+
+        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
+        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
+
+        evaluation = {}
+        for borderChart, borderCount in borderChartCount.items():
+            evaluation[borderChart] = borderSod[borderChart] / borderCount
+
+        log("evaluation: " + str(evaluation))
+
+        k = list(evaluation.keys())
+    #    log("values: " + str(evaluation.values()))
+        v = list(evaluation.values())
+    #    log("values list: " + str(v))
+
+        
+        log("Charts before: " + str(chartsBefore))
+        log("Chart: " + str(chart))
+
+        if len(v) == 0:
+            log("Aborted chart deletion because no neighbor could be found")
+            return
+
+
+        maxValue = min(v)
+        largestNeighborId = k[v.index(maxValue)]
+        log("max: " + str(maxValue))
+        log("largestNeighborId: " + str(largestNeighborId))
+        for index, val in enumerate(self.charts):
+            if val == chart: self.charts[index] = largestNeighborId
+
+        
+        
+        chartsAfter = self.getCharts()
+        diff = {}
+        for key, val in chartsBefore.items():
+            if key not in chartsAfter: 
+                diff[key] = val
+            elif chartsAfter[key] != val:
+                diff[key] = chartsAfter[key]-val
+        log("Charts after: " + str(chartsAfter))
+        log("Differences: " + str(diff))
+
+
+    def getAreaOfChart(self, chart:int):
+        res = 0
+        for index, val in enumerate(self.charts):
+            if val == chart or chart == -1: 
+                res += faceToArea(self.parser.faces[index], self.parser.vertices)
+
+        log("chart: " + str(chart) + " => " + str(res))
+        return res
 
     def removeSmallCharts(self):
         log("Removing small charts")
         ch = self.getCharts()
         print(ch)
-        min = len(self.parser.faces)*minChartSizeFactor
+
+#        min = len(self.parser.faces)*minChartSizeFactor
+        min = self.getAreaOfChart(-1)*minChartSizeFactor
         log("removeSmallCharts min: " + str(min))
         toRemove = []
         for key, val in ch.items():
-            if val < min: toRemove.append(key)
+#            if val <= min:
+            if self.getAreaOfChart(key) <= min:
+                toRemove.append(key)
+
+        log("toRemove: " + str(toRemove))
 
         for chart in toRemove:
             self.removeChart(chart)
@@ -86,7 +155,7 @@ class Charts:
         for key, val in enumerate(self.charts):
             if val == -1: found.append(key)
 
-        while found:
+        while len(found) > 0:
             face = found.pop(0)
             adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
                                 if self.charts[f.idx()] != -1]
@@ -117,6 +186,7 @@ class Charts:
             self.featureDistances[face] = distance
             if distance > self.maxDistance: self.maxDistance = distance
             handledFaces += 1
+#            log("distance: " + str(distance) + ", minfeatDist: " + str(seedMinFeatureDistance))
             if distance >= seedMinFeatureDistance:
                 self.lastExpanded[feature] = face
             newEdges.extend([e.idx() for e in self.parser.mesh.fe(self.parser.faceHandles[face]) if e.idx() != edge])
@@ -134,9 +204,10 @@ class Charts:
         self.featureBorders = [[]]*self.parser.edgeCount
         self.maxDistance = 0
         self.currentFeatureDistance = {}
-        for f in self.features:
-            self.featureBorders[f] = [f]
-            self.currentFeatureDistance[f] = 0
+        for index, f in enumerate(self.features):
+            if f:
+                self.featureBorders[index] = [index]
+                self.currentFeatureDistance[index] = 0
 
         for index, _ in enumerate(self.parser.faces):
             self.featureDistances[index] = -1
@@ -146,29 +217,43 @@ class Charts:
         self.lastExpanded = [-1]*self.parser.edgeCount
 
         while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
-            log("new round, handled faces: " + str(handledFaces) + ", remaining features: " + str(len(self.currentFeatureDistance)))
+    #        if handledFaces / faceCount < 0.4:
+    #            self.plotCurrentFeatureDistance()
+    #        log(str(handledFaces*100/len(self.parser.faces)) + ", remaining features: " + str(len(self.currentFeatureDistance)))
             toRemove = []
             for feature, distance in self.currentFeatureDistance.items():
                 expanded = False
+    #            log("feature " + str(feature) + ": New round! expanded: " + str(expanded) + ", " + str(self.currentFeatureDistance))
                 for edge in self.featureBorders[feature]:
                     
                     fc = self.expandEdge(feature, edge, distance)
 
                     handledFaces += fc
-                    expanded = True if fc>0 else expanded
-        #            log("expanded: " + str(expanded))
+    #                log("feature " + str(feature) + ": expanded before: " + str(expanded))
+                    if fc>0: 
+   #                     if not expanded: log("feature " + str(feature) + ": expanded changed to True")
+                        expanded = True
+                        
+        #            log("expanded after: " + str(expanded) + ", fc: " + str(fc))
+
+   #                 if not expanded: log("feature " + str(feature) + ": failed to expand: " + str(expanded))
 
                 self.currentFeatureDistance[feature] += 1
-                if not expanded: toRemove.append(feature)
+                if not expanded: 
+    #                log("feature " + str(feature) + ": ACTUALLY FAILED: " + str(expanded))
+                    toRemove.append(feature)
     #            else: print("feature was actually expanded")
 
-        #    log("toRemove size: " + str(len(toRemove)))
+            if len(toRemove) > 0: log("Removing " + str(len(toRemove)) + " elements")
+
             for f in toRemove:
+    #            log("removing " + str(f) + ", lastExpanded: " + str(self.lastExpanded[f]))
                 if self.lastExpanded[f] != -1: self.localMaxima.append(self.lastExpanded[f])
                 del self.currentFeatureDistance[f]
-            
+        
+
         self.epsilon = self.maxDistance * epsilonFactor
-        log("MAXIMA COUNT: " + str(len(self.localMaxima)))
+        log("local maxima: " + str(len(self.localMaxima)))
         log("while loop end")
         log("handled faces: " + str(handledFaces))
         log("faceCount: " + str(faceCount))
@@ -256,7 +341,7 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-    #     self.plotCurrent()
+        self.plotCurrentCharts()
         log("initial charts")
         print(self.getCharts())
         counter = 0
@@ -280,6 +365,9 @@ class Charts:
 
             # Opposite face does not exist (edge part of boundary loop)
             if fopp == -1: continue
+
+            # Do not go beyond features
+            if self.features[h]: continue
 
     #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:

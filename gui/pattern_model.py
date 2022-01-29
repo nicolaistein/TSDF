@@ -7,30 +7,10 @@ from patterns.pattern3.pattern import Pattern as Pattern3
 from logger import log
 
 
-def parsePatternAttributes(folderName: str):
-    pattern = open(folderName + "/pattern.py", "r")
-    mapping: Mapping = {}
-    mapping["id"] = "NoID"
-    mapping["author"] = "NoAuthor"
-    mapping["params"] = ""
-    for line in pattern:
-        if(line.startswith("#")):
-            while(line.startswith("#") or line.startswith(" ")):
-                line = line[1:]
-            if(line.endswith("\n")):
-                line = line[:len(line)-1]
-            split = line.split("=")
-            if(len(split) == 2):
-                mapping[split[0]] = split[1]
-        else:
-            break
-    return mapping
-
-
 class PatternModel:
     def __init__(self, folderName: str):
         self.folderName = folderName
-        self.attributes = parsePatternAttributes(folderName)
+        self.attributes = self.parsePatternAttributes()
         self.img = Image.open(folderName + "/image.png")
         self.name = ""
         self.id = self.attributes["id"]
@@ -44,22 +24,20 @@ class PatternModel:
         for x in [i for i in self.attributes["params"].split(",") if i]:
             self.params[x] = "0.0"
 
-    def getGcode(self):
-    #    print("# Pattern " + self.name + " generate gcode")
-    #    print("# x: " + str(self.x) + ", y: " + str(self.y))
-    #    print("# rotation: " + str(self.rotation) + " degrees")
+    def getGcode(self, workHeight:float, freeMoveHeight:float):
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
-
-    #    print("folder: " + self.folderName)
         
         if self.folderName.endswith("pattern1"):
-            result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+            result, commands = Pattern1(values, workHeight,
+             freeMoveHeight, self.x, self.y, self.rotation).gcode()
         if self.folderName.endswith("pattern2"):
-            result, commands = Pattern2(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+            result, commands = Pattern2(values, workHeight,
+             freeMoveHeight, self.x, self.y, self.rotation).gcode()
         if self.folderName.endswith("pattern3"):
-            result, commands = Pattern3(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+            result, commands = Pattern3(values, workHeight,
+             freeMoveHeight, self.x, self.y, self.rotation).gcode()
 
         return result, commands
 
@@ -81,3 +59,22 @@ class PatternModel:
 
     def getPosition(self):
         return str(self.x) + ", " + str(self.y)
+    
+    def parsePatternAttributes(self):
+        pattern = open(self.folderName + "/pattern.py", "r")
+        mapping: Mapping = {}
+        mapping["id"] = "NoID"
+        mapping["author"] = "NoAuthor"
+        mapping["params"] = ""
+        for line in pattern:
+            if(line.startswith("#")):
+                while(line.startswith("#") or line.startswith(" ")):
+                    line = line[1:]
+                if(line.endswith("\n")):
+                    line = line[:len(line)-1]
+                split = line.split("=")
+                if(len(split) == 2):
+                    mapping[split[0]] = split[1]
+            else:
+                break
+        return mapping

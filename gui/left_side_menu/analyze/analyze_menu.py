@@ -10,7 +10,7 @@ class AnalyzeMenu:
 
     def __init__(self, master: Frame, fileMenu:FileMenu):
         self.mainFrame = Frame(
-            master, width=220, height=255, padx=20, pady=20)
+            master, width=260, height=255, padx=20, pady=20)
         self.fileMenu = fileMenu
         self.closed = IntVar()
         self.basicShape = IntVar()
@@ -18,7 +18,7 @@ class AnalyzeMenu:
         
 
     def showResult(self):
-        if self.fileMenu.path:
+        if self.fileMenu.getPath():
             self.error.configure(text="")
             timeLimiText =  self.timeLimit.get("1.0", END)[:-1]
             timeLimit = int(timeLimiText) if timeLimiText else 0
@@ -42,10 +42,10 @@ class AnalyzeMenu:
     def build(self):
         title = Label(self.mainFrame, text="Analyze")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 10))
+        title.pack(fill='both', side=TOP, pady=(0, 15))
 
         self.mainFrame.pack_propagate(0)
-        Checkbutton(self.mainFrame, text="Object is closed", variable=self.closed).pack(
+        Checkbutton(self.mainFrame, text="Object is closed and not segmented", variable=self.closed).pack(
             side="top", anchor="w")
 
         Checkbutton(self.mainFrame, text="Object is a basic shape", variable=self.basicShape).pack(
@@ -68,5 +68,5 @@ class AnalyzeMenu:
 
         
 
-        self.mainFrame.pack(side=TOP, pady=(20, 0))
+        self.mainFrame.pack(side=TOP, pady=(2, 0))
 

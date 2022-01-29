@@ -1,10 +1,6 @@
 from typing import List, Mapping
 import bisect
-
-prefix = "[Priority Queue] "
-
-def log(msg:str):
-    print(prefix + msg)
+from logger import log
 
 class PriorityQueue:
     def __init__(self, featureDistances:Mapping):
@@ -25,6 +21,9 @@ class PriorityQueue:
         self.values.insert(idx, val)
     #    log("insert idx: " + str(idx))
         self.data.insert(idx, (face, edge))
+
+        if len(self.data) != len(self.values):
+            log("ERROR: size(data)=" + str(len(self.data)) + " but size(values)=" + str(len(self.values)))
 
     #    log("insert keySize: " + str(len(self.keys)) + ", valueSize: " + str(len(self.values)))
     #    print("keys  : " + str(self.keys))

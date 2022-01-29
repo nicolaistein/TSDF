@@ -5,7 +5,8 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_item import PlacedPatternsItem
-from gui.listview import getListview
+from gui.listview import ListView
+from gui.numeric_text import NumericText
 
 
 class PlacedPatternsMenu:
@@ -49,27 +50,39 @@ class PlacedPatternsMenu:
     def generateGCode(self):
         filename = askdirectory()
         file = open(filename + "/result.gcode", "w")
+        workHeight = self.workHeightText.getNumberInput()
+        freeMoveHeight = self.freeMoveHeightText.getNumberInput()
 
         file.write("G90\n")
-        file.write("G0 Z30\n")
+        file.write("G0 Z" + str(freeMoveHeight) + "\n\n")
         for pattern in self.patterns:
-            print("# menu generates code of " + pattern.name)
-            result, commands = pattern.getGcode()
+            result, commands = pattern.getGcode(workHeight,freeMoveHeight)
             file.write(result)
             file.write("\n")
         file.close()
+
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
+        keyValFrame = Frame(parent)
+        keyLabel = Label(keyValFrame, text=key, width=15,
+                            anchor=W, justify=LEFT, wraplength=120)
+        keyLabel.pack(side=LEFT)
+        valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True)
+        valText.build().pack(side=LEFT)
+
+        keyValFrame.pack(side=TOP, pady=(5,0))
+        return valText
 
     def build(self):
         for widget in self.mainFrame.winfo_children():
             widget.destroy()
 
-        self.content = Frame(self.mainFrame, pady=20)
+        self.content = Frame(self.mainFrame)
 
         title = Label(self.content, text="Placed Patterns")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0,15))
+        title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = getListview(self.content, 310, 750)
+        self.innerContent = ListView(self.content, 310, 710).build()
 
         self.placedPatternItems.clear()
         for pattern in self.patterns:
@@ -79,7 +92,12 @@ class PlacedPatternsMenu:
 
         self.content.pack(side=TOP, anchor=N)
 
-        TkinterCustomButton(master=self.mainFrame, text="Generate GCode", command=self.generateGCode,
-                            corner_radius=60, height=25, width=160).pack(pady=(20, 0))
+        generationFrame = Frame(self.mainFrame, width=323, height=130, pady=20)
+        generationFrame.pack_propagate(0)
+        self.workHeightText = self.getKeyValueFrame(generationFrame, "Work height", "2.3")
+        self.freeMoveHeightText = self.getKeyValueFrame(generationFrame, "Free-Move height", "10")
+        TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
+                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
 
+        generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

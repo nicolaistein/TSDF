@@ -9,7 +9,7 @@ from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 import os
-from gui.listview import getListview
+from gui.listview import ListView
 
 
 class AllPatterns:
@@ -63,7 +63,7 @@ class AllPatterns:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
-        self.innerContent = getListview(self.content, width=340, height=320, padx=0)
+        self.innerContent = ListView(self.content, width=340, height=320, padx=0).build()
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file) and file.startswith("pattern"):

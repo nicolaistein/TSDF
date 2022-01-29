@@ -10,13 +10,11 @@ from algorithms.segmentation.charts import Charts
 from algorithms.segmentation.features import Features
 from algorithms.segmentation.plotter import plotFeatures
 import algorithms.segmentation.util
+from algorithms.segmentation.parameters import *
 import os
+from logger import log
 
-prefix = "[Segmenter] "
 folder = "algorithms/segmentation/result"
-
-def log(msg:str):
-    print(prefix + msg)
 
 class Segmenter:
 
@@ -30,9 +28,11 @@ class Segmenter:
     def calc(self):
         self.parser.parse(self.vertices, self.faces, True)
         log("parsing finished")
+
+        # features = edges to feature mapping
         features = self.features.computeFeatures()
         self.features.saveResult()
-    #    self.features.plotResult()
+        self.features.plotResult()
 
         faceToChart, chartKeys = self.charts.computeCharts(features)
         self.clearFolder()

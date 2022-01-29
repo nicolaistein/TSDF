@@ -3,7 +3,6 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
-from gui.listview import getListview
 import igl
 import os
 
@@ -19,8 +18,8 @@ class FileMenu:
         self.plotter = plotter
         plotter.notifyFileMenu = self.onChartSelect
         self.mainFrame = Frame(master)
-        self.content = Frame(self.mainFrame, width=220,
-                             height=180, padx=20, pady=20)
+        self.content = Frame(self.mainFrame, width=260,
+                             height=200, padx=20, pady=20)
 
     def onChartSelect(self, chart:int):
         if chart == -1: 
@@ -30,7 +29,6 @@ class FileMenu:
         self.refreshInfo()
 
     def refreshInfo(self):
-
         filename = self.currentObject.split("/")[-1]
         fileText = filename if filename else "-"
 
@@ -46,9 +44,9 @@ class FileMenu:
             child.destroy()
 
         self.getKeyValueFrame(self.list, "Name", fileText)
-#        self.getKeyValueFrame(self.list, "Chart", chartText)
         self.getKeyValueFrame(self.list, "Vertices", str(len(self.v)))
         self.getKeyValueFrame(self.list, "Faces", str(len(self.triangles)))
+
 
     def onSelectFile(self):
         obj = askopenfilename(
@@ -60,17 +58,18 @@ class FileMenu:
             self.refreshInfo()
             self.plotter.plotFile(self.v, self.triangles)
         
+
     def getPath(self):
         return self.currentChart if self.currentChart else self.currentObject
 
 
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str, valueLength: float = 85):
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)
         keyLabel = Label(keyValFrame, text=key, width=8,
                          anchor=W, justify=LEFT, wraplength=70)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        valLabel = Label(keyValFrame, text=value, wraplength=valueLength)
+        valLabel = Label(keyValFrame, text=value, wraplength=140)
         valLabel.pack(side=LEFT)
 
         keyValFrame.pack(side="top", anchor="w")
@@ -81,7 +80,7 @@ class FileMenu:
         self.content.pack_propagate(False)
         title = Label(self.content, text="Select")
         title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill=BOTH, side=TOP, pady=(0, 10))
+        title.pack(fill=BOTH, side=TOP, pady=(0, 15))
 
         fileSelectionFrame = Frame(self.content)
         chooseFrame = Frame(fileSelectionFrame)
@@ -97,7 +96,6 @@ class FileMenu:
 
         infoFrame = Frame(fileSelectionFrame)
         self.list = infoFrame
-    #    self.list = getListview(infoFrame, 160, 50, 0)
         self.refreshInfo()
 
 

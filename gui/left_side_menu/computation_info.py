@@ -2,73 +2,127 @@ from tkinter import *
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
-from gui.canvas.distortion import Distortion
+from gui.canvas.distortions.plotting_option import PlottingOption
+from logger import log
 
 
 class ComputationInfo:
+    algo = "-"
+    time = "-"
+    viewOptions = [(e, e.value) for e in PlottingOption]
+    currentDistortions = {e.value: -1 for e in PlottingOption}
+    """Contains all viewoptions (facecolor, distortions) displayed in the computation info widget"""
 
     def __init__(self, master: Frame, canvasManager:CanvasManager):
         self.canvasManager = canvasManager
         self.mainFrame = Frame(master)
-        self.content = Frame(self.mainFrame, width=220,
-                             height=200, padx=20, pady=20)
+        self.selectedView = IntVar()
+        self.selectedView.set(0)
 
-    def updateInfo(self, algo:str, time:int, areaDist:float, angleDist:float):
-        self.algorithm.configure(text=algo)
-        self.time.configure(text=formatter.formatTime(time))
-        self.areaDist.configure(text=str(round(areaDist, 2)))
-        self.angleDist.configure(text=str(round(angleDist, 2)))
-
+    def updateInfo(self, algo:str, time:int):
+        """Updates the info shown in the widget"""
+        self.algo = algo
+        self.time = formatter.formatTime(time)
+        self.currentDistortions = {e.value: -1 for e in PlottingOption}
+        self.selectedView.set(0)
+        self.refreshView()
     
-    def getKeyValueFrame(self, parent: Frame, key: str, keyWidth:float=14):
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=keyWidth,
+        keyLabel = Label(keyValFrame, text=key, width=10,
                             anchor=W, justify=LEFT, wraplength=120)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        valLabel = Label(keyValFrame, text="-", wraplength=100)
+        valLabel = Label(keyValFrame, text=value, wraplength=100)
         valLabel.pack(side=LEFT)
 
         keyValFrame.pack(side="top", anchor="w")
         return valLabel
 
-    def showAreaDistortion(self):
-        self.canvasManager.onDistortionPress(Distortion.AREA)
-        
-    def showAngleDistortion(self):
-        self.canvasManager.onDistortionPress(Distortion.ANGLE)
+    def refreshView(self):
+        self.edgeButton.delete()
+        for child in self.mainFrame.winfo_children():
+            child.destroy()
+        self.build()
 
+    def onEdgeClick(self):
+        self.canvasManager.onEdges()
+        self.refreshView()
 
-    def build(self, side: str):
+    def showChoice(self):
+        selected = self.selectedView.get()
+        self.canvasManager.selectPlottingOption(selected)
+
+    def setDistortionValues(self, values):
+        for distortion, distVal in values.items():
+            self.currentDistortions[distortion] = distVal
+
+        self.refreshView()
+
+    def build(self):
+
+        self.content = Frame(self.mainFrame, width=260,
+                             height=360, padx=20, pady=20)
         self.content.pack_propagate(0)
 
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))
 
-        self.algorithm = self.getKeyValueFrame(self.content, "Algorithm", 10)
-        self.time = self.getKeyValueFrame(self.content, "Time", 10)
-        self.areaDist = self.getKeyValueFrame(self.content, "Area Distortion")
-        self.angleDist = self.getKeyValueFrame(self.content, "Angle Distortion")
+        self.getKeyValueFrame(self.content, "Algorithm", self.algo)
+        self.getKeyValueFrame(self.content, "Time", self.time)
 
-        buttonsTop = Frame(self.content)
-        TkinterCustomButton(master=buttonsTop, text="Area Dist.",
-                        command=self.showAreaDistortion,
-                        corner_radius=60, height=25, width=95).pack(side=LEFT)
-        
-        TkinterCustomButton(master=buttonsTop, text="Faces", command=self.canvasManager.onFaces,
-                        corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
-        buttonsTop.pack(side=TOP, anchor=W, pady=(10,0))
+        edgeText = "Show Edges" if not self.canvasManager.plotEdges else "Hide Edges"
+        self.edgeButton = TkinterCustomButton(master=self.content, text=edgeText, command=self.onEdgeClick,
+                        corner_radius=60, height=25, width=120)
+        self.edgeButton.pack(side=TOP, pady=(10,8))
+
+        bottomFrame = Frame(self.content)
+
+        for distortion, distIndex in self.viewOptions:
+            viewOptionFrame = Frame(bottomFrame)
+            Radiobutton(viewOptionFrame,
+                            text="",
+                            height=1,
+                            wrap=None,
+                            variable=self.selectedView,
+                            command=self.showChoice,
+                            value=distIndex).pack(anchor=W, side=LEFT)
+
+            rightFrame = Frame(viewOptionFrame)
+
+            minDist, maxDist = distortion.getMinMax()
 
 
-        buttonsBottom = Frame(self.content)
-        TkinterCustomButton(master=buttonsBottom, text="Angle Dist.",
-                        command=self.showAngleDistortion,
-                        corner_radius=60, height=25, width=95).pack(side=LEFT)
-        
-        TkinterCustomButton(master=buttonsBottom, text="Edges", command=self.canvasManager.onEdges,
-                        corner_radius=60, height=25, width=70).pack(side=LEFT, padx=(10,0))
+            innerTopFrame = Frame(rightFrame)
+            opTitle = Label(innerTopFrame, text=distortion.toString())
+            opTitle.configure(font=("Helvetica", 10, "bold"))
+            opTitle.pack(side=LEFT, anchor=W)
 
-        buttonsBottom.pack(side=TOP, anchor=W, pady=(10,0))
+            distortionValue = self.currentDistortions[distortion.value]
+            distText = str(round(distortionValue, 2)) if distortionValue != -1 else "-"
+            if minDist is not None:
+                Label(innerTopFrame, text=distText, fg="blue").pack(side=LEFT, padx=(0,0), pady=(1,0))
+            innerTopFrame.pack(side=TOP, anchor=W)
+
+
+            if minDist is not None:
+                innerBottomFrame=Frame(rightFrame)
+                minValue = round(minDist,1)
+                Label(innerBottomFrame, text=str(minValue)).pack(side=LEFT, anchor=W)
+
+                canvas = Canvas(innerBottomFrame, width=100, height=5, bd=0, highlightthickness=0)
+                canvas.pack(side=LEFT, padx=(5,5))
+                distortion.getColormap(canvas, 100, 5)
+
+                maxValue = round(maxDist,1)
+                Label(innerBottomFrame, text=str(maxValue)).pack(side=LEFT, anchor=W)
+                innerBottomFrame.pack(side=TOP, anchor=NW)
+
+
+            rightFrame.pack(side=LEFT, anchor=N)
+            viewOptionFrame.pack(side=TOP, anchor=W, pady=(10,0))
+
+        bottomFrame.pack(side=TOP, anchor=W, pady=(0,0))
 
         self.content.pack(side=LEFT)
-        self.mainFrame.pack(side=side, pady=(20, 0), anchor=N)
+        self.mainFrame.pack(side=TOP, pady=(2, 0), anchor=N)

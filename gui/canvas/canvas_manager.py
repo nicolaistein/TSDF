@@ -2,18 +2,16 @@ import sys
 from tkinter import *
 from typing import List, Mapping
 import gui.canvas.translator as translator
-from gui.canvas.plotter.distortion_plotter import DistortionPlotter
 from gui.canvas.plotter.pattern_plotter import PatternPlotter
 from gui.canvas.plotter.object_plotter import ObjectPlotter
-from gui.canvas.distortion import Distortion
+from gui.canvas.distortions.plotting_option import PlottingOption
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
+from gui.canvas.util import faceToArea
 from logger import log
 
 class CanvasManager:
-    plotColors:bool = False
     plotEdges:bool = False
-    plotDistortion:str = Distortion.NO_DIST
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
     borders = []
@@ -47,9 +45,20 @@ class CanvasManager:
         return (x,y)
 
     def plot(self, shapeList):
+        self.plotter.deselectIfSelected()
         shapes = []
-        for _, vertices, _, _, _ in shapeList:
-            shapes.append(translator.moveToPositiveArea(vertices))
+        verticesAfterInitial = []
+        # copying a list
+        for _, _, _, vertices, _ in shapeList:
+
+            vnew = translator.moveToPositiveArea(vertices)
+            vnew2 = []
+
+            for x in vnew:
+                vnew2.append(x.copy())
+
+            shapes.append(vnew)
+            verticesAfterInitial.append(vnew2)
 
         # Calculate packing
         rects = pack(shapes)
@@ -90,50 +99,73 @@ class CanvasManager:
         self.objectPlotters.clear()
         
 
+        #Calculate total area
+        area = 0
+        for sh in shapeList:
+            chartKey, verticesBefore, facesBefore, verticesAfter, facesAfter = sh
+            for f in facesBefore:
+                area += faceToArea(f, verticesBefore)
+
+
         # Plot all again
         self.refreshRulers()
-        self.plotColors = True
         self.plotEdges = True
         for index, shape in enumerate(shapes):
-            chartKey, _, faces, areaDists, angleDists = shapeList[index]
+            chartKey, verticesBefore, facesBefore, verticesAfter, facesAfter = shapeList[index]
 
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
-
-            op = ObjectPlotter(self, shape, faces, areaDists, angleDists,
-            color, self.plotColors)
+            
+            op = ObjectPlotter(chartKey, self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
+            color, area, self.plotEdges)
             op.show()
             self.objectPlotters.append(op)
-
-    #    self.patternPlotter.refresh()
 
 
     def createLine(self, x1, x2):
         self.rulers.append(
             self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
 
-    def onFaces(self):
-        self.plotColors = not self.plotColors
-        for op in self.objectPlotters: 
-            op.setPlotColors(self.plotColors)
-        self.patternPlotter.refresh()
-
     def onEdges(self):
         self.plotEdges = not self.plotEdges
         for op in self.objectPlotters: 
-            op.ssetPlotEdges(self.plotEdges)
+            op.setPlotEdges(self.plotEdges)
         self.patternPlotter.refresh()
         
-    def onDistortionPress(self, distortion:Distortion):
-        self.plotDistortion = distortion if distortion != self.plotDistortion else Distortion.NO_DIST
+    def selectPlottingOption(self, option:PlottingOption):
         for pl in self.objectPlotters:
-            pl.setDistortion(self.plotDistortion)
-        self.patternPlotter.refresh()
+            pl.setPlottingOption(option)
+
+        if len(self.objectPlotters) == 1:
+            self.refreshChartDistortionInfo(self.objectPlotters[0].id)
+            return
+        
+        selected = self.plotter.selectedChart
+        self.refreshChartDistortionInfo(selected)
+
 
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)
         self.canvas.pack(side=LEFT)
         self.refreshRulers()
 
+    def getDistortionsOfChart(self, chart:int):
+        for op in self.objectPlotters: 
+            if op.id == chart: return op.getDistortions()
+        
+        dists = {}
+        for pl in self.objectPlotters:
+            d = pl.getDistortions(True)
+            for key, val in d.items():
+                if val == -1: continue
+                if key not in dists: dists[key] = 0
+                dists[key] += val
+
+        return dists
+
+    def enableChart(self, chart:int):
+        """Enables all charts if chart is -1 (no chart is selected)"""
+        for op in self.objectPlotters: 
+            op.setEnabled(True if chart == -1 else op.id == chart)
 
     def refreshRulers(self):
         for point in self.rulers:

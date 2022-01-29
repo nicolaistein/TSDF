@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from gui.button import TkinterCustomButton
 from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
-from gui.listview import getListview
+from gui.listview import ListView
 from logger import log
 
 
@@ -55,14 +55,21 @@ class Mesh3DPlotter:
         self.buttons.extend([button1, button2, button3])
         
         rightSide = Frame(self.mainFrame)
-        self.list = getListview(rightSide, width=180, height=150)
+        self.list = ListView(rightSide, width=180, height=150).build()
 
         rightSide.pack(side=LEFT, anchor=N, padx=(20,10))
         self.mainFrame.pack(side=TOP, pady=(20,0))
 
+    def deselectIfSelected(self):
+        if self.selectedChart != -1:
+            self.selectedChart = -1
+            self.faceColors = self.refreshColors(self.selectedChart)
+            self.show()
+
+
     def selectChart(self, chart):
         self.selectedChart = chart if self.selectedChart != chart else -1
-        self.notifyFileMenu(self.selectedChart)
+        self.refreshChartDistortionInfo(self.selectedChart)
         self.faceColors = self.refreshColors(self.selectedChart)
         self.show()
 
@@ -95,7 +102,7 @@ class Mesh3DPlotter:
         else:
             for index, val in enumerate(self.chartList):
                 if val == selectedChart:
-                    self.chartToColor[val] = "#a81818"
+                    self.chartToColor[val] = distinctColors[index % len(distinctColors)]
                 else:
                     self.chartToColor[val] = "#ffffff"
 
@@ -117,6 +124,8 @@ class Mesh3DPlotter:
 
 
     def segment(self):
+        # abort if no file has been chosen
+        if len(self.vertices) == 0: return
         self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
         self.faceColors = self.refreshColors()
         self.selectedChart = -1
