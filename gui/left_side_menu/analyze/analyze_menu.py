@@ -18,7 +18,7 @@ class AnalyzeMenu:
         
 
     def showResult(self):
-        if self.fileMenu.path:
+        if self.fileMenu.getPath():
             self.error.configure(text="")
             timeLimiText =  self.timeLimit.get("1.0", END)[:-1]
             timeLimit = int(timeLimiText) if timeLimiText else 0
