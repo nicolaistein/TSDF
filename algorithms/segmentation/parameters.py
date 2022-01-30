@@ -29,6 +29,6 @@ featureBarrier = False
 maxSOD = 16
 
 # Absolute count of seeds used for chart generation
-localMaximumSeedCount = 30
+localMaximumSeedCount = 20
 
 globalMaximumSeedCount = 0

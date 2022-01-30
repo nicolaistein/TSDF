@@ -391,7 +391,7 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-#        self.plotCurrentCharts()
+        self.plotCurrentCharts()
         log("initial charts")
         print(self.getCharts())
         counter = 0
