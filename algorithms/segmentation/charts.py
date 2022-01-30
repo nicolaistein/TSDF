@@ -26,8 +26,13 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
+
         self.expand_charts()
+        self.plotCurrentCharts()
+
         self.fixUnchartedFaces()
+        self.plotCurrentCharts()
+
         self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
@@ -35,7 +40,7 @@ class Charts:
         log("Charts count: " + str(len(ch)))
         print([(key,val) for key, val in ch.items() if val > -1])
     #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
-        self.plotCurrentFeatureDistance()
+    #    self.plotCurrentFeatureDistance()
     #    print(self.featureDistances)
 
         return self.charts, ch.keys()
@@ -159,24 +164,49 @@ class Charts:
 
         while len(found) > 0:
             face = found.pop(0)
-            adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
-                                if self.charts[f.idx()] != -1]
+#            if face is type(list): continue
+#            log("face: " + str(face))
+            adjacent = []
+            for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
+                edge = e.idx()
+                oppFace = self.getOppositeFace(edge, face)
+                oppChart = self.charts[oppFace]
+                if oppChart != -1:
+                    adjacent.append((edge, self.parser.SOD[edge], oppFace, oppChart))
 
             if len(adjacent) == 0:
                 found.append(face)
                 continue
 
-            if len(adjacent) <= 2:
-                self.charts[face] = self.charts[adjacent[0]]
-                continue
+            minChart = -1
+            minValue = 100000000000
+
+            for edge, sod, oppFace, oppChart in adjacent:
+                if sod < minValue:
+                    minValue = sod
+                    minChart = oppChart
+
+            self.charts[face] = minChart
+
+
+#            adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
+#                                if self.charts[f.idx()] != -1]
+
+#            if len(adjacent) == 0:
+#                found.append(face)
+#                continue
+
+#            if len(adjacent) <= 2:
+#                self.charts[face] = self.charts[adjacent[0]]
+#                continue
             
 
             #len = 3
-            a = newChart = self.charts[adjacent[0]]
-            b = self.charts[adjacent[1]]
-            c = self.charts[adjacent[2]]
-            if b == c: newChart = b
-            self.charts[face] = newChart 
+#            a = newChart = self.charts[adjacent[0]]
+#            b = self.charts[adjacent[1]]
+#            c = self.charts[adjacent[2]]
+#            if b == c: newChart = b
+#            self.charts[face] = newChart 
 
 
     def expandEdge(self, feature:int, edge:int, distance:int):
@@ -361,7 +391,7 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-        self.plotCurrentCharts()
+#        self.plotCurrentCharts()
         log("initial charts")
         print(self.getCharts())
         counter = 0

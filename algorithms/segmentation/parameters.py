@@ -11,6 +11,8 @@ featureCountPercentage = 0.05
 
 tao = 23
 
+featureNeighborLevel = 1
+
 #------- Charts
 
 epsilonFactor = 1/3.5
@@ -20,9 +22,13 @@ seedMinFeatureDistance = 2
 
 # The fraction of total faces a chart has to contain in order not to
 # be "deleted"
-minChartSizeFactor = 1/50
+minChartSizeFactor = 1/40
+
+featureBarrier = False
+
+maxSOD = 16
 
 # Absolute count of seeds used for chart generation
-localMaximumSeedCount = 20
+localMaximumSeedCount = 30
 
 globalMaximumSeedCount = 0
