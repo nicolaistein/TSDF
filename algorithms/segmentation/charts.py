@@ -26,6 +26,7 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
+        self.plotCurrentFeatureDistance()
 
         self.expand_charts()
         self.plotCurrentCharts()
@@ -40,7 +41,6 @@ class Charts:
         log("Charts count: " + str(len(ch)))
         print([(key,val) for key, val in ch.items() if val > -1])
     #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
-    #    self.plotCurrentFeatureDistance()
     #    print(self.featureDistances)
 
         return self.charts, ch.keys()
@@ -81,14 +81,14 @@ class Charts:
                     borderSod[chartRes] += sod
 #                    log("[" + str(chart) + "] after adding: " + str(borderChartCount))
 
-        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
-        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
+#        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
+#        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
 
         evaluation = {}
         for borderChart, borderCount in borderChartCount.items():
             evaluation[borderChart] = borderSod[borderChart] / borderCount
 
-        log("evaluation: " + str(evaluation))
+#        log("evaluation: " + str(evaluation))
 
         k = list(evaluation.keys())
     #    log("values: " + str(evaluation.values()))
@@ -96,11 +96,11 @@ class Charts:
     #    log("values list: " + str(v))
 
         
-        log("Charts before: " + str(chartsBefore))
-        log("Chart: " + str(chart))
+#        log("Charts before: " + str(chartsBefore))
+#        log("Chart: " + str(chart))
 
         if len(v) == 0:
-            log("Aborted chart deletion because no neighbor could be found")
+            log("Error: Aborted chart deletion because no neighbor could be found")
             return
 
 
@@ -144,12 +144,16 @@ class Charts:
         toRemove = []
         for key, val in ch.items():
 #            if val <= min:
-            if self.getAreaOfChart(key) <= min:
-                toRemove.append(key)
+            area = self.getAreaOfChart(key)
+            if area <= min:
+                toRemove.append((key, area))
 
-        log("toRemove: " + str(toRemove))
+        
+        sortedRemove = sorted(toRemove, key=lambda tup: tup[1])
 
-        for chart in toRemove:
+        log("toRemove: " + str(sortedRemove))
+
+        for chart, _ in sortedRemove:
             self.removeChart(chart)
 
 
@@ -448,7 +452,9 @@ class Charts:
             #            merge chart(F ) and chart(Fopp)
 
             #                self.charts[fopp] = self.charts[f]
-                            self.merge(f, fopp)
+            #                self.merge(f, fopp)
+            #                log("Potential Merge")
+                            pass
     #        end // if
     #    end // while
 
