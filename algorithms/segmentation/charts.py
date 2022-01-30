@@ -28,7 +28,7 @@ class Charts:
         self.computeFeatureDistance()
         self.expand_charts()
         self.fixUnchartedFaces()
-#        self.removeSmallCharts()
+        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -155,6 +155,8 @@ class Charts:
         for key, val in enumerate(self.charts):
             if val == -1: found.append(key)
 
+        log("Uncharted faces size: " + str(len(found)))
+
         while len(found) > 0:
             face = found.pop(0)
             adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
@@ -260,13 +262,31 @@ class Charts:
         log("current feature distance length: " + str(len(self.currentFeatureDistance)))
 
         # Fix not reachable faces
-        for key, val in self.featureDistances.items():
-            if val == -1:
-                total = []
-                for x in self.parser.mesh.ff(self.parser.faceHandles[key]):
-                    v = self.featureDistances[x.idx()]
-                    if v != -1: total.append(v)
-                self.featureDistances[key] = int(round(sum(total) / len(total)))
+        repeat = False
+        repeatCounter = 0
+        missingCounter = 0
+        while(True):
+            repeatCounter += 1
+            repeat = False
+            for key, val in self.featureDistances.items():
+                if val == -1:
+                    missingCounter += 1
+                    total = []
+                    for x in self.parser.mesh.ff(self.parser.faceHandles[key]):
+                        v = self.featureDistances[x.idx()]
+                        if v != -1: total.append(v)
+
+                    # Todo: HERE
+                    if len(total) != 0:
+                        self.featureDistances[key] = int(round(sum(total) / len(total)))
+                    else:
+                        log("Repeat = True")
+                        repeat = True
+            
+            if not repeat: break
+
+        log("repeatCounter: " + str(repeatCounter))
+        log("missingCounter: " + str(missingCounter))
 
     def getChartElements(self, face:int):
 #        log("getChartElements of " + str(face))
@@ -367,7 +387,8 @@ class Charts:
             if fopp == -1: continue
 
             # Do not go beyond features
-            if self.features[h]: continue
+            if self.features[h] and featureBarrier: continue
+            if self.parser.SOD[h] > maxSOD: continue
 
     #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:
