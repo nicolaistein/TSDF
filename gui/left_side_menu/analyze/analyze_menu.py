@@ -7,6 +7,7 @@ import igl
 
 
 class AnalyzeMenu:
+    enabled = True
 
     def __init__(self, master: Frame, fileMenu:FileMenu):
         self.mainFrame = Frame(

@@ -154,7 +154,6 @@ class Features:
                     self.markFeatureNeighbors(neighborEdge, level+1)
                     counter += 1
 
-#        log("counter for edge " + str(edge) + " with level " + str(level) + ": " + str(counter))
 
 
 

@@ -78,7 +78,7 @@ class FileMenu:
 
     def build(self):
         self.content.pack_propagate(False)
-        title = Label(self.content, text="Select")
+        title = Label(self.content, text="Select File")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill=BOTH, side=TOP, pady=(0, 15))
 

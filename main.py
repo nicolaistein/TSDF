@@ -9,6 +9,7 @@ from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
+from gui.left_side_menu.mode_menu import ModeMenu
 from gui.listview import ListView
 import numpy as np
 
@@ -33,8 +34,12 @@ computationInfo = ComputationInfo(leftContainer, canvasManager)
 fileMenu = FileMenu(leftContainer, plotter)
 
 fileMenu.build()
-AnalyzeMenu(leftContainer, fileMenu).build()
-AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo, plotter).build()
+analyzeMenu = AnalyzeMenu(leftContainer, fileMenu)
+algorithmMenu = AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo, plotter)
+ModeMenu(leftContainer, analyzeMenu, algorithmMenu).build()
+analyzeMenu.build()
+algorithmMenu.build()
+
 computationInfo.build()
 leftContainerParent.pack(side="left", anchor=N, padx=(0, 20))
 
