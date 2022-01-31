@@ -2,7 +2,7 @@ from tkinter import *
 from typing import List
 
 from gui.canvas.plotter.options_plotter import OptionsPlotter
-from gui.canvas.distortions.plotting_option import PlottingOption
+from gui.canvas.plotting_options.plotting_option import PlottingOption
 from gui.canvas.util import faceToArea
 from logger import log
 

@@ -1,6 +1,6 @@
 import math
 from typing import List
-from gui.canvas.distortions.plotting_option_calculator import PlottingOptionCalculator
+from gui.canvas.plotting_options.plotting_option_calculator import PlottingOptionCalculator
 from logger import log
 
 class FaceColorsCalculator(PlottingOptionCalculator):

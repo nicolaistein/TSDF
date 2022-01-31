@@ -4,7 +4,7 @@ from typing import List, Mapping
 import gui.canvas.translator as translator
 from gui.canvas.plotter.pattern_plotter import PatternPlotter
 from gui.canvas.plotter.object_plotter import ObjectPlotter
-from gui.canvas.distortions.plotting_option import PlottingOption
+from gui.canvas.plotting_options.plotting_option import PlottingOption
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
 from gui.canvas.util import faceToArea

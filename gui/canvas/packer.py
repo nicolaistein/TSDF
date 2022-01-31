@@ -1,4 +1,3 @@
-from re import X
 from typing import List
 from rectpack import *
 import gui.canvas.translator as translator
@@ -40,14 +39,6 @@ def pack(shapes):
         allWidths.append(x)
         yTotal += y
         allHeights.append(y)
-
-    log("x total: " + str(xTotal))
-    log("y total: " + str(yTotal))
-
-    maxT = max([xTotal, yTotal])
-    minT = min([xTotal, yTotal])
-    log("min: " + str(minT) + ", max: " + str(maxT))
-
 
     allWidths.extend(allHeights)
     size = max(allWidths)

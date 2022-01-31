@@ -4,8 +4,8 @@ from typing import List
 from pyparsing import col
 from logger import log
 from tkinter import *
-from gui.canvas.distortions.plotting_option import PlottingOption
-from gui.canvas.distortions.plotting_option_calculator import PlottingOptionCalculator
+from gui.canvas.plotting_options.plotting_option import PlottingOption
+from gui.canvas.plotting_options.plotting_option_calculator import PlottingOptionCalculator
 
 class OptionsPlotter:
     currentOption:PlottingOption = PlottingOption.NO_DIST

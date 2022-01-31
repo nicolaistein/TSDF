@@ -2,7 +2,7 @@ from tkinter import *
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
-from gui.canvas.distortions.plotting_option import PlottingOption
+from gui.canvas.plotting_options.plotting_option import PlottingOption
 from logger import log
 
 

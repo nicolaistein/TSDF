@@ -2,11 +2,11 @@ from enum import Enum
 from typing import List
 from logger import log
 from tkinter import *
-from gui.canvas.distortions.lscm_calculator import LscmCalculator
-from gui.canvas.distortions.default_calculator import DefaultCalculator
-from gui.canvas.distortions.face_colors_calculator import FaceColorsCalculator
-from gui.canvas.distortions.arap_calculator import ArapCalculator
-from gui.canvas.distortions.maximal_isometric_calculator import MaximalIsometricCalculator
+from gui.canvas.plotting_options.calculators.lscm_calculator import LscmCalculator
+from gui.canvas.plotting_options.calculators.default_calculator import DefaultCalculator
+from gui.canvas.plotting_options.calculators.face_colors_calculator import FaceColorsCalculator
+from gui.canvas.plotting_options.calculators.arap_calculator import ArapCalculator
+from gui.canvas.plotting_options.calculators.maximal_isometric_calculator import MaximalIsometricCalculator
 
 class PlottingOption(Enum):
      NO_DIST = 0
