@@ -17,7 +17,7 @@ mainColor = "#cccccc"
 root = Tk()
 root.title("GCode Pattern Manager")
 root.resizable(False, False)
-# root.iconbitmap("Path/to/test.ico")
+root.iconbitmap("image.ico")
 root.geometry("1920x900")
 root.configure(bg=mainColor)
 
