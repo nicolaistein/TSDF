@@ -6,14 +6,17 @@ from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.computation_info import ComputationInfo
+from gui.numeric_text import NumericText
 from algorithms.segmentation.segmentation import folder
+from gui.left_side_menu.mode.computation_mode import ComputationMode
 import os
 from logger import log
 
 
 class AlgorithmMenu:
-
     points = []
+    mainFrame = None
+    mode = ComputationMode.default()
 
     algorithms = [
         ("BFF", 0),
@@ -23,7 +26,7 @@ class AlgorithmMenu:
 
     def __init__(self, master: Frame, canvasManager: CanvasManager,
      fileMenu:FileMenu, compInfo:ComputationInfo, plotter):
-        self.mainFrame = Frame(master, width=260, height=200, padx=20, pady=20)
+        self.master = master
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
         self.compInfo = compInfo
@@ -36,6 +39,16 @@ class AlgorithmMenu:
         self.compInfo.setDistortionValues(self.canvasManager.getDistortionsOfChart(chart))
         self.canvasManager.enableChart(chart)
 
+    def setMode(self, mode:ComputationMode):
+        self.mode = mode
+        if self.mainFrame is not None:
+            for el in self.mainFrame.winfo_children():
+                el.destroy()
+            self.mainFrame.destroy()
+            self.mainFrame = None
+        
+        self.build()
+
     def calculate(self):
         file = self.fileMenu.getPath()
         if not file:
@@ -45,7 +58,7 @@ class AlgorithmMenu:
         algoName, id = self.algorithms[chosen]
 
         if(chosen == 0):
-            coneCount = int(self.bffConeInput.get("1.0", END)[:-1])
+            coneCount = self.bffConeInput.getNumberInput()
             algorithmFunc = partial(executeBFF, coneCount)
             algoName = "BFF with " + str(coneCount) + " cones"
         if(chosen == 1):
@@ -83,31 +96,20 @@ class AlgorithmMenu:
 
 
     def build(self):
-
+        height = 200 if self.mode == ComputationMode.MANUAL else 110
+        self.mainFrame = Frame(self.master, width=260, height=height, padx=20, pady=20)
         title = Label(self.mainFrame, text="Flatten")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))
 
         self.mainFrame.pack_propagate(0)
-        self.assembleAlgoChooserFrame()
-
+        
+        if self.mode == ComputationMode.MANUAL: self.assembleAlgoChooserFrame()
+        buttonPady = 10 if self.mode == ComputationMode.MANUAL else 0
         TkinterCustomButton(master=self.mainFrame, text="Calculate", command=self.calculate,
-                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
-
+                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(buttonPady, 0))
         self.mainFrame.pack(side=TOP, pady=(2, 0))
 
-    def ShowChoice(self):
-        pass
-
-    def cancelInput(self, event):
-        return "break"
-
-    def allowInput(self, event):
-        pass
-
-    def onKeyPress(self, event):
-        if not event.char in "1234567890":
-            return "break"
 
     def assembleAlgoChooserFrame(self):
         selectAlgoFrame = Frame(self.mainFrame)
@@ -124,14 +126,13 @@ class AlgorithmMenu:
 
             if(txt == "BFF"):
                 Label(optionFrame, text="with").pack(side=LEFT, anchor=W)
-                self.bffConeInput = Text(optionFrame, height=1, width=3)
-                self.bffConeInput.bind('<Return>', self.cancelInput)
-                self.bffConeInput.bind('<Tab>', self.cancelInput)
-                self.bffConeInput.bind('<BackSpace>', self.allowInput)
-                self.bffConeInput.bind('<KeyPress>', self.onKeyPress)
-                self.bffConeInput.insert(END, "10")
-                self.bffConeInput.pack(side=LEFT, anchor=W, padx=10)
+                self.bffConeInput = NumericText(optionFrame, width=3,
+                    initialText="10", floatingPoint=False)
+                self.bffConeInput.build().pack(side=LEFT, anchor=W, padx=10)
                 Label(optionFrame, text="cones").pack(side=LEFT, anchor=W)
             optionFrame.pack(side=TOP, anchor=W)
 
         selectAlgoFrame.pack(side=TOP, anchor=W)
+
+    def ShowChoice(self):
+        pass

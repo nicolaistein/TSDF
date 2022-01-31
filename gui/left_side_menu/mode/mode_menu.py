@@ -1,42 +1,41 @@
-from enum import Enum
-from functools import partial
-from pyclbr import Function
 from tkinter import *
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
-from gui.canvas.canvas_manager import CanvasManager
-from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.left_side_menu.algorithm_menu import AlgorithmMenu
-import os
+from gui.left_side_menu.computation_info import ComputationInfo
+from gui.left_side_menu.mode.computation_mode import ComputationMode
 from logger import log
-
-
 
 class ModeMenu:
 
-    automaticMode:bool = True
+    currentMode:ComputationMode = ComputationMode.default()
     button:TkinterCustomButton = None
 
-    def __init__(self, master: Frame, analyzeMenu: AnalyzeMenu, algoMenu: AlgorithmMenu):
-        self.mainFrame = Frame(master, width=260, height=140, padx=20, pady=20)
+    def __init__(self, master: Frame, analyzeMenu: AnalyzeMenu,
+      algoMenu: AlgorithmMenu, compInfo:ComputationInfo):
+        self.mainFrame = Frame(master, width=260, height=110, padx=20, pady=20)
         self.analyzeMenu = analyzeMenu
         self.algoMenu = algoMenu
+        self.compInfo = compInfo
 
 
     def changeMode(self):
-        self.automaticMode = not self.automaticMode
+        self.currentMode = self.currentMode.getOpposite()
         self.refreshButton()
+        self.analyzeMenu.setMode(self.currentMode)
+        self.algoMenu.setMode(self.currentMode)
+        self.compInfo.refreshView()
         #Todo: notify algoMenu and analyzeMenu
 
     def refreshButton(self):
         for el in self.buttonFrame.winfo_children():
             el.destroy()
-        text = "Automatic Mode" if self.automaticMode else "Manual Mode"
+        text = "Automatic Mode" if not self.currentMode == ComputationMode.AUTOMATIC else "Manual Mode"
         if self.button is not None: self.button.delete()
         self.button = TkinterCustomButton(master=self.buttonFrame, text=text, command=self.changeMode,
                             corner_radius=60, height=25, width=160)
-        self.button.pack(side=TOP, pady=(10, 0))
+        self.button.pack(side=TOP)
 
     def build(self):
 

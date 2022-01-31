@@ -9,7 +9,7 @@ from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
-from gui.left_side_menu.mode_menu import ModeMenu
+from gui.left_side_menu.mode.mode_menu import ModeMenu
 from gui.listview import ListView
 import numpy as np
 
@@ -25,7 +25,7 @@ canvasSize = 900
 
 allPatternsContainer = Frame(root, bg=mainColor)
 
-leftContainerParent = Frame(root, bg=mainColor)
+leftContainerParent = Frame(root)
 leftContainer = ListView(leftContainerParent, 260, 900, 0, mainColor).build()
 
 plotter = Mesh3DPlotter(allPatternsContainer)
@@ -34,9 +34,9 @@ computationInfo = ComputationInfo(leftContainer, canvasManager)
 fileMenu = FileMenu(leftContainer, plotter)
 
 fileMenu.build()
-analyzeMenu = AnalyzeMenu(leftContainer, fileMenu)
+analyzeMenu = AnalyzeMenu(leftContainer, fileMenu, mainColor)
 algorithmMenu = AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo, plotter)
-ModeMenu(leftContainer, analyzeMenu, algorithmMenu).build()
+ModeMenu(leftContainer, analyzeMenu, algorithmMenu, computationInfo).build()
 analyzeMenu.build()
 algorithmMenu.build()
 

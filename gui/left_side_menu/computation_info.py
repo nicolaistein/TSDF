@@ -7,6 +7,7 @@ from logger import log
 
 
 class ComputationInfo:
+    mainFrame = None
     algo = "-"
     time = "-"
     viewOptions = [(e, e.value) for e in PlottingOption]
@@ -15,7 +16,7 @@ class ComputationInfo:
 
     def __init__(self, master: Frame, canvasManager:CanvasManager):
         self.canvasManager = canvasManager
-        self.mainFrame = Frame(master)
+        self.master = master
         self.selectedView = IntVar()
         self.selectedView.set(0)
 
@@ -43,6 +44,7 @@ class ComputationInfo:
         self.edgeButton.delete()
         for child in self.mainFrame.winfo_children():
             child.destroy()
+        self.mainFrame.destroy()
         self.build()
 
     def onEdgeClick(self):
@@ -61,9 +63,14 @@ class ComputationInfo:
 
     def build(self):
 
+        self.mainFrame = Frame(self.master)
         self.content = Frame(self.mainFrame, width=260,
-                             height=360, padx=20, pady=20)
+                             height=400, padx=20, pady=20)
         self.content.pack_propagate(0)
+
+        title = Label(self.content, text="Plotting Options")
+        title.configure(font=("Helvetica", 12, "bold"))
+        title.pack(fill='both', side=TOP, pady=(0, 15))
 
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))
