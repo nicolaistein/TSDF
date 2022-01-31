@@ -22,7 +22,8 @@ seedMinFeatureDistance = 2
 
 # The fraction of total faces a chart has to contain in order not to
 # be "deleted"
-minChartSizeFactor = 1/45
+#Old: 1/45
+minChartSizeFactor = 1/25
 
 featureBarrier = False
 

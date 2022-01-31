@@ -452,7 +452,7 @@ class Charts:
             #            merge chart(F ) and chart(Fopp)
 
             #                self.charts[fopp] = self.charts[f]
-            #                self.merge(f, fopp)
+                            self.merge(f, fopp)
             #                log("Potential Merge")
                             pass
     #        end // if
