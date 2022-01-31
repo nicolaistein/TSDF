@@ -26,16 +26,21 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
+        self.plotCurrentFeatureDistance()
+
         self.expand_charts()
+        self.plotCurrentCharts()
+
         self.fixUnchartedFaces()
-#        self.removeSmallCharts()
+        self.plotCurrentCharts()
+
+        self.removeSmallCharts()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
         log("Charts count: " + str(len(ch)))
         print([(key,val) for key, val in ch.items() if val > -1])
     #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
-        self.plotCurrentFeatureDistance()
     #    print(self.featureDistances)
 
         return self.charts, ch.keys()
@@ -76,14 +81,14 @@ class Charts:
                     borderSod[chartRes] += sod
 #                    log("[" + str(chart) + "] after adding: " + str(borderChartCount))
 
-        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
-        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
+#        log("chart " + str(chart) + " - borderChartCount: " + str(borderChartCount))
+#        log("chart " + str(chart) + " - borderSod: " + str(borderSod))
 
         evaluation = {}
         for borderChart, borderCount in borderChartCount.items():
             evaluation[borderChart] = borderSod[borderChart] / borderCount
 
-        log("evaluation: " + str(evaluation))
+#        log("evaluation: " + str(evaluation))
 
         k = list(evaluation.keys())
     #    log("values: " + str(evaluation.values()))
@@ -91,11 +96,11 @@ class Charts:
     #    log("values list: " + str(v))
 
         
-        log("Charts before: " + str(chartsBefore))
-        log("Chart: " + str(chart))
+#        log("Charts before: " + str(chartsBefore))
+#        log("Chart: " + str(chart))
 
         if len(v) == 0:
-            log("Aborted chart deletion because no neighbor could be found")
+            log("Error: Aborted chart deletion because no neighbor could be found")
             return
 
 
@@ -139,12 +144,16 @@ class Charts:
         toRemove = []
         for key, val in ch.items():
 #            if val <= min:
-            if self.getAreaOfChart(key) <= min:
-                toRemove.append(key)
+            area = self.getAreaOfChart(key)
+            if area <= min:
+                toRemove.append((key, area))
 
-        log("toRemove: " + str(toRemove))
+        
+        sortedRemove = sorted(toRemove, key=lambda tup: tup[1])
 
-        for chart in toRemove:
+        log("toRemove: " + str(sortedRemove))
+
+        for chart, _ in sortedRemove:
             self.removeChart(chart)
 
 
@@ -155,26 +164,53 @@ class Charts:
         for key, val in enumerate(self.charts):
             if val == -1: found.append(key)
 
+        log("Uncharted faces size: " + str(len(found)))
+
         while len(found) > 0:
             face = found.pop(0)
-            adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
-                                if self.charts[f.idx()] != -1]
+#            if face is type(list): continue
+#            log("face: " + str(face))
+            adjacent = []
+            for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
+                edge = e.idx()
+                oppFace = self.getOppositeFace(edge, face)
+                oppChart = self.charts[oppFace]
+                if oppChart != -1:
+                    adjacent.append((edge, self.parser.SOD[edge], oppFace, oppChart))
 
             if len(adjacent) == 0:
                 found.append(face)
                 continue
 
-            if len(adjacent) <= 2:
-                self.charts[face] = self.charts[adjacent[0]]
-                continue
+            minChart = -1
+            minValue = 100000000000
+
+            for edge, sod, oppFace, oppChart in adjacent:
+                if sod < minValue:
+                    minValue = sod
+                    minChart = oppChart
+
+            self.charts[face] = minChart
+
+
+#            adjacent = [f.idx() for f in self.parser.mesh.ff(self.parser.faceHandles[face])
+#                                if self.charts[f.idx()] != -1]
+
+#            if len(adjacent) == 0:
+#                found.append(face)
+#                continue
+
+#            if len(adjacent) <= 2:
+#                self.charts[face] = self.charts[adjacent[0]]
+#                continue
             
 
             #len = 3
-            a = newChart = self.charts[adjacent[0]]
-            b = self.charts[adjacent[1]]
-            c = self.charts[adjacent[2]]
-            if b == c: newChart = b
-            self.charts[face] = newChart 
+#            a = newChart = self.charts[adjacent[0]]
+#            b = self.charts[adjacent[1]]
+#            c = self.charts[adjacent[2]]
+#            if b == c: newChart = b
+#            self.charts[face] = newChart 
 
 
     def expandEdge(self, feature:int, edge:int, distance:int):
@@ -260,13 +296,31 @@ class Charts:
         log("current feature distance length: " + str(len(self.currentFeatureDistance)))
 
         # Fix not reachable faces
-        for key, val in self.featureDistances.items():
-            if val == -1:
-                total = []
-                for x in self.parser.mesh.ff(self.parser.faceHandles[key]):
-                    v = self.featureDistances[x.idx()]
-                    if v != -1: total.append(v)
-                self.featureDistances[key] = int(round(sum(total) / len(total)))
+        repeat = False
+        repeatCounter = 0
+        missingCounter = 0
+        while(True):
+            repeatCounter += 1
+            repeat = False
+            for key, val in self.featureDistances.items():
+                if val == -1:
+                    missingCounter += 1
+                    total = []
+                    for x in self.parser.mesh.ff(self.parser.faceHandles[key]):
+                        v = self.featureDistances[x.idx()]
+                        if v != -1: total.append(v)
+
+                    # Todo: HERE
+                    if len(total) != 0:
+                        self.featureDistances[key] = int(round(sum(total) / len(total)))
+                    else:
+                        log("Repeat = True")
+                        repeat = True
+            
+            if not repeat: break
+
+        log("repeatCounter: " + str(repeatCounter))
+        log("missingCounter: " + str(missingCounter))
 
     def getChartElements(self, face:int):
 #        log("getChartElements of " + str(face))
@@ -367,7 +421,8 @@ class Charts:
             if fopp == -1: continue
 
             # Do not go beyond features
-            if self.features[h]: continue
+            if self.features[h] and featureBarrier: continue
+            if self.parser.SOD[h] > maxSOD: continue
 
     #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:
@@ -398,6 +453,8 @@ class Charts:
 
             #                self.charts[fopp] = self.charts[f]
                             self.merge(f, fopp)
+            #                log("Potential Merge")
+                            pass
     #        end // if
     #    end // while
 

@@ -1,5 +1,5 @@
 from algorithms.segmentation.data_parser import SegmentationParser
-from typing import List
+from typing import Counter, List
 import array
 import algorithms.segmentation.util as util
 from algorithms.segmentation.plotter import plotFeatures
@@ -125,11 +125,36 @@ class Features:
             for e in detected_feature:
                 self.marked_features[e] = True
     #        tag the halfedges in the neighborhood of detected_feature as feature neighbors
+    #        log("detected feature length: " + str(len(detected_feature)))
             for e in detected_feature:
                 faces = self.parser.edgeToFaces[e]
                 for f in faces:
                     for eh in self.parser.mesh.fe(self.parser.faceHandles[f]):
                         id = eh.idx()
                         if id != e and id not in detected_feature:
-                            self.marked_feature_neighbors[id] = True
+                            self.markFeatureNeighbors(id)
+#                            self.marked_feature_neighbors[id] = True
+
+
     #    end // if
+
+    def markFeatureNeighbors(self, edge:int, level:int=0):
+#        log("called with level " + str(level) + " for edge " + str(edge))
+        if self.marked_features[edge]: return
+        self.marked_feature_neighbors[edge] = True
+
+        if level>=featureNeighborLevel: return
+
+        counter  = 0
+
+        for v in self.parser.edgeToVertices[edge]:
+            for ve in self.parser.mesh.ve(self.parser.vertexHandles[v]):
+                neighborEdge = ve.idx()
+                if neighborEdge != edge and not self.marked_feature_neighbors[neighborEdge]:
+                    self.markFeatureNeighbors(neighborEdge, level+1)
+                    counter += 1
+
+#        log("counter for edge " + str(edge) + " with level " + str(level) + ": " + str(counter))
+
+
+

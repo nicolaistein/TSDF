@@ -118,6 +118,7 @@ class Mesh3DPlotter:
         self.vertices = vertices
         self.faces = faces
         self.chartList = []
+        self.charts = []
         self.faceColors = ["#1f77b4ff"] * len(faces)
         self.selectedChart = -1
         self.show()

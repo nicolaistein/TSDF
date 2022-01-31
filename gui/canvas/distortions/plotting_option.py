@@ -19,7 +19,7 @@ class PlottingOption(Enum):
           switcher = {
                0: "Default",
                1: "Chart Colors",
-               2: "LSCM Distortion",
+               2: "Angular Dist.",
                3: "Isometric Dist.",
                4: "Max. isom. Dist."
           }
