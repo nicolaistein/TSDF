@@ -63,7 +63,7 @@ class MeasurePlotter:
 
     def refresh(self):
         self.clear()
-        self.show()
+        if self.active: self.show()
 
     def delete(self):
         self.active = False

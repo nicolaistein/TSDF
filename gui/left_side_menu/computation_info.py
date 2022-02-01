@@ -1,4 +1,5 @@
 from tkinter import *
+from typing import Mapping
 import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
@@ -7,6 +8,7 @@ from logger import log
 
 
 class ComputationInfo:
+    distortionLabels = {}
     mainFrame = None
     algo = "-"
     time = "-"
@@ -24,9 +26,11 @@ class ComputationInfo:
         """Updates the info shown in the widget"""
         self.algo = algo
         self.time = formatter.formatTime(time)
-        self.currentDistortions = {e.value: -1 for e in PlottingOption}
+        self.algorithmLabel.configure(text=self.algo)
+        self.timeLabel.configure(text=self.time)
         self.selectedView.set(0)
-        self.refreshView()
+
+        self.setDistortionValues({e.value: -1 for e in PlottingOption})
     
     def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)
@@ -47,19 +51,28 @@ class ComputationInfo:
         self.mainFrame.destroy()
         self.build()
 
+    def refreshButton(self):
+        text = "Show Edges" if not self.canvasManager.plotEdges else "Hide Edges"
+        self.edgeButton.set_text(text)
+
     def onEdgeClick(self):
         self.canvasManager.onEdges()
-        self.refreshView()
+        self.refreshButton()
 
     def showChoice(self):
         selected = self.selectedView.get()
         self.canvasManager.selectPlottingOption(selected)
 
-    def setDistortionValues(self, values):
+    def setDistortionValues(self, values:Mapping):
         for distortion, distVal in values.items():
             self.currentDistortions[distortion] = distVal
+        self.refreshDistortionLabels()
 
-        self.refreshView()
+    def refreshDistortionLabels(self):
+        for distortion, distVal in self.currentDistortions.items():
+            distText = str(round(distVal, 2)) if distVal != -1 else "-"
+            if distortion not in self.distortionLabels: continue
+            self.distortionLabels[distortion].configure(text=distText)
 
     def build(self):
 
@@ -75,13 +88,13 @@ class ComputationInfo:
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))
 
-        self.getKeyValueFrame(self.content, "Algorithm", self.algo)
-        self.getKeyValueFrame(self.content, "Time", self.time)
+        self.algorithmLabel = self.getKeyValueFrame(self.content, "Algorithm", self.algo)
+        self.timeLabel = self.getKeyValueFrame(self.content, "Time", self.time)
 
-        edgeText = "Show Edges" if not self.canvasManager.plotEdges else "Hide Edges"
-        self.edgeButton = TkinterCustomButton(master=self.content, text=edgeText, command=self.onEdgeClick,
+        self.edgeButton = TkinterCustomButton(master=self.content, text="", command=self.onEdgeClick,
                         corner_radius=60, height=25, width=120)
         self.edgeButton.pack(side=TOP, pady=(10,8))
+        self.refreshButton()
 
         bottomFrame = Frame(self.content)
 
@@ -106,9 +119,10 @@ class ComputationInfo:
             opTitle.pack(side=LEFT, anchor=W)
 
             distortionValue = self.currentDistortions[distortion.value]
-            distText = str(round(distortionValue, 2)) if distortionValue != -1 else "-"
+#            distText = str(round(distortionValue, 2)) if distortionValue != -1 else "-"
             if minDist is not None:
-                Label(innerTopFrame, text=distText, fg="blue").pack(side=LEFT, padx=(0,0), pady=(1,0))
+                self.distortionLabels[distortion.value] = Label(innerTopFrame, text="-", fg="blue")
+                self.distortionLabels[distortion.value].pack(side=LEFT, padx=(0,0), pady=(1,0))
             innerTopFrame.pack(side=TOP, anchor=W)
 
 
@@ -129,6 +143,7 @@ class ComputationInfo:
             rightFrame.pack(side=LEFT, anchor=N)
             viewOptionFrame.pack(side=TOP, anchor=W, pady=(10,0))
 
+        self.refreshDistortionLabels()
         bottomFrame.pack(side=TOP, anchor=W, pady=(0,0))
 
         self.content.pack(side=LEFT)
