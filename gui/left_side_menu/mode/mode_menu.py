@@ -5,6 +5,7 @@ from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.left_side_menu.algorithm_menu import AlgorithmMenu
 from gui.left_side_menu.computation_info import ComputationInfo
 from gui.left_side_menu.mode.computation_mode import ComputationMode
+from gui.left_side_menu.measuring_tool import MeasuringTool
 from logger import log
 
 class ModeMenu:
@@ -13,12 +14,12 @@ class ModeMenu:
     button:TkinterCustomButton = None
 
     def __init__(self, master: Frame, analyzeMenu: AnalyzeMenu,
-      algoMenu: AlgorithmMenu, compInfo:ComputationInfo):
+      algoMenu: AlgorithmMenu, compInfo:ComputationInfo, measuringTool:MeasuringTool):
         self.mainFrame = Frame(master, width=260, height=110, padx=20, pady=20)
         self.analyzeMenu = analyzeMenu
         self.algoMenu = algoMenu
+        self.measuringTool = measuringTool
         self.compInfo = compInfo
-
 
     def changeMode(self):
         self.currentMode = self.currentMode.getOpposite()
@@ -26,7 +27,7 @@ class ModeMenu:
         self.analyzeMenu.setMode(self.currentMode)
         self.algoMenu.setMode(self.currentMode)
         self.compInfo.refreshView()
-        #Todo: notify algoMenu and analyzeMenu
+        self.measuringTool.refreshView()
 
     def refreshButton(self):
         for el in self.buttonFrame.winfo_children():
@@ -38,7 +39,6 @@ class ModeMenu:
         self.button.pack(side=TOP)
 
     def build(self):
-
         title = Label(self.mainFrame, text="Select Mode")
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(0, 15))

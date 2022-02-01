@@ -1,9 +1,11 @@
+from pyclbr import Function
 import sys
 from tkinter import *
 from typing import List, Mapping
 import gui.canvas.translator as translator
 from gui.canvas.plotter.pattern_plotter import PatternPlotter
 from gui.canvas.plotter.object_plotter import ObjectPlotter
+from gui.canvas.plotter.measure_plotter import MeasurePlotter
 from gui.canvas.plotting_options.plotting_option import PlottingOption
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
@@ -22,11 +24,12 @@ class CanvasManager:
         self.canvasFrame = Frame(master, height=self.size, width=self.size)
         self.canvas = Canvas(self.canvasFrame, height=self.size, width=self.size, bd=0, highlightthickness=0)
         self.patternPlotter = PatternPlotter(self)
+        self.measurePlotter = MeasurePlotter(self)
         self.placedPatternsMenu = None
         self.xmax = initSize
         self.ymax = initSize
 
-    def P(self, x,y):
+    def P(self, x, y):
         """
         Transform point from cartesian (x,y) to Canvas (X,Y)
         """
@@ -35,7 +38,7 @@ class CanvasManager:
         Y = M + (1-(y/self.ymax)) * (self.size-2*M)
         return (X,Y)
 
-    def reverseP(self, X,Y):
+    def reverseP(self, X, Y):
         """
         Transform point from Canvas (X,Y) to cartesian (x,y)
         """
@@ -93,6 +96,7 @@ class CanvasManager:
 
         # Delete everything plotted to this point
         self.placedPatternsMenu.deleteAll()
+        self.measurePlotter.delete()
 
         for el in self.objectPlotters:
             el.delete()
@@ -129,11 +133,12 @@ class CanvasManager:
         self.plotEdges = not self.plotEdges
         for op in self.objectPlotters: 
             op.setPlotEdges(self.plotEdges)
-        self.patternPlotter.refresh()
+        self.refresh()
         
     def selectPlottingOption(self, option:PlottingOption):
         for pl in self.objectPlotters:
             pl.setPlottingOption(option)
+        self.refresh()
 
         if len(self.objectPlotters) == 1:
             self.refreshChartDistortionInfo(self.objectPlotters[0].id)
@@ -142,6 +147,10 @@ class CanvasManager:
         selected = self.plotter.selectedChart
         self.refreshChartDistortionInfo(selected)
 
+    def refresh(self):
+        self.refreshRulers()
+        self.patternPlotter.refresh()
+        self.measurePlotter.refresh()
 
     def build(self):
         self.canvasFrame.pack(side=LEFT, anchor=N)
