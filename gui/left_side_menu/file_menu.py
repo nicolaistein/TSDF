@@ -1,4 +1,3 @@
-from ctypes import pointer, string_at
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton

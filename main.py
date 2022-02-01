@@ -9,6 +9,7 @@ from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.left_side_menu.mode.mode_menu import ModeMenu
+from gui.left_side_menu.export_menu import ExportMenu
 from gui.listview import ListView
 
 mainColor = "#cccccc"
@@ -31,15 +32,17 @@ canvasManager = CanvasManager(root, canvasSize, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
 measuringTool = MeasuringTool(leftContainer, canvasManager)
 fileMenu = FileMenu(leftContainer, plotter)
+exportMenu = ExportMenu(leftContainer, canvasManager)
 
 fileMenu.build()
 analyzeMenu = AnalyzeMenu(leftContainer, fileMenu, mainColor)
 algorithmMenu = AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo, plotter)
-ModeMenu(leftContainer, analyzeMenu, algorithmMenu, computationInfo, measuringTool).build()
+ModeMenu(leftContainer, analyzeMenu, algorithmMenu, computationInfo, measuringTool, exportMenu).build()
 analyzeMenu.build()
 algorithmMenu.build()
 computationInfo.build()
 measuringTool.build()
+exportMenu.build()
 leftContainerParent.pack(side="left", anchor=N, padx=(0, 20))
 
 canvasManager.build()

@@ -6,6 +6,7 @@ from gui.left_side_menu.algorithm_menu import AlgorithmMenu
 from gui.left_side_menu.computation_info import ComputationInfo
 from gui.left_side_menu.mode.computation_mode import ComputationMode
 from gui.left_side_menu.measuring_tool import MeasuringTool
+from gui.left_side_menu.export_menu import ExportMenu
 from logger import log
 
 class ModeMenu:
@@ -13,13 +14,14 @@ class ModeMenu:
     currentMode:ComputationMode = ComputationMode.default()
     button:TkinterCustomButton = None
 
-    def __init__(self, master: Frame, analyzeMenu: AnalyzeMenu,
-      algoMenu: AlgorithmMenu, compInfo:ComputationInfo, measuringTool:MeasuringTool):
+    def __init__(self, master: Frame, analyzeMenu: AnalyzeMenu, algoMenu: AlgorithmMenu,
+     compInfo:ComputationInfo, measuringTool:MeasuringTool, exportMenu:ExportMenu):
         self.mainFrame = Frame(master, width=260, height=110, padx=20, pady=20)
         self.analyzeMenu = analyzeMenu
         self.algoMenu = algoMenu
         self.measuringTool = measuringTool
         self.compInfo = compInfo
+        self.exportMenu = exportMenu
 
     def changeMode(self):
         self.currentMode = self.currentMode.getOpposite()
@@ -28,6 +30,7 @@ class ModeMenu:
         self.algoMenu.setMode(self.currentMode)
         self.compInfo.refreshView()
         self.measuringTool.refreshView()
+        self.exportMenu.refreshView()
 
     def refreshButton(self):
         for el in self.buttonFrame.winfo_children():
