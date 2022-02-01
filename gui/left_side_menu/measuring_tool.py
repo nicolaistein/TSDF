@@ -46,8 +46,11 @@ class MeasuringTool:
         if len(points) >= 3:
             v1 = np.array(points[1])-np.array(points[0])
             v2 = np.array(points[1])-np.array(points[2])
-            v1_u = v1 / np.linalg.norm(v1)
-            v2_u = v2 / np.linalg.norm(v2)
+            norm1 = np.linalg.norm(v1)
+            norm2 = np.linalg.norm(v2)
+            if norm1 == 0 or norm2 == 0: return
+            v1_u = v1 / norm1
+            v2_u = v2 / norm2
             self.angle = math.degrees(np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)))
 
         self.refreshValues()

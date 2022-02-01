@@ -29,7 +29,7 @@ class MeasurePlotter:
         x1, y1 = self.cv.P(p1[0], p1[1])
         x2, y2 = self.cv.P(p2[0], p2[1])
         self.objectsOnCanvas.append(
-            self.canvas.create_line(x1, y1, x2, y2))
+            self.canvas.create_line(x1, y1, x2, y2, fill="red", width=1))
             
     def show(self):
         for index, p in enumerate(self.points):
