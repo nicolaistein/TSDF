@@ -56,7 +56,6 @@ class CanvasManager:
 
             vnew = translator.moveToPositiveArea(vertices)
             vnew2 = []
-
             for x in vnew:
                 vnew2.append(x.copy())
 
@@ -76,6 +75,17 @@ class CanvasManager:
             id, x, y, _, _, rid = rect
             shapes[rid] = translator.moveToPosition(shapes[rid], x, y)
 
+        shapesOld = []
+        for index, shape in enumerate(shapes):
+            shapesOld.append([])
+            for index2, point in enumerate(shape):
+                shapesOld[index].append(point.copy())
+
+        
+        for index, shape in enumerate(shapes):
+            for index2, point in enumerate(shape):
+                for index3, v in enumerate(point):
+                    if shapesOld[index][index2][index3] != shapes[index][index2][index3]: pass
 
         # Calculate max needed for canvas coordinate transformation
         maxValue = 0
@@ -87,6 +97,7 @@ class CanvasManager:
 
 
 #        self.drawBorders(shapes, idToRect)
+
 
         # Transform to canvas coordinates
         for index, shape in enumerate(shapes):
@@ -120,7 +131,7 @@ class CanvasManager:
             color = "" if chartKey == -1 else self.plotter.getChartColor(chartKey)
             
             op = ObjectPlotter(chartKey, self, shape, verticesBefore, facesBefore, verticesAfterInitial[index], facesAfter,
-            color, area, self.plotEdges)
+            color, area, self.plotEdges, shapesOld[index])
             op.show()
             self.objectPlotters.append(op)
 

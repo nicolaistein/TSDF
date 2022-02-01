@@ -9,9 +9,10 @@ from logger import log
 class ObjectPlotter:
 
     def __init__(self, id, canvasManager, verticesToPlot:List[List[float]], verticesBefore:List[List[float]], facesBefore:List[List[int]],
-        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, totalArea:float, plotEdges:bool):
+        verticesAfter:List[List[float]], facesAfter:List[List[int]], color:str, totalArea:float, plotEdges:bool, verticesForExport:List[List[float]]):
         self.color = color
         self.id = id
+        self.verticesForExport = verticesForExport
         self.canvas = canvasManager.canvas
         self.cv = canvasManager
         self.objectsOnCanvas = []

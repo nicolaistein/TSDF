@@ -22,10 +22,10 @@ class ExportMenu:
 
         shifts = [0]
         for pl in self.canvasManager.objectPlotters:
-            shifts.append(shifts[-1]+len(pl.points))
-            for v in pl.points:
+            shifts.append(shifts[-1]+len(pl.verticesForExport))
+            for v in pl.verticesForExport:
                 x, y = self.canvasManager.reverseP(v[0], v[1])
-                file.write("v " + str(x) + " " + str(y) + " 0\n")
+                file.write("v " + str(v[0]) + " " + str(v[1]) + " 0\n")
 
         for index, pl in enumerate(self.canvasManager.objectPlotters):
             shift = shifts[index]
