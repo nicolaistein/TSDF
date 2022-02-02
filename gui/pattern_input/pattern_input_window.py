@@ -39,6 +39,7 @@ class PatternInputWindow:
         self.pickingLocation = False
 
     def onCanvasClickRight(self, event):
+        if not self.pickingLocation: return
         self.pickingLocation = False
         self.positionInput.setValues(self.previousLocation)
 
@@ -68,6 +69,7 @@ class PatternInputWindow:
 
         self.deleteButtons()
         self.window.destroy()
+        self.pickingLocation = False
 #        self.onComplete(self.pattern)
 
     def deleteButtons(self):
@@ -87,6 +89,7 @@ class PatternInputWindow:
         self.collectValues()
         self.deleteButtons()
         self.window.destroy()
+        self.pickingLocation = False
         self.onComplete(self.pattern)
 
     def collectValues(self):
