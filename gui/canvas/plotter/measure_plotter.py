@@ -48,6 +48,7 @@ class MeasurePlotter:
 
     def onCanvasClickRight(self, event):
         if not self.active: return
+        if len(self.points) >= 4: return
         self.onAbort()
 
     def abort(self):
