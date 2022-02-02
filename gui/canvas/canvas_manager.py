@@ -147,18 +147,21 @@ class CanvasManager:
         self.refresh()
         
     def selectPlottingOption(self, option:PlottingOption):
+        log("selectPlottingOption called")
         for pl in self.objectPlotters:
             pl.setPlottingOption(option)
-        self.refresh()
 
         if len(self.objectPlotters) == 1:
             self.refreshChartDistortionInfo(self.objectPlotters[0].id)
-            return
-        
-        selected = self.plotter.selectedChart
-        self.refreshChartDistortionInfo(selected)
+        else:
+            selected = self.plotter.selectedChart
+            self.refreshChartDistortionInfo(selected)
+            
+        log("Plotting option set")
+        self.refresh()
 
     def refresh(self):
+        log("Refresh called")
         self.refreshRulers()
         self.patternPlotter.refresh()
         self.measurePlotter.refresh()

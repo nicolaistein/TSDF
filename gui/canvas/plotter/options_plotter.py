@@ -39,10 +39,12 @@ class OptionsPlotter:
         return {typ: cal.totalDistortionWholeObject for typ, cal in self.calculators.items()}
 
     def refresh(self):
+        log("OPTIONS REFRESH")
         self.clear()
         self.show()
         
     def show(self):
+        log("OPTIONS SHOW")
         if self.currentOption not in self.calculators: return
         calculator = self.calculators[self.currentOption]
         calculator.getDistortionValues()

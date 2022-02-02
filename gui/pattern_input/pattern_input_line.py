@@ -4,7 +4,6 @@ from typing import List, Mapping
 from gui.button import TkinterCustomButton
 from gui.pattern_input.custom_text import CustomText
 
-
 class PatternInputLine:
 
     def __init__(self, window, title: str, values: Mapping, isNumeric: bool = True):
