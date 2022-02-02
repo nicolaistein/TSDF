@@ -32,7 +32,6 @@ class ObjectPlotter:
         return self.optionsPlotter.getDistortions(wholeObject)
 
     def show(self):
-        log("OBJECT SHOW")
         if not self.enabled: return
         if self.plotEdges:
             for face in self.faces:
@@ -75,7 +74,6 @@ class ObjectPlotter:
         self.refresh()
 
     def refresh(self):
-        log("OBJECT REFRESH")
         self.clear()
         self.show()
 

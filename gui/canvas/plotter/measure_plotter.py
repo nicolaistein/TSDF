@@ -33,7 +33,6 @@ class MeasurePlotter:
             self.canvas.create_line(x1, y1, x2, y2, fill="red", width=1))
             
     def show(self):
-        log("Show called")
         for index, p in enumerate(self.points):
             if index >= len(self.points)-1: break
             if index >= 2: break
@@ -64,7 +63,6 @@ class MeasurePlotter:
         self.onChange(self.points)
 
     def refresh(self):
-        log("Measure show called")
         self.clear()
         if self.active: self.show()
 
