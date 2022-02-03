@@ -1,4 +1,5 @@
 import enum
+import math
 from typing import List
 import array
 import numpy as np
@@ -12,8 +13,9 @@ from gui.canvas.util import faceToArea
 
 
 class Charts:
-    def __init__(self, parser:SegmentationParser):
+    def __init__(self, parser:SegmentationParser, maxChartCount:int):
         self.parser = parser
+        self.maxChartCount = maxChartCount
 
     def plotCurrentFeatureDistance(self):
         plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
@@ -26,15 +28,17 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
-        self.plotCurrentFeatureDistance()
+#        self.plotCurrentFeatureDistance()
 
         self.expand_charts()
-        self.plotCurrentCharts()
+#        self.plotCurrentCharts()
 
         self.fixUnchartedFaces()
         self.plotCurrentCharts()
 
-        self.removeSmallCharts()
+#        self.removeSmallCharts()
+        self.removeSmallChartsNew()
+#        self.mergeFlatNeighbors()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -123,6 +127,8 @@ class Charts:
         log("Charts after: " + str(chartsAfter))
         log("Differences: " + str(diff))
 
+        return largestNeighborId
+
 
     def getAreaOfChart(self, chart:int):
         res = 0
@@ -132,6 +138,36 @@ class Charts:
 
         log("chart: " + str(chart) + " => " + str(res))
         return res
+
+    def removeSmallChartsNew(self):
+        log("Removing small charts")
+        ch = self.getCharts()
+        print(ch)
+
+#        min = len(self.parser.faces)*minChartSizeFactor
+        min = self.getAreaOfChart(-1)*minChartSizeFactor
+        log("removeSmallCharts min: " + str(min))
+        toRemove = []
+
+        chartAreas = {}
+        for key, val in ch.items():
+#            if val <= min:
+            area = self.getAreaOfChart(key)
+            chartAreas[key] = area
+
+
+        sortedCharts = {k: v for k, v in sorted(chartAreas.items(), key=lambda item: item[1])}
+        log("sortedCharts: " + str(sortedCharts))
+
+
+        while True:
+            if len(self.getCharts()) <= self.maxChartCount: break
+            chart = list(sortedCharts.keys())[0]
+            longest = self.removeChart(chart)
+            chartAreas[longest] = self.getAreaOfChart(longest)
+            chartAreas.pop(chart, None)
+            sortedCharts = {k: v for k, v in sorted(chartAreas.items(), key=lambda item: item[1])}
+
 
     def removeSmallCharts(self):
         log("Removing small charts")
@@ -156,6 +192,53 @@ class Charts:
         for chart, _ in sortedRemove:
             self.removeChart(chart)
 
+    def getNeighborSOD(self, chart1:int, chart2:int):
+        totalSOD = 0
+        edgeCount = 0
+
+        for index, val in enumerate(self.charts):
+            if val != chart1: continue
+            face = index
+            for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
+                edge = e.idx()
+                oppFace = self.getOppositeFace(edge, face)
+                if oppFace != -1:
+                    edgeCount += 1
+                    totalSOD += self.parser.SOD[edge]
+
+        return totalSOD/edgeCount
+
+
+    def mergeFlatNeighbors(self):
+
+#        neighborSODs = {}
+
+        nextLoop = True
+        while(nextLoop):
+            log("entering next mainLoop")
+            nextLoop = False
+            #Compute avg SOD of all neighbors
+            charts = self.getCharts()
+            for c in charts:
+                if nextLoop:continue
+                for c2 in charts:
+                    if nextLoop:continue
+                    if c != c2:
+                        sod = self.getNeighborSOD(c, c2)
+                        if not math.isnan(sod):
+                            log("sod: " + str(sod) + ", mergingUpToSOD: " + str(mergingUpToSOD))
+                            if sod < mergingUpToSOD:
+                                self.merge(c, c2)
+                                nextLoop = True
+                                log("Merging " + str(c) + " and " + str(c2))
+
+
+            # When somewhere below mergingUpToSOD
+                # Merge
+            
+            if not nextLoop: break
+            
+            
 
 
     def fixUnchartedFaces(self):

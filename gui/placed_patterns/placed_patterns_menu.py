@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
@@ -7,6 +8,8 @@ from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_item import PlacedPatternsItem
 from gui.listview import ListView
 from gui.numeric_text import NumericText
+from logger import log
+import os
 
 
 class PlacedPatternsMenu:
@@ -48,7 +51,10 @@ class PlacedPatternsMenu:
         self.build()
 
     def generateGCode(self):
+        if len(self.patterns) == 0: return
         filename = askdirectory()
+        log("direcory: " + str(filename))
+        if not os.path.isdir(filename): return
         file = open(filename + "/result.gcode", "w")
         workHeight = self.workHeightText.getNumberInput()
         freeMoveHeight = self.freeMoveHeightText.getNumberInput()
@@ -60,6 +66,11 @@ class PlacedPatternsMenu:
             file.write(result)
             file.write("\n")
         file.close()
+        
+        length = len(self.patterns)
+        text = "pattern" if length == 1 else "patterns"
+        messagebox.showinfo("Export", "Successfully exported "
+         + str(length) + " " + text + " to " + file.name)
 
     def getKeyValueFrame(self, parent: Frame, key: str, value:str):
         keyValFrame = Frame(parent)

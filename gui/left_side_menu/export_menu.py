@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import messagebox
 from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
@@ -18,6 +19,7 @@ class ExportMenu:
     def buttonClick(self):
         if len(self.canvasManager.objectPlotters) == 0: return
         folder = askdirectory()
+        if not os.path.isdir(folder): return
         file = open(folder + "/shapes.obj", "w")
 
         shifts = [0]
@@ -35,6 +37,11 @@ class ExportMenu:
                     file.write(" " + str(v+shift+1))
                 file.write("\n")
         file.close()
+
+        length = len(self.canvasManager.objectPlotters)
+        text = "shape" if length == 1 else "shapes"
+        messagebox.showinfo("Export", "Successfully exported "
+         + str(length) + " " + text + " to " + file.name)
 
     def refreshView(self):
         self.button.delete()

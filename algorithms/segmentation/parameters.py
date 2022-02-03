@@ -23,13 +23,14 @@ seedMinFeatureDistance = 2
 # The fraction of total faces a chart has to contain in order not to
 # be "deleted"
 #Old: 1/45
-minChartSizeFactor = 1/25
+#Best:1/25
+minChartSizeFactor = 1/50
 
 featureBarrier = False
 
 maxSOD = 10
 
-mergingUpToSOD = 6
+mergingUpToSOD = 5
 
 # Absolute count of seeds used for chart generation
 localMaximumSeedCount = 50

@@ -8,10 +8,13 @@ from gui.button import TkinterCustomButton
 from algorithms.segmentation.plotter import plotFaceColors, distinctColors
 from algorithms.segmentation.segmentation import Segmenter
 from gui.listview import ListView
+from gui.numeric_text import NumericText
 from logger import log
 
 
 class Mesh3DPlotter:
+    chartCount = 5
+    segmenter = Segmenter()
 
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master, width=360, height=480)
@@ -42,9 +45,14 @@ class Mesh3DPlotter:
         self.mainFrame.pack_propagate(0)
 
         leftSide = Frame(self.mainFrame)
-        button1 = TkinterCustomButton(master=leftSide, text="Segment",
-                command=self.segment, corner_radius=60, height=25, width=120)
-        button1.pack(side=TOP, pady=(10,0))
+        segmentFrame = Frame(leftSide)
+        button1 = TkinterCustomButton(master=segmentFrame, text="Segment",
+                command=self.segment, corner_radius=60, height=25, width=85)
+        button1.pack(side=LEFT)
+        self.chartCountInput = NumericText(segmentFrame, width=2, initialText=str(self.chartCount))
+        self.chartCountInput.build().pack(side=LEFT, padx=(10, 0))
+        segmentFrame.pack(side=TOP, pady=(10,0))
+
         button2 = TkinterCustomButton(master=leftSide, text="Browserview",
                 command=self.viewBrowser, corner_radius=60, height=25, width=120)
         button2.pack(side=TOP, pady=(10,0))
@@ -128,7 +136,9 @@ class Mesh3DPlotter:
     def segment(self):
         # abort if no file has been chosen
         if len(self.vertices) == 0: return
-        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
+#        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
+        self.chartCount = self.chartCountInput.getNumberInput()
+        self.charts, self.chartList = self.segmenter.compute(self.vertices, self.faces, self.chartCount)
         self.faceColors = self.refreshColors()
         self.selectedChart = -1
         self.show()

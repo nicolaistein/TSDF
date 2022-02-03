@@ -17,24 +17,44 @@ from logger import log
 folder = "algorithms/segmentation/result"
 
 class Segmenter:
+    faces = []
+    vertices = []
+    parser = None
 
-    def __init__(self, vertices, faces):
-        self.vertices = vertices
-        self.faces = faces
-        self.parser = SegmentationParser()
-        self.features = Features(self.parser)
-        self.charts = Charts(self.parser)
+#    def __init__(self, vertices, faces):
+#        self.vertices = vertices
+#        self.faces = faces
+#        self.parser = SegmentationParser()
+#        self.features = Features(self.parser)
+#        self.charts = Charts(self.parser)
+
+    def compute(self, vertices, faces, chartCount:int):
+        if self.faces is not faces and self.vertices is not vertices:
+            self.faces = faces
+            self.vertices = vertices
+            self.parser = SegmentationParser()
+            self.parser.parse(self.vertices, self.faces, True)
+            self.computedFeatures = Features(self.parser).computeFeatures()
+        
+        self.charts = Charts(self.parser, chartCount)
+        faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
+        self.clearFolder()
+        for x in chartKeys:
+            self.extract(faceToChart, x)
+        
+        return faceToChart, chartKeys
+        
 
     def calc(self):
         self.parser.parse(self.vertices, self.faces, True)
         log("parsing finished")
 
         # features = edges to feature mapping
-        features = self.features.computeFeatures()
+        self.computedFeatures = self.features.computeFeatures()
         self.features.saveResult()
         self.features.plotResult()
 
-        faceToChart, chartKeys = self.charts.computeCharts(features)
+        faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
         self.clearFolder()
         for x in chartKeys:
             self.extract(faceToChart, x)
