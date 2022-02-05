@@ -86,5 +86,8 @@ class SegmentationParser:
         self.SOD = {k: v for k, v in sorted(self.SOD.items(), key=lambda item: item[1], reverse=True)}
         log("computing SOD finished")
 
+# For histogram
+#        log("Sod equals: " + str(list(self.SOD.values())))
+
 
     

@@ -119,6 +119,8 @@ class Mesh3DPlotter:
         for index, x in enumerate(self.charts): 
             color = self.chartToColor[x] + "ff"
             colors[index] = color
+            
+        self.faceColors = colors
 
         return colors
 
