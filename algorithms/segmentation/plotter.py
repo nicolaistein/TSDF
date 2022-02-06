@@ -14,7 +14,7 @@ def plotFeatures(vertices:List[List[float]], faces:List[List[int]], coloredVerti
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', vertexcolor=colors, opacity=1)])
-    offline.plot(fig, filename='plot.html')
+    offline.plot(fig, filename='FeaturePlot.html')
 
 
 def plotFeatureDistance(vertices:List[List[float]], faces:List[List[int]], featureDistances):
@@ -37,7 +37,7 @@ def plotFeatureDistance(vertices:List[List[float]], faces:List[List[int]], featu
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', facecolor=colors, opacity=1)])
-    offline.plot(fig, filename='faceColorPlot.html')
+    offline.plot(fig, filename='FeatureDistancePlot.html')
 
 
 distinctColors = ["#808080", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
@@ -62,7 +62,7 @@ def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartL
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', facecolor=colors, opacity=1)])
-    offline.plot(fig, filename='chartPlot.html')
+    offline.plot(fig, filename='ChartPlot.html')
 
 
 def plotFaceColors(vertices:List[List[float]], faces:List[List[int]], colors:List[str]):

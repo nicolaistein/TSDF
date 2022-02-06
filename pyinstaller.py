@@ -1,9 +1,7 @@
-# pyinstaller main.py --onedir --add-data algorithms/bff/win -n "GCodePatternManager"
-
 import PyInstaller.__main__
 import shutil
 
-oneFile:bool = False
+oneFile:bool = True
 name:str = "GCodePatternManager"
 
 def copy(path:str):
@@ -20,6 +18,8 @@ PyInstaller.__main__.run([
 
 copy("algorithms/bff/windows")
 copy("algorithms/bff/unix")
+copy("patterns")
+
 
 #shutil.copytree('algorithms/bff/windows', 'dist/algorithms/bff/window')
 #shutil.copytree('algorithms/bff/windows', 'dist/algorithms/bff/window')
