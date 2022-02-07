@@ -9,7 +9,7 @@ from gui.canvas.plotter.measure_plotter import MeasurePlotter
 from gui.canvas.plotting_options.plotting_option import PlottingOption
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.canvas.packer import pack
-from gui.canvas.util import faceToArea
+from util import faceToArea
 from logger import log
 
 class CanvasManager:

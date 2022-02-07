@@ -1,15 +1,11 @@
-import enum
 import math
 from typing import List
-import array
-import numpy as np
-import bisect
 from algorithms.segmentation.data_parser import SegmentationParser
 from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
 from algorithms.segmentation.priority_queue import PriorityQueue
 from algorithms.segmentation.parameters import *
 from logger import log
-from gui.canvas.util import faceToArea
+from util import faceToArea
 
 
 class Charts:
@@ -231,10 +227,11 @@ class Charts:
 
             face = found.pop(0)
             adjacent = []
+#            neighbors = 0
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 edge = e.idx()
-                shouldLog = (face == 231 or face == 302 or face == 363 or face == 272 or face == 316)
-                oppFace = self.getOppositeFace(edge, face, shouldLog)
+                oppFace = self.getOppositeFace(edge, face)
+#                if oppFace != -1: neighbors += 1
                 oppChart = self.charts[oppFace]
                 if oppFace != -1 and oppChart != -1:
                     adjacent.append((self.parser.SOD[edge], oppChart))
@@ -242,6 +239,11 @@ class Charts:
             if len(adjacent) == 0:
                 found.append(face)
                 continue
+
+#            if neighbors >= 2 and len(adjacent) <= 1:
+#                found.append(face)
+#                continue
+
 
             minChart = -1
             minValue = 10000000000000

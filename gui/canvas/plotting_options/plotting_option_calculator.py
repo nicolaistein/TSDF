@@ -4,7 +4,7 @@ from typing import List, Mapping
 import abc
 import math 
 import numpy as np
-from gui.canvas.util import faceToArea
+from util import faceToArea
 
 
 class PlottingOptionCalculator:

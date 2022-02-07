@@ -14,19 +14,12 @@ from algorithms.segmentation.parameters import *
 import os
 from logger import log
 
-folder = "algorithms/segmentation/result"
+folder = "segmentation_results"
 
 class Segmenter:
     faces = []
     vertices = []
     parser = None
-
-#    def __init__(self, vertices, faces):
-#        self.vertices = vertices
-#        self.faces = faces
-#        self.parser = SegmentationParser()
-#        self.features = Features(self.parser)
-#        self.charts = Charts(self.parser)
 
     def compute(self, vertices, faces, chartCount:int):
         if self.faces is not faces and self.vertices is not vertices:
