@@ -1,6 +1,11 @@
+import enum
 from tkinter import *
 from gui.button import TkinterCustomButton
 from gui.pattern_model import PatternModel
+from gui.canvas.canvas_manager import CanvasManager
+from gui.canvas.plotter.object_plotter import ObjectPlotter
+from util import doIntersect
+from logger import log
 
 
 class PlacedPatternsItem:
@@ -9,10 +14,11 @@ class PlacedPatternsItem:
     # #d1d1d1
     color = "#cde3fa"
 
-    def __init__(self, master: Frame, pattern: PatternModel, menu):
+    def __init__(self, master: Frame, pattern: PatternModel, menu, canvasManager:CanvasManager):
         self.pattern = pattern
         self.menu = menu
         self.master = master
+        self.canvasManager = canvasManager
 
     def delete(self):
         self.menu.delete(self)
@@ -38,6 +44,51 @@ class PlacedPatternsItem:
 
     def onShowClick(self):
         self.menu.onPlacedPatternItemClick(self.pattern)
+
+    def toPoints(self):
+        _, commands = self.pattern.getGcode(0,1)
+        result = []
+        for c in commands:
+            result.extend(c.toPoints())
+
+#        Execute[{"A = (1, 2)"," B = (3, 4)"," C = (5, 6)"}]
+
+        log("result: " + str(result))
+        counter = 1
+        text = 'Execute[{'
+        for index, r in enumerate(result):
+            log("r: " + str(r))
+            text += '"A' + str(counter) + ' = (' + str(r[0]) + ", " + str(r[1]) + ')"'
+            if index != len(result)-1:
+                text += ','
+
+            counter += 1
+
+
+        text += '}]'
+        print(text)
+        log("points: " + str(result))
+        return result
+
+    def checkBoundaries(self):
+        intersects = self.intersectsWithBoundary()
+        log("Pattern " + self.pattern.name + " intersects: " + str(intersects))
+
+    def intersectsWithBoundary(self):
+        selfPoints = self.toPoints()
+        for obPlotter in self.canvasManager.objectPlotters:
+            boundaryPoints = obPlotter.getBoundary()
+            vertices = obPlotter.verticesAfter
+            for index1, point in enumerate(selfPoints):
+                if index1 == len(selfPoints)-1: continue
+                for index2, boundaryPoint in enumerate(boundaryPoints):
+                    if index2 == len(boundaryPoints)-1: continue
+                    intersects = doIntersect(selfPoints[index1], selfPoints[index1+1],
+                      vertices[boundaryPoints[index2]], vertices[boundaryPoints[index2+1]])
+                    if intersects: return True
+
+        return False
+            
 
     def build(self):
 

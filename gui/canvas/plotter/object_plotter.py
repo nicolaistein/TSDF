@@ -1,9 +1,12 @@
 from tkinter import *
 from typing import List
 
+import numpy as np
+
 from gui.canvas.plotter.options_plotter import OptionsPlotter
 from util import faceToArea
 from logger import log
+import igl
 
 class ObjectPlotter:
 
@@ -57,6 +60,14 @@ class ObjectPlotter:
         for f in self.faces:
             sum += faceToArea(f, self.verticesAfter)
         return sum
+
+    def getBoundary(self):
+        facesArray = np.array(self.faces)
+        log("faces type: " + str(type(self.faces)))
+        log("faces type2: " + str(type(facesArray)))
+        bnd = igl.boundary_loop(facesArray)
+        log("bnd: " + str(bnd))
+        return bnd
 
 
     def setEnabled(self, enabled:bool):

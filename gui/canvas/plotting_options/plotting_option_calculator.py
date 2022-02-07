@@ -4,7 +4,7 @@ from typing import List, Mapping
 import abc
 import math 
 import numpy as np
-from util import faceToArea
+from util import faceToArea, angle_between
 
 
 class PlottingOptionCalculator:
@@ -50,15 +50,6 @@ class PlottingOptionCalculator:
             return [1, 1, 1]
 
 
-    def angle_between(self, v1, v2):
-        """ Returns the angle in radians between vectors v1 and v2"""
-
-        v1_u = v1 / np.linalg.norm(v1)
-        v2_u = v2 / np.linalg.norm(v2)
-        return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
-
-
-
     def getFlatTriangle(self, x1:List[float], x2:List[float], x3:List[float]):
         vector1 = np.array(x2)-np.array(x1)
         vector2 = np.array(x3)-np.array(x1)
@@ -69,7 +60,7 @@ class PlottingOptionCalculator:
         x2New = [length12, 0, 1]
 
         length23 = np.linalg.norm(vector2)
-        angle = self.angle_between(vector1, vector2)
+        angle = angle_between(vector1, vector2)
 
         x3New = [math.cos(angle) * length23, math.sin(angle) * length23, 1]
         return x1New, x2New, x3New

@@ -34,6 +34,11 @@ class PlacedPatternsMenu:
         if rebuild:
             self.build()
 
+    def onCheckBoundaries(self):
+        log("Checking boundaries")
+        for p in self.placedPatternItems:
+            p.checkBoundaries()
+
     def onPlacedPatternItemClick(self, pattern):
         self.canvasManager.patternPlotter.selectPattern(pattern)
 
@@ -93,22 +98,24 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = ListView(self.content, 310, 710).build()
+        self.innerContent = ListView(self.content, 310, 680).build()
 
         self.placedPatternItems.clear()
         for pattern in self.patterns:
-            pat = PlacedPatternsItem(self.innerContent, pattern, self)
+            pat = PlacedPatternsItem(self.innerContent, pattern, self, self.canvasManager)
             self.placedPatternItems.append(pat)
             pat.build()
 
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=130, pady=20)
+        generationFrame = Frame(self.mainFrame, width=323, height=160, pady=20)
         generationFrame.pack_propagate(0)
         self.workHeightText = self.getKeyValueFrame(generationFrame, "Work height", "2.3")
         self.freeMoveHeightText = self.getKeyValueFrame(generationFrame, "Free-Move height", "10")
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
                             corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
+        TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
+                            corner_radius=60, height=25, width=180).pack(side=TOP, pady=(10, 0))
 
         generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)
