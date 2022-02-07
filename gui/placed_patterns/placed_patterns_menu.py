@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
+from turtle import width
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
@@ -63,11 +64,13 @@ class PlacedPatternsMenu:
         file = open(filename + "/result.gcode", "w")
         workHeight = self.workHeightText.getNumberInput()
         freeMoveHeight = self.freeMoveHeightText.getNumberInput()
+        eFactor = self.eFactorText.getNumberInput()
+        fFactor = self.fFactorText.getNumberInput()
 
         file.write("G90\n")
         file.write("G0 Z" + str(freeMoveHeight) + "\n\n")
         for pattern in self.patterns:
-            result, commands = pattern.getGcode(workHeight,freeMoveHeight)
+            result, commands = pattern.getGcode(workHeight,freeMoveHeight, eFactor, fFactor)
             file.write(result)
             file.write("\n")
         file.close()
@@ -77,15 +80,15 @@ class PlacedPatternsMenu:
         messagebox.showinfo("Export", "Successfully exported "
          + str(length) + " " + text + " to " + file.name)
 
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str, padx:bool=False):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=15,
-                            anchor=W, justify=LEFT, wraplength=120)
+        keyLabel = Label(keyValFrame, text=key, width=13,
+                            anchor=W, justify=LEFT)
         keyLabel.pack(side=LEFT)
         valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True)
-        valText.build().pack(side=LEFT)
+        valText.build().pack(side=LEFT, padx=(2,0))
 
-        keyValFrame.pack(side=TOP, pady=(5,0))
+        keyValFrame.pack(side=LEFT, pady=(5,0), padx=(10 if padx else 0, 0))
         return valText
 
     def build(self):
@@ -98,7 +101,7 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = ListView(self.content, 310, 680).build()
+        self.innerContent = ListView(self.content, 310, 670).build()
 
         self.placedPatternItems.clear()
         for pattern in self.patterns:
@@ -108,14 +111,24 @@ class PlacedPatternsMenu:
 
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=160, pady=20)
+        generationFrame = Frame(self.mainFrame, width=323, height=170, pady=20)
         generationFrame.pack_propagate(0)
-        self.workHeightText = self.getKeyValueFrame(generationFrame, "Work height", "2.3")
-        self.freeMoveHeightText = self.getKeyValueFrame(generationFrame, "Free-Move height", "10")
+        inputParentFrame = Frame(generationFrame)
+        InputFrame1 = Frame(inputParentFrame)
+        self.workHeightText = self.getKeyValueFrame(InputFrame1, "Work height", "2.3")
+        self.freeMoveHeightText = self.getKeyValueFrame(InputFrame1, "Freemove height", "10", padx=True)
+        InputFrame1.pack(side=TOP, anchor=W)
+        
+        InputFrame2 = Frame(inputParentFrame)
+        self.fFactorText = self.getKeyValueFrame(InputFrame2, "E Factor", "4")
+        self.eFactorText = self.getKeyValueFrame(InputFrame2, "F Factor", "4", padx=True)
+        InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
+        inputParentFrame.pack(side=TOP, padx=(20,20))
+
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
                             corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
         TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
-                            corner_radius=60, height=25, width=180).pack(side=TOP, pady=(10, 0))
+                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
 
         generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

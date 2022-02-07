@@ -7,14 +7,18 @@ from patterns.gcode_cmd import GCodeCmd
 
 class PatternParent:
     def __init__(self, values: Mapping, workHeight:float, freeMoveHeight:float, 
+                eFactor:float, fFactor:float,
                 startX: float, startY: float, rotation:float):
         self.values = values
         self.workheight = workHeight
         self.freemoveHeight = freeMoveHeight
+        self.eFactor = eFactor
+        self.fFactor = fFactor
         self.startX = startX
         self.startY = startY
         self.currentX = 0
         self.currentY = 0
+        self.currentE = 0
 
         rotation = -1 * rotation * math.pi / 180
         self.rotationMatrix =   np.array(   [[math.cos(rotation), math.sin(rotation) * -1], 
@@ -31,8 +35,17 @@ class PatternParent:
     def add(self, cmd: str):
         self.result += cmd + "\n"
 
+    def getDistance(self, prevX:float=None, prevY:float=None, x:float=None, y:float=None,
+      i:float=None, j:float=None, arcDegrees:int=None):
+      if arcDegrees is None:
+          return np.linalg.norm([x-prevX, y-prevY])
+      else:
+          radius = np.linalg.norm([i, j])
+          return (2*math.pi*radius) * (arcDegrees/360)
+
+
     def addCmd(self, prefix: str, x:float=None, y:float=None, z:float=None,
-     i:float=None, j:float=None, arcDegrees:int=None):
+     i:float=None, j:float=None, arcDegrees:int=None, printing:bool=False):
 
         #x and y are both needed for rotation (even if one of them does not change)
         x = x if not x is None else self.currentX
@@ -64,6 +77,8 @@ class PatternParent:
 
             i = iAbsNew - xRot
             j = jAbsNew - yRot
+        
+
 
         cmd: str = ""
         cmd += self.getCmdParam("X", xRot)
@@ -71,6 +86,16 @@ class PatternParent:
         cmd += self.getCmdParam("Z", z)
         cmd += self.getCmdParam("I", i)
         cmd += self.getCmdParam("J", j)
+        if printing:
+            distance = self.getDistance(prevX=previousX, prevY=previousY, x=xRot, y=yRot, i=i, j=j, arcDegrees=arcDegrees)
+
+            #Todo: integrate parameter
+            eDiff = distance * self.eFactor
+            self.currentE -= eDiff
+            f = distance * self.fFactor
+
+            cmd += self.getCmdParam("E", self.currentE)
+            cmd += self.getCmdParam("F", f)
         if(cmd):
             self.add(prefix + cmd)
             self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
@@ -85,13 +110,13 @@ class PatternParent:
         self.addCmd("G0", x, y, z)
 
     def printTo(self, x=None, y=None, z=None):
-        self.addCmd("G1", x, y, z)
+        self.addCmd("G1", x, y, z, printing=True)
 
     def clockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
-        self.addCmd("G02", x, y, i=i, j=j, arcDegrees=arcDegrees)
+        self.addCmd("G02", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True)
 
     def counterClockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
-        self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees)
+        self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True)
 
     def relativeMode(self):
         self.add("G91")
@@ -108,7 +133,6 @@ class PatternParent:
     def rotate(self, x:float, y:float):
         result = self.rotationMatrix.dot(np.array([x, y]))
         return result[0], result[1]
-
 
     @abc.abstractmethod
     def gcode(self, startX: float, startY: float, workHeight: float):

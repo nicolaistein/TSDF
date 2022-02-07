@@ -7,7 +7,7 @@ class GCodeCmd:
     arcLines:int = 5
 
     def __init__(self, prefix:str, x:float, y:float,
-         z:float=None, i:float=None, j:float=None,
+         z:float=None, i:float=None, j:float=None, e:float=None, f:float=None,
           arcDegrees:int=None, previousX:float=0.0, previousY=0.0):
         self.prefix = prefix
         self.x = x
@@ -15,6 +15,8 @@ class GCodeCmd:
         self.z = z
         self.i = i
         self.j = j
+        self.e = e
+        self.f = f
         self.arcDegrees = arcDegrees
         self.previousX = previousX
         self.previousY = previousY
