@@ -15,6 +15,7 @@ from logger import log
 class Mesh3DPlotter:
     chartCount = 5
     showEdges = False
+    defaultColor = "#1f77b4ff"
     segmenter = Segmenter()
 
     def __init__(self, master: Frame):
@@ -115,7 +116,7 @@ class Mesh3DPlotter:
                 else:
                     self.chartToColor[val] = "#ffffff"
 
-        colors = ["green"]*len(self.faces)
+        colors = [self.defaultColor]*len(self.faces)
         for index, x in enumerate(self.charts): 
             color = self.chartToColor[x] + "ff"
             colors[index] = color
@@ -130,7 +131,7 @@ class Mesh3DPlotter:
         self.faces = faces
         self.chartList = []
         self.charts = []
-        self.faceColors = ["#1f77b4ff"] * len(faces)
+        self.faceColors = [self.defaultColor] * len(faces)
         self.selectedChart = -1
         self.show()
 
