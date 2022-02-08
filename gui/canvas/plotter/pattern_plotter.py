@@ -55,9 +55,11 @@ class PatternPlotter:
         self.removePatternFromCanvas(pattern)
         result, commands = pattern.getGcode(0, 0, 0, 0)
         color = "blue"
+        width = 2
         #Change color to red if selected
         if not self.selectedPattern is None:
-            color = "orange" if self.selectedPattern == pattern else "blue"
+            color = "red" if self.selectedPattern == pattern else "blue"
+            width = 3 if self.selectedPattern == pattern else width
 
         shapes = []
         for cmd in commands:
@@ -65,23 +67,23 @@ class PatternPlotter:
             if(cmd.prefix == "G1"):
                 p1x, p1y = self.cv.P(cmd.previousX, cmd.previousY)
                 p2x, p2y = self.cv.P(cmd.x, cmd.y)
-                s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=color, width=1)
+                s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=color, width=width)
 
             if cmd.prefix == "G02" or cmd.prefix == "G03":
-                s = self.computeArc(cmd, color)
+                s = self.computeArc(cmd, color, width)
 
             shapes.append(s)
 
         self.patterns[pattern] = shapes
 
-    def computeArc(self, cmd:GCodeCmd, color:str):
+    def computeArc(self, cmd:GCodeCmd, color:str, width:float):
         points = [self.cv.P(cmd.previousX, cmd.previousY)]
 
         cornerPoints = self.getCornerPoints(cmd.prefix=="G02", cmd.arcDegrees, cmd.previousX, cmd.previousY, cmd.x, cmd.y)
         points.append(cornerPoints)
 
         points.append(self.cv.P(cmd.x, cmd.y))
-        return self.canvas.create_line(points, smooth=True, fill=color, width=1)
+        return self.canvas.create_line(points, smooth=True, fill=color, width=width)
         
 
     def getCornerPoints(self, clockwise:bool, degrees:float, x:float, y:float, x2:float, y2:float):

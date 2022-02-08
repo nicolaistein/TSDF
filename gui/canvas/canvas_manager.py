@@ -13,7 +13,7 @@ from util import faceToArea
 from logger import log
 
 class CanvasManager:
-    plotEdges:bool = False
+    plotEdges:bool = True
     objectPlotters:List[ObjectPlotter] = []
     rulers = []
     borders = []

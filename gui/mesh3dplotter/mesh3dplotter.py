@@ -14,7 +14,7 @@ from logger import log
 
 class Mesh3DPlotter:
     chartCount = 5
-    showEdges = True
+    showEdges = False
     segmenter = Segmenter()
 
     def __init__(self, master: Frame):

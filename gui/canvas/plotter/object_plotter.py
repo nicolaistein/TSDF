@@ -22,6 +22,7 @@ class ObjectPlotter:
         self.verticesAfter = verticesAfter
         self.faces = facesAfter
         self.plotEdges = plotEdges
+        self.bnd = igl.boundary_loop(np.array(self.faces))
         self.enabled = True
         self.optionsPlotter = OptionsPlotter(canvasManager, verticesToPlot, verticesBefore,
             facesBefore, verticesAfter, facesAfter, totalArea, color)
@@ -62,8 +63,8 @@ class ObjectPlotter:
         return sum
 
     def getBoundary(self):
-        bnd = igl.boundary_loop(np.array(self.faces))
-        return bnd
+        
+        return self.bnd
 
 
     def setEnabled(self, enabled:bool):

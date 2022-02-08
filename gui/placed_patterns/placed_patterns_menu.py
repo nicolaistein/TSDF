@@ -18,22 +18,20 @@ class PlacedPatternsMenu:
         self.mainFrame = Frame(master, bg=mainColor)
         self.canvasManager = canvasManager
         canvasManager.placedPatternsMenu = self
-        self.patterns = []
-        self.placedPatternItems = []
+        self.placedPatternItems = {}
 
     def deleteAll(self):
-        for p in self.placedPatternItems:
-            self.delete(p, False)
+        for p in self.placedPatternItems.values():
+            p.delete()
         self.placedPatternItems.clear()
         self.build()
 
     def delete(self, placedPatternItem):
-        self.patterns.remove(placedPatternItem.pattern)
         self.canvasManager.patternPlotter.deletePattern(placedPatternItem.pattern)
 
     def onCheckBoundaries(self):
         log("Checking boundaries")
-        for p in self.placedPatternItems:
+        for p in self.placedPatternItems.values():
             p.checkBoundaries()
 
     def onPlacedPatternItemClick(self, pattern):
@@ -41,19 +39,23 @@ class PlacedPatternsMenu:
 
     def onEditFinished(self, pattern:PatternModel):
         self.canvasManager.patternPlotter.refreshPattern(pattern)
-        self.build()
+        self.placedPatternItems[pattern].refreshValues()
+        self.placedPatternItems[pattern].checkBoundaries()
+#        self.build()
 
     def edit(self, patternItem:PlacedPatternsItem):
         PatternInputWindow(self.mainFrame, patternItem.pattern, patternItem.onEdit,
                            self.onEditFinished, self.canvasManager, True).openWindow()
 
     def addPattern(self, pattern: PatternModel):
-        self.patterns.append(pattern)
         self.canvasManager.patternPlotter.addPattern(pattern)
-        self.build()
+        pat = PlacedPatternsItem(self.innerContent, pattern, self, self.canvasManager)
+        self.placedPatternItems[pattern] = pat
+        pat.build()
+        pat.checkBoundaries()
 
     def generateGCode(self):
-        if len(self.patterns) == 0: return
+        if len(self.placedPatternItems) == 0: return
         filename = askdirectory()
         log("direcory: " + str(filename))
         if not os.path.isdir(filename): return
@@ -65,13 +67,13 @@ class PlacedPatternsMenu:
 
         file.write("G90\n")
         file.write("G0 Z" + str(freeMoveHeight) + " F" + str(fFactor) + "\n\n")
-        for pattern in self.patterns:
+        for pattern in self.placedPatternItems.keys():
             result, commands = pattern.getGcode(workHeight,freeMoveHeight, eFactor, fFactor)
             file.write(result)
             file.write("\n")
         file.close()
         
-        length = len(self.patterns)
+        length = len(self.placedPatternItems)
         text = "pattern" if length == 1 else "patterns"
         messagebox.showinfo("Export", "Successfully exported "
          + str(length) + " " + text + " to " + file.name)
@@ -97,17 +99,12 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = ListView(self.content, 310, 640).build()
+        self.innerContent = ListView(self.content, 310, 670).build()
 
         self.placedPatternItems.clear()
-        for pattern in self.patterns:
-            pat = PlacedPatternsItem(self.innerContent, pattern, self, self.canvasManager)
-            self.placedPatternItems.append(pat)
-            pat.build()
-
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=200, pady=20)
+        generationFrame = Frame(self.mainFrame, width=323, height=170, pady=20)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
         InputFrame1 = Frame(inputParentFrame)
@@ -127,9 +124,9 @@ class PlacedPatternsMenu:
         inputParentFrame.pack(side=TOP, padx=(20,20))
 
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
-                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
-        TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
-                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
+                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(15, 0))
+#        TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
+#                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
 
         generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

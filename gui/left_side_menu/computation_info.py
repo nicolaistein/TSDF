@@ -29,6 +29,7 @@ class ComputationInfo:
         self.algorithmLabel.configure(text=self.algo)
         self.timeLabel.configure(text=self.time)
         self.selectedView.set(0)
+        self.refreshButton()
 
         self.setDistortionValues({e.value: -1 for e in PlottingOption})
     

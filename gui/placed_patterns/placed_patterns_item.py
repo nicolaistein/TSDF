@@ -12,7 +12,7 @@ class PlacedPatternsItem:
 
     # #d1d1d1
     colorBlue = "#cde3fa"
-    colorRed = "#eb7f7f"
+    colorRed = "#f29696"
 
     def __init__(self, master: Frame, pattern: PatternModel, menu, canvasManager:CanvasManager):
         self.pattern = pattern
@@ -32,7 +32,8 @@ class PlacedPatternsItem:
         self.menu.edit(self)
 
     def onEdit(self):
-        self.checkBoundaries()
+        pass
+#        self.checkBoundaries()
 
     def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 80):
         keyValFrame = Frame(parent, bg=self.color,)
@@ -47,7 +48,7 @@ class PlacedPatternsItem:
         label.pack(side=LEFT)
         self.toRefresh.append(label)
 
-        return keyValFrame
+        return keyValFrame, label
 
     def deleteButtons(self):
         self.button1.delete()
@@ -79,13 +80,34 @@ class PlacedPatternsItem:
         return result
 
     def checkBoundaries(self):
+        if len(self.canvasManager.objectPlotters) == 0: return
         intersects = self.intersectsWithBoundary()
         self.color = self.colorRed if intersects else self.colorBlue
+        self.refreshColor()
 #        log("Pattern " + self.pattern.name + " intersects: " + str(intersects))
+
+    def refreshColor(self):
         for el in self.toRefresh:
             el.configure(bg=self.color)
+        self.button1.configure_color(bg_color=self.color)
+        self.button2.configure_color(bg_color=self.color)
+        self.button3.configure_color(bg_color=self.color)
 
+    def formatParams(self):
+        paramsText = ""
+        for key, val in self.pattern.params.items():
+            paramsText += key + "=" + val + "   "
+        if paramsText:
+            paramsText = paramsText[:-2]
+        return paramsText
 
+    def refreshValues(self):
+        self.nameLabel.configure(text=self.pattern.name)
+        self.idLabel.configure(text=self.pattern.id)
+        self.positionLabel.configure(text=self.pattern.getPosition())
+        self.rotationLabel.configure(text=str(self.pattern.rotation) + "°")
+        if len(self.pattern.params) > 0:
+            self.paramsLabel.configure(text=self.formatParams())
 
     def intersectsWithBoundary(self):
         selfPoints = self.toPoints()
@@ -136,31 +158,27 @@ class PlacedPatternsItem:
 
         leftFrame = Frame(topContent, bg=self.color)
         self.toRefresh.append(leftFrame)
-        self.getKeyValueFrame(leftFrame, "name", self.pattern.name).pack(
-            side=TOP, anchor=W)
-        self.getKeyValueFrame(leftFrame, "id", self.pattern.id).pack(
-            side=TOP, anchor=W)
+        frame, self.nameLabel = self.getKeyValueFrame(leftFrame, "name", self.pattern.name)
+        frame.pack(side=TOP, anchor=W)
+
+        frame, self.idLabel = self.getKeyValueFrame(leftFrame, "id", self.pattern.id)
+        frame.pack(side=TOP, anchor=W)
         leftFrame.pack(side=LEFT, anchor=N)
 
         rightFrame = Frame(topContent, bg=self.color)
         self.toRefresh.append(rightFrame)
-        self.getKeyValueFrame(rightFrame, "position", self.pattern.getPosition()).pack(
-            side=TOP, anchor=W)
-        self.getKeyValueFrame(rightFrame, "rotation", str(
-            self.pattern.rotation) + "°").pack(side=TOP, anchor=W)
+        frame, self.positionLabel = self.getKeyValueFrame(rightFrame, "position", self.pattern.getPosition())
+        frame.pack(side=TOP, anchor=W)
+        frame, self.rotationLabel = self.getKeyValueFrame(rightFrame, "rotation", str(self.pattern.rotation) + "°")
+        frame.pack(side=TOP, anchor=W)
         rightFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
 
         topContent.pack(side=TOP, anchor=W)
 
-        paramsText = ""
-        for key, val in self.pattern.params.items():
-            paramsText += key + "=" + val + "   "
-        if paramsText:
-            paramsText = paramsText[:-2]
-
+        paramsText = self.formatParams()
         if len(self.pattern.params) > 0:
-            self.getKeyValueFrame(self.container, "params", paramsText, 200).pack(
-                side=TOP, anchor=W, pady=(0, 0))
+            frame, self.paramsLabel = self.getKeyValueFrame(self.container, "params", paramsText, 200)
+            frame.pack(side=TOP, anchor=W, pady=(0, 0))
 
         buttonContainer = Frame(self.container, bg=self.color, width=275, height=30)
         self.toRefresh.append(buttonContainer)
@@ -177,7 +195,6 @@ class PlacedPatternsItem:
                                            fg_color="#a62828", hover_color="#c75454",
                                            corner_radius=60, height=25, width=70)
         self.button2.pack(side=LEFT, padx=(10, 0))
-        self.toRefresh.extend([self.button1, self.button2, self.button3])
 
         buttonContainer.pack_propagate(0)
         buttonContainer.pack(side=TOP, anchor=N, pady=(10, 0))
