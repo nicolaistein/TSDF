@@ -21,12 +21,13 @@ class GCodeCmd:
         self.previousX = previousX
         self.previousY = previousY
 
-    def toPoints(self):
-        log("toPoints prevX: " + str(self.previousX) + ", prevY: " + str(self.previousY) + ", x: " + str(self.x) + ", y: " + str(self.y))
+    def toPoints(self, shouldLog:bool=False):
+        if shouldLog: log("toPoints prevX: " + str(self.previousX) + ", prevY: " + str(self.previousY) + ", x: " + str(self.x) + ", y: " + str(self.y))
         """Returns a list of lines represented with starting and ending points"""
         if self.prefix == "G1": 
-            if self.previousX != self.x and self.previousY != self.y:
-                log(self.prefix + ": " + str([[self.previousX, self.previousY], [self.x, self.y]]))
+#            if shouldLog: log("inside G1")
+            if self.previousX != self.x or self.previousY != self.y:
+                if shouldLog: log(self.prefix + ": " + str([[self.previousX, self.previousY], [self.x, self.y]]))
                 return [[self.previousX, self.previousY], [self.x, self.y]]
 
         if self.prefix == "G02" or self.prefix == "G03":
@@ -53,9 +54,10 @@ class GCodeCmd:
                 yNew = yr + result[1]
                 points.append([xNew, yNew])
 
-            log(self.prefix + ": " + str(points))
+            if shouldLog: log(self.prefix + ": " + str(points))
             return points
 
+        if shouldLog: log(self.prefix)
         return []
 
     def print(self):

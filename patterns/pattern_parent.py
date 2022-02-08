@@ -45,7 +45,7 @@ class PatternParent:
 
 
     def addCmd(self, prefix: str, x:float=None, y:float=None, z:float=None,
-     i:float=None, j:float=None, arcDegrees:int=None, printing:bool=False):
+     i:float=None, j:float=None, arcDegrees:int=None, printing:bool=False, moving:bool=False):
 
         #x and y are both needed for rotation (even if one of them does not change)
         x = x if not x is None else self.currentX
@@ -88,14 +88,12 @@ class PatternParent:
         cmd += self.getCmdParam("J", j)
         if printing:
             distance = self.getDistance(prevX=previousX, prevY=previousY, x=xRot, y=yRot, i=i, j=j, arcDegrees=arcDegrees)
-
-            #Todo: integrate parameter
-            eDiff = distance * self.eFactor
-            self.currentE -= eDiff
-            f = distance * self.fFactor
-
+            self.currentE -= distance * self.eFactor
             cmd += self.getCmdParam("E", self.currentE)
-            cmd += self.getCmdParam("F", f)
+
+        if moving:
+            cmd += self.getCmdParam("F", self.fFactor)
+
         if(cmd):
             self.add(prefix + cmd)
             self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
@@ -107,16 +105,16 @@ class PatternParent:
         self.currentY = y
 
     def moveTo(self, x=None, y=None, z=None):
-        self.addCmd("G0", x, y, z)
+        self.addCmd("G0", x, y, z, moving=True)
 
     def printTo(self, x=None, y=None, z=None):
-        self.addCmd("G1", x, y, z, printing=True)
+        self.addCmd("G1", x, y, z, printing=True, moving=True)
 
     def clockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
-        self.addCmd("G02", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True)
+        self.addCmd("G02", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True)
 
     def counterClockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
-        self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True)
+        self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True)
 
     def relativeMode(self):
         self.add("G91")

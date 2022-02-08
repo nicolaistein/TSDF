@@ -21,8 +21,11 @@ class AllPatterns:
         self.patternList = patternList
         self.content = Frame(self.mainFrame, padx=0, pady=20)
 
+    def onEdit(self):
+        pass
+
     def place(self, patternFolderName):
-        PatternInputWindow(self.mainFrame, PatternModel(patternFolderName),
+        PatternInputWindow(self.mainFrame, PatternModel(patternFolderName), self.onEdit,
                            self.patternList.addPattern, self.canvasManager, False).openWindow()
 
     def buildPattern(self, folderName: str):

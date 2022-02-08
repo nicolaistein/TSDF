@@ -1,5 +1,6 @@
 from typing import List
 import numpy as np
+from logger import log
 
 def subtract(p1:List[float], p2:List[float]):
     x = p1[0] - p2[0]
@@ -28,7 +29,7 @@ def angle_between(v1, v2):
     v2_u = v2 / np.linalg.norm(v2)
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
-def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float]):
+def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], shouldLog:bool=False):
     """Calculates whether the line from p1 to p2 intersects with the line from p3 to p4"""
     x1 = p1[0]
     y1 = p1[1]
@@ -43,19 +44,49 @@ def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float]):
     yTop = (y2-y1)*(x3*y4-y3*x4)-(y4-y3)*(x1*y2-y1*x2)
     bottom = (x2-x1)*(y4-y3)-(y2-y1)*(x4-x3)
 
-    if bottom == 0: return False
-
-    xInter = xTop/bottom
-    yInter = yTop/bottom
-
     xVals1 = sorted([x1, x2])
     yVals1 = sorted([y1, y2])
     xVals2 = sorted([x3, x4])
     yVals2 = sorted([y3, y4])
 
-    insideFirstX = xInter >= xVals1[0] and xInter <= xVals1[1]
-    insideFirstY = yInter >= yVals1[0] and yInter <= yVals1[1]
-    insideSecX = xInter >= xVals2[0] and xInter <= xVals2[1]
-    insideSecY = yInter >= yVals2[0] and yInter <= yVals2[1]
+    if bottom == 0: 
+        if (x2-x1) == 0 and (x4-x3) == 0:
+            b1 = yVals1[1] >= yVals2[0] and yVals1[1] <=yVals2[1]
+            b2 = yVals1[0] >= yVals2[0] and yVals1[0] <=yVals2[1]
+            b3 = yVals2[1] >= yVals1[0] and yVals2[1] <=yVals1[1]
+            b4 = yVals2[0] >= yVals1[0] and yVals2[0] <=yVals1[1]
 
-    return insideFirstX and insideFirstY and insideSecX and insideSecY
+            if x1 == x3:
+                log("Error1 applicable")
+
+            return (b1 or b2 or b3 or b4) and x1 == x3
+        
+        if (y4-y3) == 0 and (y2-y1) == 0:
+            if y1 == y3:
+                log("Error2 applicable")
+            b1 = xVals1[1] >= xVals2[0] and xVals1[1] <=xVals2[1]
+            b2 = xVals1[0] >= xVals2[0] and xVals1[0] <=xVals2[1]
+            b3 = xVals2[1] >= xVals1[0] and xVals2[1] <=xVals1[1]
+            b4 = xVals2[0] >= xVals1[0] and xVals2[0] <=xVals1[1]
+            return (b1 or b2 or b3 or b4) and y1 == y3
+
+#        log("ERROR BOTTOM IS 0")
+#        log("p1: " + str(p1) + ", p2: " + str(p2))
+#        log("p3: " + str(p3) + ", p4: " + str(p4))
+        return False
+
+    xInter = round(xTop/bottom, 6)
+    yInter = round(yTop/bottom, 6)
+
+
+    insideFirstX = xInter >= round(xVals1[0], 6) and xInter <= round(xVals1[1], 6)
+    insideFirstY = yInter >= round(yVals1[0], 6) and yInter <= round(yVals1[1], 6)
+    insideSecX = xInter >= round(xVals2[0], 6) and xInter <= round(xVals2[1], 6)
+    insideSecY = yInter >= round(yVals2[0], 6) and yInter <= round(yVals2[1], 6)
+
+    res = insideFirstX and insideFirstY and insideSecX and insideSecY
+ #   if not res and shouldLog:
+ #       log("p1: " + str(p1) + ", p2: " + str(p2))
+ #       log("p3: " + str(p3) + ", p4: " + str(p4))
+ #       log("xInter: " + str(xInter) + ", yInter: " + str(yInter))
+    return res

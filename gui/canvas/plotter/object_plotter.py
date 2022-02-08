@@ -62,11 +62,7 @@ class ObjectPlotter:
         return sum
 
     def getBoundary(self):
-        facesArray = np.array(self.faces)
-        log("faces type: " + str(type(self.faces)))
-        log("faces type2: " + str(type(facesArray)))
-        bnd = igl.boundary_loop(facesArray)
-        log("bnd: " + str(bnd))
+        bnd = igl.boundary_loop(np.array(self.faces))
         return bnd
 
 

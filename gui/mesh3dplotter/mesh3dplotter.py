@@ -14,6 +14,7 @@ from logger import log
 
 class Mesh3DPlotter:
     chartCount = 5
+    showEdges = True
     segmenter = Segmenter()
 
     def __init__(self, master: Frame):
@@ -26,7 +27,6 @@ class Mesh3DPlotter:
         self.faceColors = []
         self.charts = []
         self.selectedChart = -1
-        self.showEdges = False
 
     def isSegmented(self): return len(self.chartList) != 0
 

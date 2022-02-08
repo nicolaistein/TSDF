@@ -57,7 +57,7 @@ class PatternPlotter:
         color = "blue"
         #Change color to red if selected
         if not self.selectedPattern is None:
-            color = "red" if self.selectedPattern == pattern else "blue"
+            color = "orange" if self.selectedPattern == pattern else "blue"
 
         shapes = []
         for cmd in commands:

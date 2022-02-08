@@ -24,7 +24,7 @@ class PatternModel:
         for x in [i for i in self.attributes["params"].split(",") if i]:
             self.params[x] = "0.0"
 
-    def getGcode(self, workHeight:float, freeMoveHeight:float, eFactor:float, fFactor:float):
+    def getGcode(self, workHeight:float, freeMoveHeight:float, eFactor:float=0, fFactor:float=0):
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)

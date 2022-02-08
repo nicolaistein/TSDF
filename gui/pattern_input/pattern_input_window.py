@@ -13,11 +13,13 @@ from gui.canvas.canvas_manager import CanvasManager
 
 class PatternInputWindow:
 
-    def __init__(self, root, pattern: PatternModel, onComplete, canvasManager:CanvasManager, isEditMode:bool):
+    def __init__(self, root, pattern: PatternModel, onEdit, onComplete,
+     canvasManager:CanvasManager, isEditMode:bool):
         self.window = Toplevel(root)
         self.oldObject = copy(pattern)
         self.oldObject.params = copy(pattern.params)
         self.isEditMode = isEditMode
+        self.onEdit = onEdit
         self.pattern = pattern
         self.onComplete = onComplete
         self.canvasManager = canvasManager
@@ -52,6 +54,7 @@ class PatternInputWindow:
             self.pattern.y = y
             self.canvasManager.patternPlotter.refreshPattern(self.pattern)
             self.positionInput.setValues({"x":x, "y":y})
+            self.onEdit()
 
 
     def abort(self):

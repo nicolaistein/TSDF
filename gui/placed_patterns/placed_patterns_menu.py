@@ -1,7 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
-from turtle import width
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
@@ -28,12 +27,9 @@ class PlacedPatternsMenu:
         self.placedPatternItems.clear()
         self.build()
 
-    def delete(self, placedPatternItem, rebuild:bool=True):
-        placedPatternItem.deleteButtons()
+    def delete(self, placedPatternItem):
         self.patterns.remove(placedPatternItem.pattern)
         self.canvasManager.patternPlotter.deletePattern(placedPatternItem.pattern)
-        if rebuild:
-            self.build()
 
     def onCheckBoundaries(self):
         log("Checking boundaries")
@@ -47,8 +43,8 @@ class PlacedPatternsMenu:
         self.canvasManager.patternPlotter.refreshPattern(pattern)
         self.build()
 
-    def edit(self, pattern: PatternModel):
-        PatternInputWindow(self.mainFrame, pattern,
+    def edit(self, patternItem:PlacedPatternsItem):
+        PatternInputWindow(self.mainFrame, patternItem.pattern, patternItem.onEdit,
                            self.onEditFinished, self.canvasManager, True).openWindow()
 
     def addPattern(self, pattern: PatternModel):
@@ -68,7 +64,7 @@ class PlacedPatternsMenu:
         fFactor = self.fFactorText.getNumberInput()
 
         file.write("G90\n")
-        file.write("G0 Z" + str(freeMoveHeight) + "\n\n")
+        file.write("G0 Z" + str(freeMoveHeight) + " F" + str(fFactor) + "\n\n")
         for pattern in self.patterns:
             result, commands = pattern.getGcode(workHeight,freeMoveHeight, eFactor, fFactor)
             file.write(result)
@@ -82,13 +78,13 @@ class PlacedPatternsMenu:
 
     def getKeyValueFrame(self, parent: Frame, key: str, value:str, padx:bool=False):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=13,
+        keyLabel = Label(keyValFrame, text=key, width=12,
                             anchor=W, justify=LEFT)
         keyLabel.pack(side=LEFT)
         valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True)
         valText.build().pack(side=LEFT, padx=(2,0))
 
-        keyValFrame.pack(side=LEFT, pady=(5,0), padx=(10 if padx else 0, 0))
+        keyValFrame.pack(side=LEFT, pady=(5,0), padx=(30 if padx else 0, 0))
         return valText
 
     def build(self):
@@ -101,7 +97,7 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = ListView(self.content, 310, 670).build()
+        self.innerContent = ListView(self.content, 310, 640).build()
 
         self.placedPatternItems.clear()
         for pattern in self.patterns:
@@ -111,17 +107,22 @@ class PlacedPatternsMenu:
 
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=170, pady=20)
+        generationFrame = Frame(self.mainFrame, width=323, height=200, pady=20)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
         InputFrame1 = Frame(inputParentFrame)
-        self.workHeightText = self.getKeyValueFrame(InputFrame1, "Work height", "2.3")
-        self.freeMoveHeightText = self.getKeyValueFrame(InputFrame1, "Freemove height", "10", padx=True)
+        self.workHeightText = self.getKeyValueFrame(InputFrame1, "Print height", "2.3")
+        self.freeMoveHeightText = self.getKeyValueFrame(InputFrame1, "Move height", "10", padx=True)
         InputFrame1.pack(side=TOP, anchor=W)
         
         InputFrame2 = Frame(inputParentFrame)
-        self.fFactorText = self.getKeyValueFrame(InputFrame2, "E Factor", "4")
-        self.eFactorText = self.getKeyValueFrame(InputFrame2, "F Factor", "4", padx=True)
+        self.eFactorText = self.getKeyValueFrame(InputFrame2, "E Factor", "4")
+        self.fFactorText = self.getKeyValueFrame(InputFrame2, "F Value", "250", padx=True)
+        InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
+        
+        InputFrame2 = Frame(inputParentFrame)
+        self.overrunBefore = self.getKeyValueFrame(InputFrame2, "Overrun Before", "2")
+        self.overrunAfter = self.getKeyValueFrame(InputFrame2, "Overrun After", "1", padx=True)
         InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
         inputParentFrame.pack(side=TOP, padx=(20,20))
 
