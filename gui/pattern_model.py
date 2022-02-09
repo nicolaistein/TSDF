@@ -24,22 +24,18 @@ class PatternModel:
         for x in [i for i in self.attributes["params"].split(",") if i]:
             self.params[x] = "0.0"
 
-    def getGcode(self, workHeight:float, freeMoveHeight:float, eFactor:float=0, fFactor:float=0):
+    def getGcode(self, workHeight:float, freeMoveHeight:float, eFactor:float=0,
+     fFactor:float=0, overrunStart:float=0, overrunEnd:float=0):
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
-        
-        if self.folderName.endswith("pattern1"):
-            result, commands = Pattern1(values, workHeight, freeMoveHeight,
-             eFactor, fFactor, self.x, self.y, self.rotation).gcode()
-        if self.folderName.endswith("pattern2"):
-            result, commands = Pattern2(values, workHeight, freeMoveHeight,
-             eFactor, fFactor, self.x, self.y, self.rotation).gcode()
-        if self.folderName.endswith("pattern3"):
-            result, commands = Pattern3(values, workHeight, freeMoveHeight,
-             eFactor, fFactor, self.x, self.y, self.rotation).gcode()
 
-        return result, commands
+        if self.folderName.endswith("pattern1"): patternCalc = Pattern1
+        if self.folderName.endswith("pattern2"): patternCalc = Pattern2
+        if self.folderName.endswith("pattern3"): patternCalc = Pattern3
+
+        return patternCalc(values, workHeight, freeMoveHeight, eFactor, fFactor,
+         overrunStart, overrunEnd, self.x, self.y, self.rotation).gcode()
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"

@@ -55,7 +55,7 @@ class PatternPlotter:
         self.removePatternFromCanvas(pattern)
         result, commands = pattern.getGcode(0, 0, 0, 0)
         color = "blue"
-        width = 2
+        width = 1
         #Change color to red if selected
         if not self.selectedPattern is None:
             color = "red" if self.selectedPattern == pattern else "blue"

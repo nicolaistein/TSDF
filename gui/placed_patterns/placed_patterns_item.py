@@ -59,7 +59,7 @@ class PlacedPatternsItem:
         self.menu.onPlacedPatternItemClick(self.pattern)
 
     def toPoints(self):
-        _, commands = self.pattern.getGcode(0, 1, 1, 1)
+        _, commands = self.pattern.getGcode(0, 1, 1, 1, 0, 0)
         result = []
         for index, c in enumerate(commands):
             result.extend(c.toPoints())

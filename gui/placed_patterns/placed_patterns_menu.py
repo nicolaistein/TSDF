@@ -64,11 +64,14 @@ class PlacedPatternsMenu:
         freeMoveHeight = self.freeMoveHeightText.getNumberInput()
         eFactor = self.eFactorText.getNumberInput()
         fFactor = self.fFactorText.getNumberInput()
+        overrunStart = self.overrunStartText.getNumberInput()
+        overrunEnd = self.overrunEndText.getNumberInput()
 
         file.write("G90\n")
         file.write("G0 Z" + str(freeMoveHeight) + " F" + str(fFactor) + "\n\n")
         for pattern in self.placedPatternItems.keys():
-            result, commands = pattern.getGcode(workHeight,freeMoveHeight, eFactor, fFactor)
+            result, commands = pattern.getGcode(workHeight,freeMoveHeight,
+             eFactor, fFactor, overrunStart, overrunEnd)
             file.write(result)
             file.write("\n")
         file.close()
@@ -118,8 +121,8 @@ class PlacedPatternsMenu:
         InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
         
         InputFrame2 = Frame(inputParentFrame)
-        self.overrunBefore = self.getKeyValueFrame(InputFrame2, "Overrun Before", "2")
-        self.overrunAfter = self.getKeyValueFrame(InputFrame2, "Overrun After", "1", padx=True)
+        self.overrunStartText = self.getKeyValueFrame(InputFrame2, "Overrun Start", "2")
+        self.overrunEndText = self.getKeyValueFrame(InputFrame2, "Overrun End", "1", padx=True)
         InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
         inputParentFrame.pack(side=TOP, padx=(20,20))
 

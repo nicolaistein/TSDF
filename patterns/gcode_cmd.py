@@ -24,8 +24,7 @@ class GCodeCmd:
     def toPoints(self, shouldLog:bool=False):
         if shouldLog: log("toPoints prevX: " + str(self.previousX) + ", prevY: " + str(self.previousY) + ", x: " + str(self.x) + ", y: " + str(self.y))
         """Returns a list of lines represented with starting and ending points"""
-        if self.prefix == "G1": 
-#            if shouldLog: log("inside G1")
+        if self.prefix == "G1":
             if self.previousX != self.x or self.previousY != self.y:
                 if shouldLog: log(self.prefix + ": " + str([[self.previousX, self.previousY], [self.x, self.y]]))
                 return [[self.previousX, self.previousY], [self.x, self.y]]

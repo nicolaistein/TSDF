@@ -15,7 +15,7 @@ from gui.listview import ListView
 mainColor = "#cccccc"
 root = Tk()
 root.title("GCode Pattern Manager")
-root.resizable(False, False)
+#root.resizable(False, False)
 root.iconbitmap("image.ico")
 root.geometry("1920x900")
 root.configure(bg=mainColor)
