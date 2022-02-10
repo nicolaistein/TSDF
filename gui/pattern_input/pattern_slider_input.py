@@ -2,7 +2,7 @@ from __future__ import print_function
 from tkinter import *
 import tkinter.ttk as ttk
 from gui.button import TkinterCustomButton
-from gui.pattern_input.custom_text import CustomText
+from gui.custom_text import CustomText
 
 
 class PatternSliderInput:

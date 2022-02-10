@@ -2,7 +2,7 @@ from functools import partial
 from tkinter import *
 from typing import List, Mapping
 from gui.button import TkinterCustomButton
-from gui.pattern_input.custom_text import CustomText
+from gui.custom_text import CustomText
 from gui.pattern_input.pattern_input_line import PatternInputLine
 
 

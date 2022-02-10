@@ -1,4 +1,6 @@
 from tkinter import *
+from gui.custom_text import CustomText
+from logger import log
 
 class NumericText:
 
@@ -7,6 +9,16 @@ class NumericText:
         self.width = width
         self.initialText = initialText
         self.floatingPoint = floatingPoint
+        self.onChange = None
+
+    def bindOnChange(self, onChange):
+        self.onChange = onChange
+
+    def onInputChange(self, _):
+        log("onInputChange called")
+        if self.onChange is None: return
+        log("calling onChange()")
+        self.onChange()
 
     def cancelInput(self, event):
         return "break"
@@ -22,13 +34,15 @@ class NumericText:
 
     def getNumberInput(self):
         text = self.input.get("1.0", END)[:-1]
+        if len(text) == 0: text="0"
         return float(text) if self.floatingPoint else int(text)
 
     def build(self):
-        self.input = Text(self.parent, height=1, width=self.width)
+        self.input = CustomText(self.parent, height=1, width=self.width)
         self.input.bind('<Return>', self.cancelInput)
         self.input.bind('<Tab>', self.cancelInput)
         self.input.bind('<BackSpace>', self.allowInput)
         self.input.bind('<KeyPress>', self.onKeyPress)
+        self.input.bind('<<TextModified>>', self.onInputChange)
         self.input.insert(END, self.initialText)
         return self.input

@@ -95,6 +95,7 @@ class PlacedPatternsMenu:
         keyLabel.pack(side=LEFT)
         valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True)
         valText.build().pack(side=LEFT, padx=(2,0))
+        valText.bindOnChange(self.canvasManager.patternPlotter.refresh)
 
         keyValFrame.pack(side=LEFT, pady=(5,0), padx=(30 if padx else 0, 0))
         return valText

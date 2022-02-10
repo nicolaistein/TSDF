@@ -30,6 +30,7 @@ class PatternPlotter:
         self.refreshPattern(pattern)
         
     def refresh(self):
+        log("refreshing")
         for p in self.patterns.keys():
             self.refreshPattern(p)
 
@@ -71,7 +72,6 @@ class PatternPlotter:
 
         shapes = []
         for cmd in commands:
-            cmd.print()
             s = []
             col = overruncolor if cmd.isOverrun else color
             if(cmd.isOverrun or cmd.prefix == "G1"):
