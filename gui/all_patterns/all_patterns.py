@@ -60,7 +60,7 @@ class AllPatterns:
         infoFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
         patternFrame.pack(side=TOP, pady=(20, 0), anchor=W)
 
-    def build(self, side: str):
+    def build(self):
 
         title = Label(self.content, text="All Patterns")
         title.configure(font=("Helvetica", 12, "bold"))
@@ -73,4 +73,4 @@ class AllPatterns:
                 self.buildPattern("patterns/" + file)
 
         self.content.pack(side=TOP)
-        self.mainFrame.pack(side=side, anchor=N)
+        self.mainFrame.pack(side=TOP, anchor=N)

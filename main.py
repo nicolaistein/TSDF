@@ -1,7 +1,7 @@
 from tkinter import *
 from gui.left_side_menu.computation_info import ComputationInfo
 from gui.all_patterns.all_patterns import AllPatterns
-from gui.left_side_menu.algorithm_menu import AlgorithmMenu
+from gui.left_side_menu.algorithm.algorithm_menu import AlgorithmMenu
 from gui.left_side_menu.measuring_tool import MeasuringTool
 from gui.left_side_menu.file_menu import FileMenu
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
@@ -43,12 +43,12 @@ algorithmMenu.build()
 computationInfo.build()
 measuringTool.build()
 exportMenu.build()
-leftContainerParent.pack(side="left", anchor=N, padx=(0, 20))
+leftContainerParent.pack(side=LEFT, anchor=N, padx=(0, 20))
 
 canvasManager.build()
 placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 
-AllPatterns(allPatternsContainer, mainColor, placedPatterns, canvasManager).build("top")
+AllPatterns(allPatternsContainer, mainColor, placedPatterns, canvasManager).build()
 plotter.show()
 
 allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))

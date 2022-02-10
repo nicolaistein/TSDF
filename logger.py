@@ -1,11 +1,7 @@
 import inspect
 import logging
-import pathlib
-
-#logging.basicConfig(filename='example.log', encoding='utf-8', level=logging.DEBUG)
 
 def log(msg:str, lvl=logging.DEBUG):
-#    if not msg.startswith("Sod equals:"): return
     stack = inspect.stack()
     the_class = "NoClass"
     try:

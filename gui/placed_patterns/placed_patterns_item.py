@@ -10,7 +10,7 @@ from logger import log
 
 class PlacedPatternsItem:
 
-    # #d1d1d1
+    #d1d1d1
     colorBlue = "#cde3fa"
     colorRed = "#f29696"
 
@@ -65,15 +65,15 @@ class PlacedPatternsItem:
             result.extend(c.toPoints())
 
 #        log("result: " + str(result))
-        counter = 1
-        text = 'Execute[{'
-        for index, r in enumerate(result):
+#        counter = 1
+#        text = 'Execute[{'
+#        for index, r in enumerate(result):
 #            log("r: " + str(r))
-            text += '"A' + str(counter) + ' = (' + str(r[0]) + ", " + str(r[1]) + ')"'
-            if index != len(result)-1:
-                text += ','
-            counter += 1
-        text += '}]'
+#            text += '"A' + str(counter) + ' = (' + str(r[0]) + ", " + str(r[1]) + ')"'
+#            if index != len(result)-1:
+#                text += ','
+#            counter += 1
+#        text += '}]'
 #        print(text)
 #        log("points: " + str(result))
 

@@ -21,24 +21,27 @@ class Segmenter:
     vertices = []
     parser = None
 
-    def compute(self, vertices, faces, chartCount:int):
-        if self.faces is not faces and self.vertices is not vertices:
+    def parse(self, vertices, faces):
             self.faces = faces
             self.vertices = vertices
             self.parser = SegmentationParser()
             self.parser.parse(self.vertices, self.faces, True)
+
+    def compute(self, vertices, faces, chartCount:int, targetFolder:str=None):
+        if self.faces is not faces and self.vertices is not vertices:
+            self.parse(vertices, faces)
             self.computedFeatures = Features(self.parser).computeFeatures()
         
         self.charts = Charts(self.parser, chartCount)
         faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
-        self.clearFolder()
+        self.clearFolder(targetFolder)
         for x in chartKeys:
-            self.extract(faceToChart, x)
+            self.extract(faceToChart, x, targetFolder)
         
         return faceToChart, chartKeys
         
 
-    def calc(self):
+    def calc(self, targetFolder:str=None):
         self.parser.parse(self.vertices, self.faces, True)
         log("parsing finished")
 
@@ -48,20 +51,22 @@ class Segmenter:
         self.features.plotResult()
 
         faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
-        self.clearFolder()
+        self.clearFolder(targetFolder)
         for x in chartKeys:
-            self.extract(faceToChart, x)
+            self.extract(faceToChart, x, targetFolder)
         
         return faceToChart, chartKeys
 
-    def clearFolder(self):
-        if os.path.isdir(os.getcwd() + "/" + folder):
-            shutil.rmtree(folder)
+    def clearFolder(self, folderName:str=None):
+        if folderName is None: folderName = os.getcwd() + "/" + folder
+        if os.path.isdir(folderName):
+            shutil.rmtree(folderName)
 
         os.mkdir(folder)
 
 
-    def extract(self, faceToChart, key):
+    def extract(self, faceToChart, key, folderName:str=None):
+        if folderName is None: folderName = os.getcwd() + "/" + folder
         usedVertices = {}
         counter = 1
         for index, ch in enumerate(faceToChart):
@@ -72,7 +77,7 @@ class Segmenter:
                         counter += 1
 
 
-        file = open(folder + "/" + str(key) + ".obj", "w")
+        file = open(folderName + "/" + str(key) + ".obj", "w")
         for k, v in usedVertices.items():
             file.write(self.arrayToString("v", self.vertices[k]))
 

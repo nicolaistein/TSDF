@@ -87,6 +87,9 @@ class SegmentationParser:
         log("computing SOD finished")
 
 # For histogram
+        file = open("sod.txt", "w")
+        file.write(str(list(self.SOD.values())))
+        file.close()
 #        log("Sod equals: " + str(list(self.SOD.values())))
 
 
