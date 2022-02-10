@@ -15,9 +15,7 @@ class NumericText:
         self.onChange = onChange
 
     def onInputChange(self, _):
-        log("onInputChange called")
         if self.onChange is None: return
-        log("calling onChange()")
         self.onChange()
 
     def cancelInput(self, event):
@@ -34,7 +32,7 @@ class NumericText:
 
     def getNumberInput(self):
         text = self.input.get("1.0", END)[:-1]
-        if len(text) == 0: text="0"
+        if len(text) == 0 or text == ".": text="0"
         return float(text) if self.floatingPoint else int(text)
 
     def build(self):

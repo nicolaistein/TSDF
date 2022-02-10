@@ -30,7 +30,6 @@ class PatternPlotter:
         self.refreshPattern(pattern)
         
     def refresh(self):
-        log("refreshing")
         for p in self.patterns.keys():
             self.refreshPattern(p)
 
@@ -55,7 +54,6 @@ class PatternPlotter:
         self.addPattern(pattern)
 
     def addPattern(self, pattern:PatternModel):
-        print("\n\nNew Pattern id: " + str(pattern.id))
         self.removePatternFromCanvas(pattern)
         overrunStart = self.cv.placedPatternsMenu.overrunStartText.getNumberInput()
         overrunEnd = self.cv.placedPatternsMenu.overrunEndText.getNumberInput()
@@ -63,7 +61,8 @@ class PatternPlotter:
         result, commands, e = pattern.getGcode(overrunStart=overrunStart,
           overrunEnd=overrunEnd, printOverrun=printOverrun)
         color = "blue"
-        overruncolor = "orange"
+        overrunColor = "orange"
+        printOverrunColor = "green"
         width = 1
         #Change color to red if selected
         if not self.selectedPattern is None:
@@ -73,12 +72,12 @@ class PatternPlotter:
         shapes = []
         for cmd in commands:
             s = []
-            col = overruncolor if cmd.isOverrun else color
+            col = color
+            if cmd.isOverrun: 
+                col = overrunColor 
+                if cmd.printing: col = printOverrunColor 
+
             if(cmd.isOverrun or cmd.prefix == "G1"):
-                if math.isnan(cmd.x) and cmd.isOverrun:
-                    log("Invalid overrun detected")
-                    cmd.print()
-                    continue
                 p1x, p1y = self.cv.P(cmd.previousX, cmd.previousY)
                 p2x, p2y = self.cv.P(cmd.x, cmd.y)
                 s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=col, width=width)

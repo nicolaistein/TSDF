@@ -82,34 +82,44 @@ class PatternParent:
             j = jAbsNew - yRot
 
 
+        #Overrun start
         if printing and len(self.commands) != 0 and self.commands[-1].z is not None:
             if self.commands[-1].z == self.workheight and self.overrunStart != 0:
- #               log("adding start overrun")
                 startVector = subtract([xRot, yRot], [previousX, previousY])
- #               log("[x, y]: " + str([xRot, yRot]))
- #               log("[previousX, previousY]: " + str([previousX, previousY]))
-                vec = (startVector / np.linalg.norm(startVector)) * self.overrunStart
-                self.commands.insert(-1, GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1],
-                  previousX=previousX, previousY=previousY, isOverrun=True, moving=True))
+                norm = np.linalg.norm(startVector)
+                if norm != 0:
+                    vec = (startVector / norm)
 
-                self.commands.append(GCodeCmd("G0", x=previousX, y=previousY, previousX=previousX-vec[0],
-                  previousY=previousY-vec[1], isOverrun=True, moving=True))
+                    back = vec * (self.overrunStart + self.printOverrun)
+                    forward1 = vec * self.printOverrun
+                    
+                    self.commands.insert(-1, GCodeCmd("G0", x=previousX-back[0], y=previousY-back[1],
+                    previousX=previousX, previousY=previousY, isOverrun=False, moving=True))
 
-                self.commands[-2].x -= vec[0]
-                self.commands[-2].y -= vec[1]
+                    self.commands.append(GCodeCmd("G0", x=previousX-forward1[0], y=previousY-forward1[1], previousX=previousX-back[0],
+                    previousY=previousY-back[1], isOverrun=True, moving=True))
 
+                    self.commands.append(GCodeCmd("G1", x=previousX, y=previousY, previousX=previousX-forward1[0],
+                    previousY=previousY-forward1[1], isOverrun=True, moving=True, printing=True))
 
+                    self.commands[-3].x -= back[0]
+                    self.commands[-3].y -= back[1]
+                    del self.commands[-5]
+                    
+
+        #Overrun end
         if z is not None and len(self.commands) != 0:
             if z == self.freemoveHeight and self.overrunEnd != 0:
-#                log("adding end overrun")
                 oldCmd = self.commands[-1]
                 endVector = subtract([oldCmd.previousX, oldCmd.previousY], [oldCmd.x, oldCmd.y])
-                vec = (endVector / np.linalg.norm(endVector)) * self.overrunEnd
-                self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
-                xRot -= vec[0]
-                yRot -= vec[1]
-                previousX -= vec[0]
-                previousY -= vec[1]
+                norm = np.linalg.norm(endVector)
+                if norm != 0:
+                    vec = (endVector / norm) * self.overrunEnd
+                    self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
+                    xRot -= vec[0]
+                    yRot -= vec[1]
+                    previousX -= vec[0]
+                    previousY -= vec[1]
 
         self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
             arcDegrees=arcDegrees, previousX=previousX, previousY=previousY,
