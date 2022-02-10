@@ -1,6 +1,8 @@
+import math
 from tkinter import *
 from patterns.gcode_cmd import GCodeCmd
 from gui.pattern_model import PatternModel
+from logger import log
 
 class PatternPlotter:
 
@@ -52,9 +54,15 @@ class PatternPlotter:
         self.addPattern(pattern)
 
     def addPattern(self, pattern:PatternModel):
+        print("\n\nNew Pattern id: " + str(pattern.id))
         self.removePatternFromCanvas(pattern)
-        result, commands = pattern.getGcode(0, 0, 0, 0)
+        overrunStart = self.cv.placedPatternsMenu.overrunStartText.getNumberInput()
+        overrunEnd = self.cv.placedPatternsMenu.overrunEndText.getNumberInput()
+        printOverrun = self.cv.placedPatternsMenu.printOverrunStartText.getNumberInput()
+        result, commands, e = pattern.getGcode(workHeight=0, freeMoveHeight=0,
+          overrunStart=overrunStart, overrunEnd=overrunEnd, printOverrun=printOverrun)
         color = "blue"
+        overruncolor = "orange"
         width = 1
         #Change color to red if selected
         if not self.selectedPattern is None:
@@ -63,14 +71,20 @@ class PatternPlotter:
 
         shapes = []
         for cmd in commands:
+            cmd.print()
             s = []
-            if(cmd.prefix == "G1"):
+            col = overruncolor if cmd.isOverrun else color
+            if(cmd.isOverrun or cmd.prefix == "G1"):
+                if math.isnan(cmd.x) and cmd.isOverrun:
+                    log("Invalid overrun detected")
+                    cmd.print()
+                    continue
                 p1x, p1y = self.cv.P(cmd.previousX, cmd.previousY)
                 p2x, p2y = self.cv.P(cmd.x, cmd.y)
-                s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=color, width=width)
+                s = self.canvas.create_line(p1x,p1y,p2x,p2y, fill=col, width=width)
 
             if cmd.prefix == "G02" or cmd.prefix == "G03":
-                s = self.computeArc(cmd, color, width)
+                s = self.computeArc(cmd, col, width)
 
             shapes.append(s)
 

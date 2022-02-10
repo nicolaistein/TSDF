@@ -8,8 +8,9 @@ class GCodeCmd:
 
     def __init__(self, prefix:str, x:float, y:float,
          z:float=None, i:float=None, j:float=None, e:float=None, f:float=None,
-          arcDegrees:int=None, previousX:float=0.0, previousY=0.0):
+          arcDegrees:int=None, previousX:float=0.0, previousY=0.0, isOverrun:bool=False):
         self.prefix = prefix
+        self.isOverrun = isOverrun
         self.x = x
         self.y = y
         self.z = z
@@ -24,7 +25,7 @@ class GCodeCmd:
     def toPoints(self, shouldLog:bool=False):
         if shouldLog: log("toPoints prevX: " + str(self.previousX) + ", prevY: " + str(self.previousY) + ", x: " + str(self.x) + ", y: " + str(self.y))
         """Returns a list of lines represented with starting and ending points"""
-        if self.prefix == "G1":
+        if self.prefix == "G1" or self.isOverrun:
             if self.previousX != self.x or self.previousY != self.y:
                 if shouldLog: log(self.prefix + ": " + str([[self.previousX, self.previousY], [self.x, self.y]]))
                 return [[self.previousX, self.previousY], [self.x, self.y]]
@@ -60,5 +61,6 @@ class GCodeCmd:
         return []
 
     def print(self):
-        print("GCodeCMD " + self.prefix + ": x=" + str(self.x) + "  y=" + str(self.y)
-        + "  prevX=" + str(self.previousX) + "  prevY=" + str(self.previousY))
+        z = "nan" if self.z is None else str(self.z) 
+        print("GCodeCMD " + self.prefix + ": x=" + str(round(self.x, 2)) + "  y=" + str(round(self.y, 2)) + " z=" + z + 
+          "  prevX=" + str(round(self.previousX, 2)) + "  prevY=" + str(round(self.previousY, 2)))

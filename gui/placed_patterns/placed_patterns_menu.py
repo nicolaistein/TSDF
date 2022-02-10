@@ -54,6 +54,12 @@ class PlacedPatternsMenu:
         pat.build()
         pat.checkBoundaries()
 
+    def getOverruns(self):
+        overrunStart = self.overrunStartText.getNumberInput()
+        overrunEnd = self.overrunEndText.getNumberInput()
+        printOverrun = self.printOverrunStartText.getNumberInput()
+        return overrunStart, overrunEnd, printOverrun
+
     def generateGCode(self):
         if len(self.placedPatternItems) == 0: return
         filename = askdirectory()
@@ -64,14 +70,15 @@ class PlacedPatternsMenu:
         freeMoveHeight = self.freeMoveHeightText.getNumberInput()
         eFactor = self.eFactorText.getNumberInput()
         fFactor = self.fFactorText.getNumberInput()
-        overrunStart = self.overrunStartText.getNumberInput()
-        overrunEnd = self.overrunEndText.getNumberInput()
+        overrunStart, overrunEnd, printOverrun = self.getOverruns()
 
         file.write("G90\n")
         file.write("G0 Z" + str(freeMoveHeight) + " F" + str(fFactor) + "\n\n")
+        currentE = 0
         for pattern in self.placedPatternItems.keys():
-            result, commands = pattern.getGcode(workHeight,freeMoveHeight,
-             eFactor, fFactor, overrunStart, overrunEnd)
+            result, commands, e = pattern.getGcode(workHeight,freeMoveHeight,
+              eFactor, currentE, fFactor, overrunStart, overrunEnd, printOverrun)
+            currentE += e
             file.write(result)
             file.write("\n")
         file.close()
@@ -102,12 +109,12 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = ListView(self.content, 310, 670).build()
+        self.innerContent = ListView(self.content, 310, 640).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=170, pady=20)
+        generationFrame = Frame(self.mainFrame, width=323, height=200, pady=20)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
         InputFrame1 = Frame(inputParentFrame)
@@ -120,10 +127,15 @@ class PlacedPatternsMenu:
         self.fFactorText = self.getKeyValueFrame(InputFrame2, "F Value", "250", padx=True)
         InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
         
-        InputFrame2 = Frame(inputParentFrame)
-        self.overrunStartText = self.getKeyValueFrame(InputFrame2, "Overrun Start", "2")
-        self.overrunEndText = self.getKeyValueFrame(InputFrame2, "Overrun End", "1", padx=True)
-        InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
+        InputFrame3 = Frame(inputParentFrame)
+        self.overrunStartText = self.getKeyValueFrame(InputFrame3, "Overrun Start", "2")
+        self.overrunEndText = self.getKeyValueFrame(InputFrame3, "Overrun End", "1", padx=True)
+        InputFrame3.pack(side=TOP, anchor=W, pady=(5,0))
+        inputParentFrame.pack(side=TOP, padx=(20,20))
+        
+        InputFrame3 = Frame(inputParentFrame)
+        self.printOverrunStartText = self.getKeyValueFrame(InputFrame3, "Print-overrun", "1")
+        InputFrame3.pack(side=TOP, anchor=W, pady=(5,0))
         inputParentFrame.pack(side=TOP, padx=(20,20))
 
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,

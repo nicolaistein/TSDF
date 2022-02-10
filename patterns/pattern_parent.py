@@ -8,7 +8,8 @@ from logger import log
 
 class PatternParent:
     def __init__(self, values: Mapping, workHeight:float, freeMoveHeight:float, 
-                eFactor:float, fValue:float, overrunStart:float, overrunEnd:float,
+                eFactor:float, eFactorStart:float, fValue:float, overrunStart:float, overrunEnd:float,
+                printOverrun:float, 
                 startX: float, startY: float, rotation:float):
         self.values = values
         self.workheight = workHeight
@@ -19,9 +20,10 @@ class PatternParent:
         self.startY = startY
         self.overrunStart = overrunStart
         self.overrunEnd = overrunEnd
+        self.printOverrun = printOverrun
         self.currentX = 0
         self.currentY = 0
-        self.currentE = 0
+        self.currentE = eFactorStart
 
         rotation = -1 * rotation * math.pi / 180
         self.rotationMatrix =   np.array(   [[math.cos(rotation), math.sin(rotation) * -1], 
@@ -100,8 +102,8 @@ class PatternParent:
  #               log("vec: " + str(vec))
                 self.result.insert(-1,"G0 X" + str(previousX-vec[0]) + " Y" + str(previousY-vec[1]) + " F250.0")
                 self.result.append("G0 X" + str(previousX) + " Y" + str(previousY) + " F250.0")
-                self.commands.insert(-1, GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY))
-                self.commands.append(GCodeCmd("G0", x=previousX, y=previousY, previousX=previousX-vec[0], previousY=previousY-vec[1]))
+                self.commands.insert(-1, GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
+                self.commands.append(GCodeCmd("G0", x=previousX, y=previousY, previousX=previousX-vec[0], previousY=previousY-vec[1], isOverrun=True))
                 self.commands[-2].x -= vec[0]
                 self.commands[-2].y -= vec[1]
                 split = self.result[-2].split(" ")
@@ -124,7 +126,7 @@ class PatternParent:
                 vec = (endVector / np.linalg.norm(endVector)) * self.overrunEnd
                 self.add("G0 X" + str(previousX-vec[0]) + " Y" + str(previousY-vec[1]) + " F250.0")
 #                log("vec: " + str(vec))
-                self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY))
+                self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
                 xRot -= vec[0]
                 yRot -= vec[1]
                 previousX -= vec[0]
