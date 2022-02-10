@@ -60,8 +60,7 @@ class PlacedPatternsItem:
 
     def toPoints(self):
         overrunStart, overrunEnd, printOverrun = self.menu.getOverruns()
-        _, commands, _ = self.pattern.getGcode(0, 1, 1, 0, 1,
-         overrunStart=overrunStart, overrunEnd=overrunEnd, printOverrun=printOverrun)
+        _, commands, _ = self.pattern.getGcode(overrunStart=overrunStart, overrunEnd=overrunEnd, printOverrun=printOverrun)
         result = []
         for index, c in enumerate(commands):
             result.extend(c.toPoints())

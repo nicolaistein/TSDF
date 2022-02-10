@@ -33,20 +33,18 @@ class PatternParent:
     def getCmdParam(self, label: str, val: float):
         return " " + label + str(round(val, 2)) if val is not None else ""
 
+    def getResult(self):
+        res = ""
+        for cmd in self.commands:
+            cmdString, e = cmd.toGCode(self.eFactor, self.currentE, self.fValue)
+            res += cmdString + "\n"
+            self.currentE = e
+
+        return res
+
     def reset(self):
         self.result = []
         self.commands = []
-
-    def add(self, cmd: str):
-        self.result.append(cmd)
-
-    def getDistance(self, prevX:float=None, prevY:float=None, x:float=None, y:float=None,
-      i:float=None, j:float=None, arcDegrees:int=None):
-      if arcDegrees is None:
-          return np.linalg.norm([x-prevX, y-prevY])
-      else:
-          radius = np.linalg.norm([i, j])
-          return (2*math.pi*radius) * (arcDegrees/360)
 
 
     def addCmd(self, prefix: str, x:float=None, y:float=None, z:float=None,
@@ -82,40 +80,23 @@ class PatternParent:
 
             i = iAbsNew - xRot
             j = jAbsNew - yRot
-        
-
-
 
 
         if printing and len(self.commands) != 0 and self.commands[-1].z is not None:
-#            log("start overrun check1")
-#            log("overrunStart: " + str(self.overrunStart))
-#            log("last z: " + str(self.commands[-1].z))
-#            log("workheight: " + str(self.commands[-1].z))
             if self.commands[-1].z == self.workheight and self.overrunStart != 0:
  #               log("adding start overrun")
                 startVector = subtract([xRot, yRot], [previousX, previousY])
  #               log("[x, y]: " + str([xRot, yRot]))
  #               log("[previousX, previousY]: " + str([previousX, previousY]))
- #               log("startVector: " + str(startVector))
                 vec = (startVector / np.linalg.norm(startVector)) * self.overrunStart
- #               log("vec: " + str(vec))
-                self.result.insert(-1,"G0 X" + str(previousX-vec[0]) + " Y" + str(previousY-vec[1]) + " F250.0")
-                self.result.append("G0 X" + str(previousX) + " Y" + str(previousY) + " F250.0")
-                self.commands.insert(-1, GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
-                self.commands.append(GCodeCmd("G0", x=previousX, y=previousY, previousX=previousX-vec[0], previousY=previousY-vec[1], isOverrun=True))
+                self.commands.insert(-1, GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1],
+                  previousX=previousX, previousY=previousY, isOverrun=True, moving=True))
+
+                self.commands.append(GCodeCmd("G0", x=previousX, y=previousY, previousX=previousX-vec[0],
+                  previousY=previousY-vec[1], isOverrun=True, moving=True))
+
                 self.commands[-2].x -= vec[0]
                 self.commands[-2].y -= vec[1]
-                split = self.result[-2].split(" ")
-                self.result[-2] = ""
-                for x in split:
-                    if x.startswith("X"):
-                        self.result[-2] += "X" + str(self.commands[-2].x) + " "
-                    elif x.startswith("Y"):
-                        self.result[-2] += "Y" + str(self.commands[-2].y) + " "
-                    else:
-                        self.result[-2] += x + " "
-                self.result[-2] += "\n"
 
 
         if z is not None and len(self.commands) != 0:
@@ -124,33 +105,15 @@ class PatternParent:
                 oldCmd = self.commands[-1]
                 endVector = subtract([oldCmd.previousX, oldCmd.previousY], [oldCmd.x, oldCmd.y])
                 vec = (endVector / np.linalg.norm(endVector)) * self.overrunEnd
-                self.add("G0 X" + str(previousX-vec[0]) + " Y" + str(previousY-vec[1]) + " F250.0")
-#                log("vec: " + str(vec))
                 self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
                 xRot -= vec[0]
                 yRot -= vec[1]
                 previousX -= vec[0]
                 previousY -= vec[1]
 
-        cmd: str = ""
-        cmd += self.getCmdParam("X", xRot)
-        cmd += self.getCmdParam("Y", yRot)
-        cmd += self.getCmdParam("Z", z)
-        cmd += self.getCmdParam("I", i)
-        cmd += self.getCmdParam("J", j)
-        if printing:
-            distance = self.getDistance(prevX=previousX, prevY=previousY, x=xRot, y=yRot, i=i, j=j, arcDegrees=arcDegrees)
-            self.currentE -= distance * self.eFactor
-            cmd += self.getCmdParam("E", self.currentE)
-
-        if moving:
-            cmd += self.getCmdParam("F", self.fValue)
-
-
-        if(cmd):
-            self.add(prefix + cmd)
-            self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
-                arcDegrees=arcDegrees, previousX=previousX, previousY=previousY))
+        self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
+            arcDegrees=arcDegrees, previousX=previousX, previousY=previousY,
+              printing=printing, moving=moving))
 
     #Set position in plane
     def setCurrentPosition(self, x=None, y=None):

@@ -52,6 +52,6 @@ class Pattern(PatternParent):
 
         self.freeMoveHeight()
 
-        return "\n".join(self.result), self.commands, self.currentE
+        return self.getResult(), self.commands, self.currentE
 
 

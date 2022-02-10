@@ -44,4 +44,4 @@ class Pattern(PatternParent):
         self.printTo(x=0)
         self.freeMoveHeight()
 
-        return "\n".join(self.result), self.commands, self.currentE
+        return self.getResult(), self.commands, self.currentE

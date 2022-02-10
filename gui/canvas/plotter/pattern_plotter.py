@@ -59,8 +59,8 @@ class PatternPlotter:
         overrunStart = self.cv.placedPatternsMenu.overrunStartText.getNumberInput()
         overrunEnd = self.cv.placedPatternsMenu.overrunEndText.getNumberInput()
         printOverrun = self.cv.placedPatternsMenu.printOverrunStartText.getNumberInput()
-        result, commands, e = pattern.getGcode(workHeight=0, freeMoveHeight=0,
-          overrunStart=overrunStart, overrunEnd=overrunEnd, printOverrun=printOverrun)
+        result, commands, e = pattern.getGcode(overrunStart=overrunStart,
+          overrunEnd=overrunEnd, printOverrun=printOverrun)
         color = "blue"
         overruncolor = "orange"
         width = 1

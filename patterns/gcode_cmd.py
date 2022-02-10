@@ -8,7 +8,8 @@ class GCodeCmd:
 
     def __init__(self, prefix:str, x:float, y:float,
          z:float=None, i:float=None, j:float=None, e:float=None, f:float=None,
-          arcDegrees:int=None, previousX:float=0.0, previousY=0.0, isOverrun:bool=False):
+          arcDegrees:int=None, previousX:float=0.0, previousY=0.0, isOverrun:bool=False,
+          moving:bool=False, printing:bool=False):
         self.prefix = prefix
         self.isOverrun = isOverrun
         self.x = x
@@ -18,9 +19,41 @@ class GCodeCmd:
         self.j = j
         self.e = e
         self.f = f
+        self.moving = moving
+        self.printing = printing
         self.arcDegrees = arcDegrees
         self.previousX = previousX
         self.previousY = previousY
+
+    def getCmdParam(self, label: str, val: float):
+        return " " + label + str(round(val, 2)) if val is not None else ""
+
+    def getDistance(self, prevX:float=None, prevY:float=None, x:float=None, y:float=None,
+      i:float=None, j:float=None, arcDegrees:int=None):
+      if arcDegrees is None:
+          return np.linalg.norm([x-prevX, y-prevY])
+      else:
+          radius = np.linalg.norm([i, j])
+          return (2*math.pi*radius) * (arcDegrees/360)
+
+    def toGCode(self, eFactor, currentE, fValue):
+        cmd = self.prefix
+        cmd += self.getCmdParam("X", self.x)
+        cmd += self.getCmdParam("Y", self.y)
+        cmd += self.getCmdParam("Z", self.z)
+        cmd += self.getCmdParam("I", self.i)
+        cmd += self.getCmdParam("J", self.j)
+        if self.printing:
+            distance = self.getDistance(prevX=self.previousX, prevY=self.previousY,
+              x=self.x, y=self.y, i=self.i, j=self.j, arcDegrees=self.arcDegrees)
+            currentE -= distance * eFactor
+            cmd += self.getCmdParam("E", currentE)
+
+        if self.moving:
+            cmd += self.getCmdParam("F", fValue)
+
+        return cmd, currentE
+
 
     def toPoints(self, shouldLog:bool=False):
         if shouldLog: log("toPoints prevX: " + str(self.previousX) + ", prevY: " + str(self.previousY) + ", x: " + str(self.x) + ", y: " + str(self.y))
