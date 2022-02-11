@@ -27,7 +27,7 @@ class Charts:
 #        self.plotCurrentFeatureDistance()
 
         self.expand_charts()
-        self.plotCurrentCharts()
+#        self.plotCurrentCharts()
 
         self.fixUnchartedFaces()
 #        self.plotCurrentCharts()
@@ -59,7 +59,7 @@ class Charts:
 
     def removeChart(self, chart:int):
 #        if chart != 696: return
-        log("Removing chart " + str(chart))
+#        log("Removing chart " + str(chart))
         chartsBefore = self.getCharts()
 
         # chart => number of faces of this chart that are next to the currentChart
@@ -91,8 +91,8 @@ class Charts:
 
         maxValue = min(v)
         largestNeighborId = k[v.index(maxValue)]
-        log("max: " + str(maxValue))
-        log("largestNeighborId: " + str(largestNeighborId))
+#        log("max: " + str(maxValue))
+#        log("largestNeighborId: " + str(largestNeighborId))
         for index, val in enumerate(self.charts):
             if val == chart: self.charts[index] = largestNeighborId
 
@@ -105,8 +105,8 @@ class Charts:
                 diff[key] = val
             elif chartsAfter[key] != val:
                 diff[key] = chartsAfter[key]-val
-        log("Charts after: " + str(chartsAfter))
-        log("Differences: " + str(diff))
+#        log("Charts after: " + str(chartsAfter))
+#        log("Differences: " + str(diff))
 
         return largestNeighborId
 
@@ -117,7 +117,7 @@ class Charts:
             if val == chart or chart == -1: 
                 res += faceToArea(self.parser.faces[index], self.parser.vertices)
 
-        log("chart: " + str(chart) + " => " + str(res))
+    #    log("chart: " + str(chart) + " => " + str(res))
         return res
 
     def removeSmallChartsNew(self):
@@ -127,7 +127,7 @@ class Charts:
 
 #        min = len(self.parser.faces)*minChartSizeFactor
         min = self.getAreaOfChart(-1)*minChartSizeFactor
-        log("removeSmallCharts min: " + str(min))
+#        log("removeSmallCharts min: " + str(min))
 
         chartAreas = {}
         for key, val in ch.items():
@@ -135,7 +135,7 @@ class Charts:
             chartAreas[key] = area
 
         sortedCharts = {k: v for k, v in sorted(chartAreas.items(), key=lambda item: item[1])}
-        log("sortedCharts: " + str(sortedCharts))
+#        log("sortedCharts: " + str(sortedCharts))
 
         while True:
             if len(self.getCharts()) <= self.maxChartCount: break
@@ -153,7 +153,7 @@ class Charts:
 
 #        min = len(self.parser.faces)*minChartSizeFactor
         min = self.getAreaOfChart(-1)*minChartSizeFactor
-        log("removeSmallCharts min: " + str(min))
+#        log("removeSmallCharts min: " + str(min))
         toRemove = []
         for key, val in ch.items():
             area = self.getAreaOfChart(key)
@@ -163,7 +163,7 @@ class Charts:
         
         sortedRemove = sorted(toRemove, key=lambda tup: tup[1])
 
-        log("toRemove: " + str(sortedRemove))
+#        log("toRemove: " + str(sortedRemove))
 
         for chart, _ in sortedRemove:
             self.removeChart(chart)
@@ -189,7 +189,7 @@ class Charts:
 #        neighborSODs = {}
         nextLoop = True
         while(nextLoop):
-            log("entering next mainLoop")
+#            log("entering next mainLoop")
             nextLoop = False
             #Compute avg SOD of all neighbors
             charts = self.getCharts()
@@ -200,11 +200,11 @@ class Charts:
                     if c != c2:
                         sod = self.getNeighborSOD(c, c2)
                         if not math.isnan(sod):
-                            log("sod: " + str(sod) + ", mergingUpToSOD: " + str(mergingUpToSOD))
+ #                           log("sod: " + str(sod) + ", mergingUpToSOD: " + str(mergingUpToSOD))
                             if sod < mergingUpToSOD:
                                 self.merge(c, c2)
                                 nextLoop = True
-                                log("Merging " + str(c) + " and " + str(c2))
+#                                log("Merging " + str(c) + " and " + str(c2))
 
 
             # When somewhere below mergingUpToSOD
@@ -329,11 +329,13 @@ class Charts:
         
 
         self.epsilon = self.maxDistance * epsilonFactor
+        
+
         log("local maxima: " + str(len(self.localMaxima)))
-        log("while loop end")
-        log("handled faces: " + str(handledFaces))
-        log("faceCount: " + str(faceCount))
-        log("current feature distance length: " + str(len(self.currentFeatureDistance)))
+    #    log("while loop end")
+    #    log("handled faces: " + str(handledFaces))
+    #    log("faceCount: " + str(faceCount))
+    #    log("current feature distance length: " + str(len(self.currentFeatureDistance)))
 
         # Fix not reachable faces
         repeat = False
@@ -354,7 +356,7 @@ class Charts:
                     if len(total) != 0:
                         self.featureDistances[key] = int(round(sum(total) / len(total)))
                     else:
-                        log("Repeat = True")
+ #                       log("Repeat = True")
                         repeat = True
             
             if not repeat: break
@@ -420,6 +422,7 @@ class Charts:
        
     #    foreach facet F where dist(F ) is a local maximum
     #    for index, (face, val) in enumerate(sortedFaces.items()):
+
         for index, face in enumerate(self.localMaxima):
             if index >= localMaximumSeedCount: break
     #        create a new chart with seed F
@@ -435,9 +438,9 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
     #    end // foreach
-        self.plotCurrentCharts()
-        log("initial charts")
-        print(self.getCharts())
+    #    self.plotCurrentCharts()
+    #    log("initial charts")
+    #    print(self.getCharts())
         counter = 0
     #   #Charts-growing phase
     #   while(Heap is not empty)
@@ -527,7 +530,7 @@ class Charts:
     def merge(self, c1:int, c2:int):
         chart1 = self.chartOf(c1)
         chart2 = self.chartOf(c2)
-        log("Merge " + str(chart1) + " - " + str(chart2))
+#        log("Merge " + str(chart1) + " - " + str(chart2))
         for index, val in enumerate(self.charts):
             if val == chart2: self.charts[index] = chart1
 

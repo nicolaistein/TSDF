@@ -46,6 +46,8 @@ class GCodeCmd:
         if self.printing:
             distance = self.getDistance(prevX=self.previousX, prevY=self.previousY,
               x=self.x, y=self.y, i=self.i, j=self.j, arcDegrees=self.arcDegrees)
+    
+
             currentE -= distance * eFactor
             cmd += self.getCmdParam("E", currentE)
 

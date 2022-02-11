@@ -120,7 +120,16 @@ class PlottingOptionCalculator:
         totalArea = sum(list(allAreas.values()))
 
         for index, faceAfter in enumerate(self.facesAfter):
-            self.distortions[index] = self.getDistortion(self.facesBefore[index], faceAfter)
+            
+            try:
+                dist = self.getDistortion(self.facesBefore[index], faceAfter)
+                if math.isnan(dist) or math.isinf(dist):
+                    dist = 1000
+            except Exception as e:
+                dist = 1000
+
+            self.distortions[index] = dist
+
             if index % 2000 == 0 and index > 0: log(str(round(100*index/len(self.facesAfter), 2))
                 + "% (" + str(index) + "/" + str(len(self.facesAfter)) + ")")
 

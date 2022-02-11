@@ -30,6 +30,9 @@ class Features:
 
     def computeFeatures(self):
         relevantFeatures = self.getInitialFeatures()
+        #Just for error safety
+        if len(relevantFeatures) == 0:
+            relevantFeatures.append(0)
         log("relevant feature size: " + str(len(relevantFeatures)))
         self.marked_features = array.array('i',(False,)*self.parser.edgeCount)
         self.marked_feature_neighbors = array.array('i',(False,)*self.parser.edgeCount)
@@ -57,7 +60,7 @@ class Features:
             if index >= featureCount: break
             features[key] = value
         
-        return features.keys()
+        return list(features.keys())
 
     def sharpness(self, s:List[int]):
         sum = 0

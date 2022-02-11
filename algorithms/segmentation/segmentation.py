@@ -17,23 +17,31 @@ from logger import log
 folder = "segmentation_results"
 
 class Segmenter:
-    faces = []
-    vertices = []
-    parser = None
+
+    
+    def __init__(self):
+        self.faces = []
+        self.vertices = []
+        self.parser = None
+        self.computedFeatures = None
 
     def parse(self, vertices, faces):
             self.faces = faces
             self.vertices = vertices
             self.parser = SegmentationParser()
             self.parser.parse(self.vertices, self.faces, True)
+            self.computedFeatures = None
 
     def compute(self, vertices, faces, chartCount:int, targetFolder:str=None):
         if self.faces is not faces and self.vertices is not vertices:
             self.parse(vertices, faces)
+
+        if self.computedFeatures == None:
             self.computedFeatures = Features(self.parser).computeFeatures()
         
         self.charts = Charts(self.parser, chartCount)
         faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
+        self.charts.plotCurrentCharts()
         self.clearFolder(targetFolder)
         for x in chartKeys:
             self.extract(faceToChart, x, targetFolder)
@@ -62,7 +70,7 @@ class Segmenter:
         if os.path.isdir(folderName):
             shutil.rmtree(folderName)
 
-        os.mkdir(folder)
+        os.mkdir(folderName)
 
 
     def extract(self, faceToChart, key, folderName:str=None):

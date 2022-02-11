@@ -41,7 +41,6 @@ class PlacedPatternsMenu:
         self.canvasManager.patternPlotter.refreshPattern(pattern)
         self.placedPatternItems[pattern].refreshValues()
         self.placedPatternItems[pattern].checkBoundaries()
-#        self.build()
 
     def edit(self, patternItem:PlacedPatternsItem):
         PatternInputWindow(self.mainFrame, patternItem.pattern, patternItem.onEdit,
@@ -78,7 +77,7 @@ class PlacedPatternsMenu:
         for pattern in self.placedPatternItems.keys():
             result, commands, e = pattern.getGcode(workHeight,freeMoveHeight,
               eFactor, currentE, fFactor, overrunStart, overrunEnd, printOverrun)
-            currentE += e
+            currentE = e
             file.write(result)
             file.write("\n")
         file.close()
@@ -141,8 +140,6 @@ class PlacedPatternsMenu:
 
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
                             corner_radius=60, height=25, width=160).pack(side=TOP, pady=(15, 0))
-#        TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
-#                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(10, 0))
 
         generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

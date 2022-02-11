@@ -117,14 +117,28 @@ class Mesh3DPlotter:
                     self.chartToColor[val] = "#ffffff"
 
         colors = [self.defaultColor]*len(self.faces)
-        for index, x in enumerate(self.charts): 
-            color = self.chartToColor[x] + "ff"
-            colors[index] = color
+
+        if len(self.chartList) != 0:
+            for index, x in enumerate(self.charts): 
+                color = self.chartToColor[x] + "ff"
+                colors[index] = color
             
         self.faceColors = colors
-
         return colors
 
+    def plotAutomaticMode(self, vertices, faces, charts):
+        self.vertices = vertices
+        self.faces = faces
+        self.chartList = []
+        self.charts = charts
+        for val in charts:
+            if val not in self.chartList:
+                self.chartList.append(val)
+        log("chartList: " + str(self.chartList))
+        self.selectedChart = -1
+        self.refreshColors()
+        self.show()
+        
 
     def plotFile(self, vertices, faces):
         self.vertices = vertices
@@ -142,8 +156,8 @@ class Mesh3DPlotter:
 #        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
         self.chartCount = self.chartCountInput.getNumberInput()
         self.charts, self.chartList = self.segmenter.compute(self.vertices, self.faces, self.chartCount)
-        self.faceColors = self.refreshColors()
         self.selectedChart = -1
+        self.refreshColors()
         self.show()
 
 

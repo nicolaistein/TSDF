@@ -84,7 +84,7 @@ class PatternParent:
 
         #Overrun start
         if printing and len(self.commands) != 0 and self.commands[-1].z is not None:
-            if self.commands[-1].z == self.workheight and self.overrunStart != 0:
+            if self.commands[-1].z == self.workheight and self.overrunStart+self.printOverrun != 0:
                 startVector = subtract([xRot, yRot], [previousX, previousY])
                 norm = np.linalg.norm(startVector)
                 if norm != 0:
@@ -115,7 +115,8 @@ class PatternParent:
                 norm = np.linalg.norm(endVector)
                 if norm != 0:
                     vec = (endVector / norm) * self.overrunEnd
-                    self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1], previousX=previousX, previousY=previousY, isOverrun=True))
+                    self.commands.append(GCodeCmd("G0", x=previousX-vec[0], y=previousY-vec[1],
+                     previousX=previousX, previousY=previousY, isOverrun=True, moving=True))
                     xRot -= vec[0]
                     yRot -= vec[1]
                     previousX -= vec[0]

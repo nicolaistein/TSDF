@@ -1,6 +1,7 @@
 from functools import partial
 from pyclbr import Function
 from tkinter import *
+import gui.mesh3dplotter.mesh3dplotter as plotter
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
@@ -9,6 +10,7 @@ from gui.left_side_menu.computation_info import ComputationInfo
 from gui.numeric_text import NumericText
 from algorithms.segmentation.segmentation import folder
 from gui.left_side_menu.mode.computation_mode import ComputationMode
+from gui.left_side_menu.algorithm.automator import Automator
 import os
 from logger import log
 
@@ -25,11 +27,12 @@ class AlgorithmMenu:
     ]
 
     def __init__(self, master: Frame, canvasManager: CanvasManager,
-     fileMenu:FileMenu, compInfo:ComputationInfo, plotter):
+     fileMenu:FileMenu, compInfo:ComputationInfo, plotter:plotter.Mesh3DPlotter):
         self.master = master
         self.canvasManager = canvasManager
         self.fileMenu = fileMenu
         self.compInfo = compInfo
+        self.plotter = plotter
         plotter.refreshChartDistortionInfo = self.onChartSelect
         canvasManager.refreshChartDistortionInfo = self.onChartSelect
         self.v = IntVar()
@@ -49,9 +52,24 @@ class AlgorithmMenu:
         
         self.build()
 
+    def calculateAutomatic(self, file:str):
+        automator = Automator(file)
+        charts, data = automator.calculate()
+    #    print(charts)
+    #    for d in data:
+    #        k, pB, fB, pA, fA = d
+    #        log("chart: " + str(k))
+        self.plotter.plotAutomaticMode(automator.vertices, automator.faces, charts)
+        self.canvasManager.plot(data)
+
+
     def calculate(self):
         file = self.fileMenu.getPath()
         if not file:
+            return
+
+        if self.mode == ComputationMode.AUTOMATIC:
+            self.calculateAutomatic(file)
             return
 
         chosen = self.v.get()
