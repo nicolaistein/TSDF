@@ -13,14 +13,13 @@ class SegmentationAutomator(automator.Automator):
     def calculate(self):
         self.read()
         pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
-        self.calcDistortions(pointsBefore, facesBefore, pointsAfter, facesAfter)
 
         log("chart " + self.folderPath + " angularDist: " + str(self.angularDist))
         log("chart " + self.folderPath + " isometricDist: " + str(self.isometricDist))
         log("chart " + self.folderPath + " max angular dist: " + str(self.maxAngularDist))
         log("chart " + self.folderPath + " max isometric dist: " + str(self.maxIsometricDist))
         #Todo: check overlapping
-        if self.shouldSegment():
+        if self.shouldSegment(pointsAfter, facesAfter):
             faceToChart, data = self.segmentAndProcess()
             return faceToChart, data
         else: 

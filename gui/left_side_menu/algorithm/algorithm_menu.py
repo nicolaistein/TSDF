@@ -11,6 +11,8 @@ from gui.numeric_text import NumericText
 from algorithms.segmentation.segmentation import folder
 from gui.left_side_menu.mode.computation_mode import ComputationMode
 from gui.left_side_menu.algorithm.automator import Automator
+from tkinter import messagebox
+import igl
 import os
 from logger import log
 
@@ -53,14 +55,13 @@ class AlgorithmMenu:
         self.build()
 
     def calculateAutomatic(self, file:str):
+        computeStart = time.time()
         automator = Automator(file)
         charts, data = automator.calculate()
-    #    print(charts)
-    #    for d in data:
-    #        k, pB, fB, pA, fA = d
-    #        log("chart: " + str(k))
+        computeEnd = time.time()
         self.plotter.plotAutomaticMode(automator.vertices, automator.faces, charts)
         self.canvasManager.plot(data)
+        self.compInfo.updateInfo("Automatic", computeEnd-computeStart)
 
 
     def calculate(self):
@@ -99,15 +100,33 @@ class AlgorithmMenu:
         computeStart = time.time()
         results = []
         for key, ch in chartList:
-            res = self.calculateSingleFile(ch, algorithmFunc, chosen==0)
+            
+            root_folder = os.getcwd()
+            v, f = igl.read_triangle_mesh(os.path.join(root_folder, file))
+            bnd = igl.boundary_loop(f)
+            if len(bnd) == 0 and not (chosen == 0 and coneCount >= 3):
+                if chosen == 0: 
+                    messagebox.showerror("Parameterization", "BFF needs at least 3 cones in order to flatten a closed mesh")
+                else:
+                    messagebox.showerror("Parameterization", algoName + " cannot flatten a closed mesh")
+                continue
+            elif coneCount > len(v):
+                messagebox.showerror("Parameterization", "The number of cones for BFF must be lower or equal to the number of vertices of the mesh")
+                continue
+
+
+
+            res = self.calculateSingleFile(ch, algorithmFunc)
             results.append((key,) + res)
         computeEnd = time.time()
 
-        self.canvasManager.plot(results)
-        self.compInfo.updateInfo(algoName, computeEnd-computeStart)
+        if len(results) > 0:
+            self.canvasManager.plot(results)
+            self.compInfo.updateInfo(algoName, computeEnd-computeStart)
 
 
-    def calculateSingleFile(self, file, algorithm:Function, isBFF):
+    def calculateSingleFile(self, file, algorithm:Function):
+        
         time, pointsBefore, facesBefore, pointsAfter, facesAfter = algorithm(file)
         log("file: " + file + ", time: " + str(time) + ", points: " + str(len(pointsAfter)))
         return (pointsBefore, facesBefore, pointsAfter, facesAfter)

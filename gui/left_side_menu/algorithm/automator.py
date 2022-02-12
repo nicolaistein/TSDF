@@ -3,12 +3,15 @@ from io import StringIO
 from subprocess import run
 from tkinter import *
 import shutil
+
+import numpy as np
 from algorithms.algorithms import *
 from algorithms.segmentation.segmentation import Segmenter
 from algorithms.algorithms import *
 from logger import log, Logger, Capturing, RedirectedStdout, capture2
 from gui.canvas.plotting_options.plotting_option import PlottingOption
 from gui.canvas.plotting_options.plotting_option_calculator import PlottingOptionCalculator
+from util import doIntersect
 import os
 import igl
 import sys
@@ -17,16 +20,24 @@ import io
 class Automator:
     basicShapeThreshholdValue:int = 50
     basicShapeThreshholdPercentage:float = 0.95
+
     maxAllowedAngularDistortion = 0.005
-    maxAllowedIsometricDistortion = 0.01
+    maxAllowedIsometricDistortion = 0.02
+
+    angularDistLimitForMaxValue = 0.15
+    isometricDistLimitForMaxValue = 1
+    misometricDistLimitForMaxValue = 1.9
+
     facesThreshhold = 1800
     facesHardThreshhold = 400
-    angularDistLimitForMaxValue = 0.2
-    isometricDistLimitForMaxValue = 1
-    misometricDistLimitForMaxValue = 2
+
+    maxDistortionForChartAmountCalculation = 0.3
     maxChartCountPerSegmentation = 3
-    additionalChartFactor = 1/10
-    maxCharts = 5
+    additionalChartFactor = 1/8
+    maxCharts = 3
+
+
+    #Todo: integrate algoname
 
 
     def __init__(self, filename:str, folderPath:str="automation_results", totalFacesCount:int=None):
@@ -46,31 +57,37 @@ class Automator:
         
         
     def calcDistortions(self, pointsBefore, facesBefore, pointsAfter, facesAfter):
-        angularDistVals, self.angularDist, _ = PlottingOption.LSCM.getOptionCalculator(pointsBefore,
+        angularDistVals, angularDist, _ = PlottingOption.LSCM.getOptionCalculator(pointsBefore,
             facesBefore, pointsAfter, facesAfter, "", 1).getDistortionValues()
-        isometricDistVals, self.isometricDist, _ = PlottingOption.ARAP.getOptionCalculator(pointsBefore,
+        isometricDistVals, isometricDist, _ = PlottingOption.ARAP.getOptionCalculator(pointsBefore,
             facesBefore, pointsAfter, facesAfter, "", 1).getDistortionValues()
-        misometricDistVals, self.misometricDist, _ = PlottingOption.MAX_ISOMETRIC.getOptionCalculator(pointsBefore,
+        misometricDistVals, misometricDist, _ = PlottingOption.MAX_ISOMETRIC.getOptionCalculator(pointsBefore,
             facesBefore, pointsAfter, facesAfter, "", 1).getDistortionValues()
-        self.maxAngularDist = max(angularDistVals.values())
-        self.maxIsometricDist = max(isometricDistVals.values())
-        self.maxmIsometricDist = max(misometricDistVals.values())
+        maxAngularDist = max(angularDistVals.values())
+        maxIsometricDist = max(isometricDistVals.values())
+        maxmIsometricDist = max(misometricDistVals.values())
+
+        return angularDist, maxAngularDist, isometricDist, maxIsometricDist, misometricDist, maxmIsometricDist
 
 
     def calculate(self):
         self.read()
         if self.isBasicShape():
             #Todo: Optimize cone amount
-            _, pointsBefore, facesBefore, pointsAfter, facesAfter = executeBFF(3, self.filename)
+            _, pointsBefore, facesBefore, pointsAfter, facesAfter = executeBFF(self.getOptimalConeCount(), self.filename)
+
+            #Todo: Check distortion
+#            if(dist bad):
+#                return self.segmentAndProcess(True)
+
             return [], [(-1, pointsBefore, facesBefore, pointsAfter, facesAfter)]
 
         else:
             if self.isClosed():
-                faceToChart, data = self.segmentAndProcess(True)
-                return faceToChart, data
+                return self.segmentAndProcess(True)
             else:
                 pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
-                self.calcDistortions(pointsBefore, facesBefore, pointsAfter, facesAfter)
+#                self.calcDistortions(pointsBefore, facesBefore, pointsAfter, facesAfter)
                 log("angularDist: " + str(self.angularDist))
                 log("max angular dist: " + str(self.maxAngularDist))
                 log("isometricDist: " + str(self.isometricDist))
@@ -78,22 +95,59 @@ class Automator:
                 log("MisometricDist: " + str(self.misometricDist))
                 log("max Misometric dist: " + str(self.maxmIsometricDist))
                 #Todo: check overlapping
-                if self.shouldSegment():
-                    faceToChart, data = self.segmentAndProcess()
-                    return faceToChart, data
+                if self.shouldSegment(pointsAfter, facesAfter):
+                    return self.segmentAndProcess()
                 else: 
                     return [], [(-1, pointsBefore, facesBefore, pointsAfter, facesAfter)]
-                    
-    def shouldSegment(self):
+
+    def getOptimalConeCount(self):
+        return 18
+        max = len(self.vertices)
+        current = 30
+        
+        _, pB1, fB1, pA1, fA1 = executeBFF(current, self.filename)
+        (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB1, fB1, pA1, fA1)
+
+
+    def overlaps(self, pointsAfter, facesAfter):
+        log("Checking overlaps")
+        
+        bnd = list(igl.boundary_loop(np.array(facesAfter)))
+#        if len(bnd) > 0:
+#            bnd.append(bnd[0])
+
+        for index1 in range(0, len(bnd)-1):
+            p1 = pointsAfter[bnd[index1]]
+            p2 = pointsAfter[bnd[index1+1]]
+            for index2 in range(index1+2, len(bnd)-1):
+                p3 = pointsAfter[bnd[index2]]
+                p4 = pointsAfter[bnd[index2+1]]
+
+ #               log("doIntersect:")
+ #               log("p1: " + str(p1) + ", p2: " + str(p2))
+ #               log("p3: " + str(p3) + ", p4: " + str(p4))
+                if doIntersect(p1, p2, p3, p4):
+                    log("Overlaps returning True")
+                    return True
+
+        log("Overlaps returning False")
+        return False
+          
+    def shouldSegment(self, pointsAfter, facesAfter):
 #        if len(self.faces) < self.facesHardThreshhold:
 #            return False
-        if (self.maxIsometricDist > self.isometricDistLimitForMaxValue
-         or self.maxAngularDist > self.angularDistLimitForMaxValue
-         or self.maxmIsometricDist > self.misometricDistLimitForMaxValue):
+
+        if self.overlaps(pointsAfter, facesAfter): 
             log("shouldSegment returning True 1")
             return True
 
-        log("shouldSegment returning True 1")
+        if (self.maxIsometricDist > self.isometricDistLimitForMaxValue
+         or self.maxAngularDist > self.angularDistLimitForMaxValue
+         or self.maxmIsometricDist > self.misometricDistLimitForMaxValue):
+            log("shouldSegment returning True 2")
+            return True
+
+        log("shouldSegment returning 3")
         return len(self.faces) >= self.facesThreshhold and (self.angularDist > self.maxAllowedAngularDistortion or
                  self.isometricDist > self.maxAllowedIsometricDistortion)
 
@@ -123,13 +177,12 @@ class Automator:
 
     
     def getDistortionBasedChartCount(self):
-        end = 0.2
         steps = self.maxChartCountPerSegmentation-1
 
         if self.isometricDist is None: return steps+1
 
         for i in range(1, steps+1):
-            if self.isometricDist <= (end/steps)*i: return i+1
+            if self.isometricDist <= (self.maxDistortionForChartAmountCalculation/steps)*i: return i+1
 
         return steps
 
@@ -142,9 +195,8 @@ class Automator:
         if res > self.maxCharts: res = self.maxCharts
         return res
 
-
     def isClosed(self):
-        bnd = igl.boundary_loop(self.faces)
+        bnd = list(igl.boundary_loop(np.array(self.faces)))
         return len(bnd) == 0
 
     def isBasicShape(self):
@@ -165,8 +217,19 @@ class Automator:
         print("Testmsg")
             # do what you have to do to create some output
 #        with capture2() as output:
-        _, pB, fB, pA, fA = executeARAP(self.filename)
-        self.calcDistortions(pB, fB, pA, fA)
+        _, pB1, fB1, pA1, fA1 = executeARAP(self.filename)
+        _, pB2, fB2, pA2, fA2 = executeBFF(0, self.filename)
+
+        (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB1, fB1, pA1, fA1)
+        (aD2, mAD2,iD2, mID2, mmaxID2, mmmaxID2) = self.calcDistortions(pB2, fB2, pA2, fA2)
+
+        if iD1 <= iD2:
+            self.setDistortionValues(aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1)
+            return pB1, fB1, pA1, fA1
+        else:
+            self.setDistortionValues(aD2, mAD2,iD2, mID2, mmaxID2, mmmaxID2)
+            return pB2, fB2, pA2, fA2
+
 
         if self.angularDist > 0.4 or self.isometricDist > 0.4:
         
@@ -184,6 +247,14 @@ class Automator:
 
         return pB, fB, pA, fA
         
+    def setDistortionValues(self, angularDist, maxAngularDist,
+      isometricDist, maxIsometricDist, misometricDist, maxmIsometricDist):
+        self.angularDist = angularDist
+        self.maxAngularDist = maxAngularDist
+        self.isometricDist = isometricDist
+        self.maxIsometricDist = maxIsometricDist
+        self.misometricDist = misometricDist
+        self.maxmIsometricDist = maxmIsometricDist
 
 
 import gui.left_side_menu.algorithm.segmentation_automator as seg_automator
