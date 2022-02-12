@@ -17,24 +17,30 @@ import io
 class Automator:
     basicShapeThreshholdValue:int = 50
     basicShapeThreshholdPercentage:float = 0.95
-    maxAngularDistortion = 0.005
-    maxIsometricDistortion = 0.01
+    maxAllowedAngularDistortion = 0.005
+    maxAllowedIsometricDistortion = 0.01
     facesThreshhold = 1800
-    facesHardThreshhold = 1200
-    angularDistLimitForMaxValue = 5000
-    isometricDistLimitForMaxValue = 5000
+    facesHardThreshhold = 400
+    angularDistLimitForMaxValue = 0.2
+    isometricDistLimitForMaxValue = 1
+    misometricDistLimitForMaxValue = 2
+    maxChartCountPerSegmentation = 3
+    additionalChartFactor = 1/10
+    maxCharts = 5
 
 
-    def __init__(self, filename:str, folderPath:str="automation_results"):
+    def __init__(self, filename:str, folderPath:str="automation_results", totalFacesCount:int=None):
         log("Processing file " + filename)
         self.filename = filename
         self.folderPath = folderPath
         self.logger = Logger()
         self.isometricDist = None
         self.angularDist = None
+        self.totalFacesCount = totalFacesCount
 
     def read(self):
         self.vertices, self.faces = igl.read_triangle_mesh(self.filename)
+        if self.totalFacesCount is None: self.totalFacesCount = len(self.faces)
         self.segmenter = Segmenter()
         self.segmenter.parse(self.vertices, self.faces)
         
@@ -44,8 +50,11 @@ class Automator:
             facesBefore, pointsAfter, facesAfter, "", 1).getDistortionValues()
         isometricDistVals, self.isometricDist, _ = PlottingOption.ARAP.getOptionCalculator(pointsBefore,
             facesBefore, pointsAfter, facesAfter, "", 1).getDistortionValues()
-        self.maxAngularDist = max(angularDistVals)
-        self.maxIsometricDist = max(isometricDistVals)
+        misometricDistVals, self.misometricDist, _ = PlottingOption.MAX_ISOMETRIC.getOptionCalculator(pointsBefore,
+            facesBefore, pointsAfter, facesAfter, "", 1).getDistortionValues()
+        self.maxAngularDist = max(angularDistVals.values())
+        self.maxIsometricDist = max(isometricDistVals.values())
+        self.maxmIsometricDist = max(misometricDistVals.values())
 
 
     def calculate(self):
@@ -63,9 +72,11 @@ class Automator:
                 pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
                 self.calcDistortions(pointsBefore, facesBefore, pointsAfter, facesAfter)
                 log("angularDist: " + str(self.angularDist))
-                log("isometricDist: " + str(self.isometricDist))
                 log("max angular dist: " + str(self.maxAngularDist))
+                log("isometricDist: " + str(self.isometricDist))
                 log("max isometric dist: " + str(self.maxIsometricDist))
+                log("MisometricDist: " + str(self.misometricDist))
+                log("max Misometric dist: " + str(self.maxmIsometricDist))
                 #Todo: check overlapping
                 if self.shouldSegment():
                     faceToChart, data = self.segmentAndProcess()
@@ -74,13 +85,17 @@ class Automator:
                     return [], [(-1, pointsBefore, facesBefore, pointsAfter, facesAfter)]
                     
     def shouldSegment(self):
-        if len(self.faces) < self.facesHardThreshhold:
-            return False
-        if self.maxIsometricDist > self.isometricDistLimitForMaxValue or self.maxAngularDist > self.angularDistLimitForMaxValue:
+#        if len(self.faces) < self.facesHardThreshhold:
+#            return False
+        if (self.maxIsometricDist > self.isometricDistLimitForMaxValue
+         or self.maxAngularDist > self.angularDistLimitForMaxValue
+         or self.maxmIsometricDist > self.misometricDistLimitForMaxValue):
+            log("shouldSegment returning True 1")
             return True
 
-        return len(self.faces) >= self.facesThreshhold and (self.angularDist > self.maxAngularDistortion or
-                 self.isometricDist > self.maxIsometricDistortion)
+        log("shouldSegment returning True 1")
+        return len(self.faces) >= self.facesThreshhold and (self.angularDist > self.maxAllowedAngularDistortion or
+                 self.isometricDist > self.maxAllowedIsometricDistortion)
 
     def segmentAndProcess(self, closed:bool=False):
 #        self.createFolder()
@@ -95,7 +110,7 @@ class Automator:
                     faceMapping[counter] = face
                     counter += 1
 
-            f2C, data = seg_automator.SegmentationAutomator(self.folderPath, key).calculate()
+            f2C, data = seg_automator.SegmentationAutomator(self.folderPath, key, self.totalFacesCount).calculate()
 #            dataList.extend(data)
             for d in data:
                 k, pB, fB, pA, fA = d
@@ -106,17 +121,27 @@ class Automator:
         return faceToChart, dataList
 
 
-
-    def getOptimalChartCount(self, closed:bool=True):
-        #Todo: zwischen 2 und 5
-        #Todo: Je höher der error, desto mehr
+    
+    def getDistortionBasedChartCount(self):
         end = 0.2
-        steps = 3
+        steps = self.maxChartCountPerSegmentation-1
+
         if self.isometricDist is None: return steps+1
+
         for i in range(1, steps+1):
             if self.isometricDist <= (end/steps)*i: return i+1
-        #from 0 to 0.2
+
         return steps
+
+    def getOptimalChartCount(self, closed:bool=True):
+        return 2
+        distCharts = self.getDistortionBasedChartCount()
+        additionalCharts = len(self.faces) // (self.totalFacesCount * self.additionalChartFactor)
+
+        res = distCharts + additionalCharts
+        if res > self.maxCharts: res = self.maxCharts
+        return res
+
 
     def isClosed(self):
         bnd = igl.boundary_loop(self.faces)

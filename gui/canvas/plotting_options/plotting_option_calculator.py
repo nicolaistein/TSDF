@@ -142,6 +142,8 @@ class PlottingOptionCalculator:
             dist2 = self.distortions[index] * weight2
             self.totalDistortionWholeObject += dist2
 
+        log(str(self.option) + " avg dist: " + str(self.totalDistortion))
+        log(str(self.option) + " max dist: " + str(max(self.distortions.values())))
 
         return self.distortions, self.totalDistortion
 

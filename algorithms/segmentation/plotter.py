@@ -2,7 +2,35 @@ from typing import List
 import plotly.graph_objects as go
 import plotly.offline as offline
 import numpy as np
+from logger import log
 
+def removeGrid(fig):
+    fig.update_layout(scene = dict(
+                xaxis = dict(
+                    title="",
+                    tickvals= [],
+                    backgroundcolor="rgb(200, 200, 230)",
+                    gridcolor="white",
+                    showbackground=False,
+                    zerolinecolor="white",),
+                yaxis = dict(
+                    title="",
+                    tickvals= [],
+                    backgroundcolor="rgb(230, 200,230)",
+                    gridcolor="white",
+                    showbackground=False,
+                    zerolinecolor="white"),
+                zaxis = dict(
+                    title="",
+                    tickvals= [],
+                    backgroundcolor="rgb(230, 230,200)",
+                    gridcolor="white",
+                    showbackground=False,
+                    zerolinecolor="white",),),
+                margin=dict(
+                r=10, l=10,
+                b=10, t=10)
+            )
 
 def plotFeatures(vertices:List[List[float]], faces:List[List[int]], coloredVertices:List[int]):
 
@@ -45,7 +73,9 @@ distinctColors = ["#808080", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860
     "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
     "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]
 
-def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartList):
+def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartList, folder:str=None):
+    if folder is None: folder = ""
+    else: folder += "/"
 
     chartToColor = {}
     for index, val in enumerate(chartList):
@@ -62,7 +92,11 @@ def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartL
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', facecolor=colors, opacity=1)])
-    offline.plot(fig, filename='ChartPlot.html')
+    removeGrid(fig)
+
+    name = folder + "ChartPlot.html"
+    log("Creating chart plot name: " + name)
+    offline.plot(fig, filename=name, auto_open=False)
 
 
 def plotFaceColors(vertices:List[List[float]], faces:List[List[int]], colors:List[str]):
@@ -76,33 +110,6 @@ def plotFaceColors(vertices:List[List[float]], faces:List[List[int]], colors:Lis
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', facecolor=colors, opacity=1)])
-
-    if True:
-        fig.update_layout(scene = dict(
-                        xaxis = dict(
-                            title="",
-                            tickvals= [],
-                            backgroundcolor="rgb(200, 200, 230)",
-                            gridcolor="white",
-                            showbackground=False,
-                            zerolinecolor="white",),
-                        yaxis = dict(
-                            title="",
-                            tickvals= [],
-                            backgroundcolor="rgb(230, 200,230)",
-                            gridcolor="white",
-                            showbackground=False,
-                            zerolinecolor="white"),
-                        zaxis = dict(
-                            title="",
-                            tickvals= [],
-                            backgroundcolor="rgb(230, 230,200)",
-                            gridcolor="white",
-                            showbackground=False,
-                            zerolinecolor="white",),),
-                        margin=dict(
-                        r=10, l=10,
-                        b=10, t=10)
-                    )
+    removeGrid(fig)
 
     offline.plot(fig, filename='FaceColorPlot.html')

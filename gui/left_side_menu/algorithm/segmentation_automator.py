@@ -5,10 +5,10 @@ from logger import log
 
 class SegmentationAutomator(automator.Automator):
 
-    def __init__(self, parentFolder:str, chartId:int):
+    def __init__(self, parentFolder:str, chartId:int, totalFacesCount:int=None):
         self.chartId = chartId
         name = parentFolder + "/" + str(chartId)
-        super().__init__(os.getcwd() + "/" + name + ".obj", name)
+        super().__init__(os.getcwd() + "/" + name + ".obj", name, totalFacesCount)
 
     def calculate(self):
         self.read()

@@ -17,9 +17,9 @@ class Charts:
         plotFeatureDistance(self.parser.vertices, self.parser.faces, self.featureDistances)
 
 
-    def plotCurrentCharts(self):
+    def plotCurrentCharts(self, folder:str=None):
         ch = self.getCharts()
-        plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
+        plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys(), folder)
 
     def computeCharts(self, features:List[int]):
         self.features = features
@@ -320,7 +320,7 @@ class Charts:
                     toRemove.append(feature)
     #            else: print("feature was actually expanded")
 
-            if len(toRemove) > 0: log("Removing " + str(len(toRemove)) + " elements")
+    #        if len(toRemove) > 0: log("Removing " + str(len(toRemove)) + " elements")
 
             for f in toRemove:
     #            log("removing " + str(f) + ", lastExpanded: " + str(self.lastExpanded[f]))

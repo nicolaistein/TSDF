@@ -41,8 +41,8 @@ class Segmenter:
         
         self.charts = Charts(self.parser, chartCount)
         faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
-        self.charts.plotCurrentCharts()
         self.clearFolder(targetFolder)
+        self.charts.plotCurrentCharts(targetFolder)
         for x in chartKeys:
             self.extract(faceToChart, x, targetFolder)
         
