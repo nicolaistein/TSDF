@@ -4,6 +4,8 @@ from gui.button import TkinterCustomButton
 from gui.pattern_model import PatternModel
 from gui.canvas.canvas_manager import CanvasManager
 from gui.canvas.plotter.object_plotter import ObjectPlotter
+from threading import Thread
+from time import sleep
 from util import doIntersect
 from logger import log
 
@@ -32,8 +34,8 @@ class PlacedPatternsItem:
         self.menu.edit(self)
 
     def onEdit(self):
+ #       self.checkBoundaries()
         pass
-#        self.checkBoundaries()
 
     def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 80):
         keyValFrame = Frame(parent, bg=self.color,)
@@ -83,6 +85,7 @@ class PlacedPatternsItem:
     def checkBoundaries(self):
         if len(self.canvasManager.objectPlotters) == 0: return
         intersects = self.intersectsWithBoundary()
+
         self.color = self.colorRed if intersects else self.colorBlue
         self.refreshColor()
 #        log("Pattern " + self.pattern.name + " intersects: " + str(intersects))
@@ -110,7 +113,47 @@ class PlacedPatternsItem:
         if len(self.pattern.params) > 0:
             self.paramsLabel.configure(text=self.formatParams())
 
+    def sign(self, p1, p2, p3):
+    
+        return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
+    
+
+    def pointInTriangle(self, pt, v1, v2, v3):
+#        d1, d2, d3
+#        has_neg, has_pos
+
+        d1 = self.sign(pt, v1, v2)
+        d2 = self.sign(pt, v2, v3)
+        d3 = self.sign(pt, v3, v1)
+
+        has_neg = (d1 < 0) or (d2 < 0) or (d3 < 0)
+        has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
+
+        return not (has_neg and has_pos)
+    
+
+
     def intersectsWithBoundary(self):
+        selfPoints = self.toPoints()
+        pointInside = [False] * len(selfPoints)
+
+        for obPlotter in self.canvasManager.objectPlotters:
+            vertices = obPlotter.verticesForExport
+            faces = obPlotter.faces
+            for face in faces:
+                for index, p in enumerate(selfPoints):
+                    if self.pointInTriangle(p, vertices[face[0]], vertices[face[1]], vertices[face[2]]):
+                        pointInside[index] = True
+                        if all(pointInside):
+                            return False
+
+        return True
+        
+        
+
+        
+
+    def intersectsWithBoundary2(self):
         selfPoints = self.toPoints()
         for obPlotter in self.canvasManager.objectPlotters:
  #           log("Checking plotter " + str(obPlotter.id))

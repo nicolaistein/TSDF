@@ -191,12 +191,10 @@ class Charts:
 #        neighborSODs = {}
         nextLoop = True
         while(nextLoop):
-            log("entering next mainLoop")
             nextLoop = False
             #Compute avg SOD of all neighbors
             charts = self.getCharts()
             if len(charts) <= 2: break
-            log("Charts: " + str(charts))
             for c in charts:
                 if nextLoop:continue
                 for c2 in charts:
@@ -204,7 +202,6 @@ class Charts:
                     if c != c2:
                         sod = self.getNeighborSOD(c, c2)
                         if sod != -1:
-                            log("sod: " + str(sod) + ", mergingUpToSOD: " + str(mergingUpToSOD))
                             if sod < mergingUpToSOD:
                                 self.merge(c, c2)
                                 nextLoop = True

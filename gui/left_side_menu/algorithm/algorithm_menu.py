@@ -67,7 +67,6 @@ class AlgorithmMenu:
         self.compInfo.updateInfo("Automatic", computeEnd-computeStart)
 
     def areVerticesValid(self, vertices):
-        log("vertices: " + str(vertices))
         for v in vertices:
             for x in v:
                 if x != 0: return True
@@ -100,7 +99,6 @@ class AlgorithmMenu:
         chartList = []
         if self.fileMenu.plotter.isSegmented():
             folderName = os.getcwd() + "/" + folder
-            log("folderName: " + folderName)
             fileList = os.listdir(folderName)
             for file in fileList:
                 chartKey = int(file.split(".")[0])

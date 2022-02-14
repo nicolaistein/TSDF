@@ -77,12 +77,14 @@ class Automator:
             return self.processSingleTriangle()
 
         if self.isBasicShape():
+            log("Object is a basic shape")
             _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
             (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB, fB, pA, fA)
             self.setDistortionValues(aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1)
             if self.shouldSegment(pA, fA):
                 return self.segmentAndProcess()
             else:
+                log("Object is not a basic shape")
                 return [], [(-1, pB, fB, pA, fA)]
 
         else:
