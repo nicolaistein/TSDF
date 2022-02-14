@@ -1,11 +1,9 @@
-from array import array
-from typing import List
 import numpy as np
 import os
 import igl
 import traceback
 import logging
-from logger import log, Capturing
+from logger import log
 
 
 class ARAP:
@@ -29,18 +27,11 @@ class ARAP:
 
         # Map the boundary to a circle, preserving edge proportions
         bnd_uv = igl.map_vertices_to_circle(v, bnd)
-        try:
-            # Harmonic parametrization for the internal vertices
-            uv = igl.harmonic_weights(v, f, bnd, bnd_uv, 1)
 
+        # Harmonic parametrization for the internal vertices
+        uv = igl.harmonic_weights(v, f, bnd, bnd_uv, 1)
 
-            arap = igl.ARAP(v, f, 2, np.zeros(0))
-            uva = arap.solve(np.zeros((0, 0)), uv)
-
-        
-        except Exception as e:
-            print("ARAP ERROR DETECTED MAJOR")
-            print(str(e))
-            logging.error(traceback.format_exc())
+        arap = igl.ARAP(v, f, 2, np.zeros(0))
+        uva = arap.solve(np.zeros((0, 0)), uv)
 
         return uva

@@ -59,10 +59,21 @@ class AlgorithmMenu:
         automator = Automator(file)
         charts, data = automator.calculate()
         computeEnd = time.time()
+        for shape in data:
+            _, _, _, pointsAfter, _ = shape
+            if not self.areVerticesValid(pointsAfter): return
         self.plotter.plotAutomaticMode(automator.vertices, automator.faces, charts)
         self.canvasManager.plot(data)
         self.compInfo.updateInfo("Automatic", computeEnd-computeStart)
 
+    def areVerticesValid(self, vertices):
+        log("vertices: " + str(vertices))
+        for v in vertices:
+            for x in v:
+                if x != 0: return True
+
+        messagebox.showerror("Parameterization", "Too many cones")
+        return False
 
     def calculate(self):
         file = self.fileMenu.getPath()
@@ -75,6 +86,7 @@ class AlgorithmMenu:
 
         chosen = self.v.get()
         algoName, id = self.algorithms[chosen]
+        coneCount = 0
 
         if(chosen == 0):
             coneCount = self.bffConeInput.getNumberInput()
@@ -88,6 +100,7 @@ class AlgorithmMenu:
         chartList = []
         if self.fileMenu.plotter.isSegmented():
             folderName = os.getcwd() + "/" + folder
+            log("folderName: " + folderName)
             fileList = os.listdir(folderName)
             for file in fileList:
                 chartKey = int(file.split(".")[0])
@@ -102,7 +115,8 @@ class AlgorithmMenu:
         for key, ch in chartList:
             
             root_folder = os.getcwd()
-            v, f = igl.read_triangle_mesh(os.path.join(root_folder, file))
+            log("proccessing " + ch)
+            v, f = igl.read_triangle_mesh(os.path.join(root_folder, ch))
             bnd = igl.boundary_loop(f)
             if len(bnd) == 0 and not (chosen == 0 and coneCount >= 3):
                 if chosen == 0: 
@@ -119,6 +133,10 @@ class AlgorithmMenu:
             res = self.calculateSingleFile(ch, algorithmFunc)
             results.append((key,) + res)
         computeEnd = time.time()
+
+        for shape in results:
+            _, _, _, pointsAfter, _ = shape
+            if not self.areVerticesValid(pointsAfter): return
 
         if len(results) > 0:
             self.canvasManager.plot(results)

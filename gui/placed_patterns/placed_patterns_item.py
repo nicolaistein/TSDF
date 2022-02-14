@@ -120,11 +120,11 @@ class PlacedPatternsItem:
  #           for index, p in enumerate(boundaryPoints):
  #               xP = vertices[p][0]
  #               yP = vertices[p][1]
-
  #               x, y = self.canvasManager.P(xP, yP)
 
-#                log("boundary x y: (" + str(x) + ", " + str(y) + ")")
+ #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
  #               r = 3
+ #
  #               self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
  #               self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
 

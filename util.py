@@ -1,3 +1,4 @@
+import math
 from typing import List
 import numpy as np
 from logger import log
@@ -24,9 +25,11 @@ def faceToArea(face, points):
 
 def angle_between(v1, v2):
     """ Returns the angle in radians between vectors v1 and v2"""
-
-    v1_u = v1 / np.linalg.norm(v1)
-    v2_u = v2 / np.linalg.norm(v2)
+    norm1 = np.linalg.norm(v1)
+    norm2 = np.linalg.norm(v2)
+    if norm1 == 0 or norm2 == 0: return 0
+    v1_u = v1 / norm1
+    v2_u = v2 / norm2
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], shouldLog:bool=False):
@@ -57,18 +60,18 @@ def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], 
             b4 = yVals2[0] >= yVals1[0] and yVals2[0] <=yVals1[1]
 
             if x1 == x3:
-                log("Error1 applicable")
+#                log("Error1 applicable")
 
-            return (b1 or b2 or b3 or b4) and x1 == x3
+                return (b1 or b2 or b3 or b4) and x1 == x3
         
         if (y4-y3) == 0 and (y2-y1) == 0:
             if y1 == y3:
-                log("Error2 applicable")
-            b1 = xVals1[1] >= xVals2[0] and xVals1[1] <=xVals2[1]
-            b2 = xVals1[0] >= xVals2[0] and xVals1[0] <=xVals2[1]
-            b3 = xVals2[1] >= xVals1[0] and xVals2[1] <=xVals1[1]
-            b4 = xVals2[0] >= xVals1[0] and xVals2[0] <=xVals1[1]
-            return (b1 or b2 or b3 or b4) and y1 == y3
+#                log("Error2 applicable")
+                b1 = xVals1[1] >= xVals2[0] and xVals1[1] <=xVals2[1]
+                b2 = xVals1[0] >= xVals2[0] and xVals1[0] <=xVals2[1]
+                b3 = xVals2[1] >= xVals1[0] and xVals2[1] <=xVals1[1]
+                b4 = xVals2[0] >= xVals1[0] and xVals2[0] <=xVals1[1]
+                return (b1 or b2 or b3 or b4) and y1 == y3
 
 #        log("ERROR BOTTOM IS 0")
 #        log("p1: " + str(p1) + ", p2: " + str(p2))
@@ -90,3 +93,21 @@ def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], 
  #       log("p3: " + str(p3) + ", p4: " + str(p4))
  #       log("xInter: " + str(xInter) + ", yInter: " + str(yInter))
     return res
+
+
+
+def getFlatTriangle(x1:List[float], x2:List[float], x3:List[float]):
+    vector1 = np.array(x2)-np.array(x1)
+    vector2 = np.array(x3)-np.array(x1)
+
+    x1New = [0, 0, 1]
+
+    length12 = np.linalg.norm(vector1)
+    x2New = [length12, 0, 1]
+
+    length23 = np.linalg.norm(vector2)
+    angle = angle_between(vector1, vector2)
+
+    x3New = [math.cos(angle) * length23, math.sin(angle) * length23, 1]
+    return x1New, x2New, x3New
+        

@@ -5,6 +5,7 @@ from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from logger import log
+import os
 
 
 class ExportMenu:

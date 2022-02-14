@@ -1,24 +1,20 @@
-from functools import partial
-from io import StringIO
-from subprocess import run
 from tkinter import *
-import shutil
 
 import numpy as np
+from scipy.misc import face
 from algorithms.algorithms import *
 from algorithms.segmentation.segmentation import Segmenter
 from algorithms.algorithms import *
-from logger import log, Logger, Capturing, RedirectedStdout, capture2
+from logger import log
 from gui.canvas.plotting_options.plotting_option import PlottingOption
-from gui.canvas.plotting_options.plotting_option_calculator import PlottingOptionCalculator
-from util import doIntersect
+from util import doIntersect, subtract, angle_between, getFlatTriangle
 import os
 import igl
 import sys
 import io
 
 class Automator:
-    basicShapeThreshholdValue:int = 50
+    basicShapeThreshholdValue:int = 40
     basicShapeThreshholdPercentage:float = 0.95
 
     maxAllowedAngularDistortion = 0.005
@@ -29,12 +25,15 @@ class Automator:
     misometricDistLimitForMaxValue = 1.9
 
     facesThreshhold = 1800
-    facesHardThreshhold = 400
+    facesHardThreshhold = 500
 
     maxDistortionForChartAmountCalculation = 0.3
-    maxChartCountPerSegmentation = 3
+    maxChartCountPerSegmentation = 6
     additionalChartFactor = 1/8
-    maxCharts = 3
+    maxCharts = 5
+
+    minSODForCornerDetection = 0
+    maxConesForBFF = 500
 
 
     #Todo: integrate algoname
@@ -44,7 +43,6 @@ class Automator:
         log("Processing file " + filename)
         self.filename = filename
         self.folderPath = folderPath
-        self.logger = Logger()
         self.isometricDist = None
         self.angularDist = None
         self.totalFacesCount = totalFacesCount
@@ -53,7 +51,10 @@ class Automator:
         self.vertices, self.faces = igl.read_triangle_mesh(self.filename)
         if self.totalFacesCount is None: self.totalFacesCount = len(self.faces)
         self.segmenter = Segmenter()
-        self.segmenter.parse(self.vertices, self.faces)
+        if len(self.faces) > 0 and type(self.faces[0]) is not np.ndarray:
+            self.faces = np.matrix([list(self.faces)]).tolist()
+        else:
+            self.segmenter.parse(self.vertices, self.faces)
         
         
     def calcDistortions(self, pointsBefore, facesBefore, pointsAfter, facesAfter):
@@ -72,15 +73,17 @@ class Automator:
 
     def calculate(self):
         self.read()
+        if len(self.faces) == 1:
+            return self.processSingleTriangle()
+
         if self.isBasicShape():
-            #Todo: Optimize cone amount
-            _, pointsBefore, facesBefore, pointsAfter, facesAfter = executeBFF(self.getOptimalConeCount(), self.filename)
-
-            #Todo: Check distortion
-#            if(dist bad):
-#                return self.segmentAndProcess(True)
-
-            return [], [(-1, pointsBefore, facesBefore, pointsAfter, facesAfter)]
+            _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
+            (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB, fB, pA, fA)
+            self.setDistortionValues(aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1)
+            if self.shouldSegment(pA, fA):
+                return self.segmentAndProcess()
+            else:
+                return [], [(-1, pB, fB, pA, fA)]
 
         else:
             if self.isClosed():
@@ -100,13 +103,52 @@ class Automator:
                 else: 
                     return [], [(-1, pointsBefore, facesBefore, pointsAfter, facesAfter)]
 
-    def getOptimalConeCount(self):
-        return 18
-        max = len(self.vertices)
-        current = 30
+
+    def getEdgesOfVertex(self, vertex):
+        edges = []
+        for e in self.segmenter.parser.mesh.ve(self.segmenter.parser.vertexHandles[vertex]):
+            edges.append(e.idx())
+        return edges
+
+    def getAngleBetweenEdges(self, edge1, edge2, jointVertex):
+        p1, p2 = self.segmenter.parser.edgeToVertices[edge1]
+        p3, p4 = self.segmenter.parser.edgeToVertices[edge2]
         
-        _, pB1, fB1, pA1, fA1 = executeBFF(current, self.filename)
-        (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB1, fB1, pA1, fA1)
+        x1 = p1 if p2 == jointVertex else p2
+        x2 = p3 if p4 == jointVertex else p4
+        vector1 = subtract(self.vertices[x1], self.vertices[jointVertex])
+        vector2 = subtract(self.vertices[x2], self.vertices[jointVertex])
+
+        angle = np.rad2deg(angle_between(vector1, vector2))
+        return angle
+            
+
+    def getOptimalConeCount(self):
+        max = len(self.vertices)
+
+        corners = 0
+        for index, _ in enumerate(self.vertices):
+            edges = self.getEdgesOfVertex(index)
+            relevantEdges = 0
+            bigAngleDetected = False
+            for edge in edges:
+                if bigAngleDetected: continue
+                if self.segmenter.parser.SOD[edge] > self.minSODForCornerDetection:
+                    relevantEdges += 1
+                for e2 in edges:
+                    if edge != e2:
+                        if self.getAngleBetweenEdges(edge, e2, index) > 175:
+                            bigAngleDetected = True
+
+                
+            if relevantEdges >= 3 and not bigAngleDetected:
+                corners += 1
+
+        log("Corners: " + str(corners))
+        if corners > self.maxConesForBFF:
+            corners = self.maxConesForBFF
+
+        return corners
 
 
     def overlaps(self, pointsAfter, facesAfter):
@@ -123,9 +165,6 @@ class Automator:
                 p3 = pointsAfter[bnd[index2]]
                 p4 = pointsAfter[bnd[index2+1]]
 
- #               log("doIntersect:")
- #               log("p1: " + str(p1) + ", p2: " + str(p2))
- #               log("p3: " + str(p3) + ", p4: " + str(p4))
                 if doIntersect(p1, p2, p3, p4):
                     log("Overlaps returning True")
                     return True
@@ -134,6 +173,8 @@ class Automator:
         return False
           
     def shouldSegment(self, pointsAfter, facesAfter):
+        log("shouldSeg faces length: " + str(len(self.faces)))
+        if len(self.faces) <= 2: return False
 #        if len(self.faces) < self.facesHardThreshhold:
 #            return False
 
@@ -152,7 +193,6 @@ class Automator:
                  self.isometricDist > self.maxAllowedIsometricDistortion)
 
     def segmentAndProcess(self, closed:bool=False):
-#        self.createFolder()
         faceToChart, chartKeys = self.segmenter.compute(self.vertices,
           self.faces, self.getOptimalChartCount(closed), self.folderPath)
         dataList = []
@@ -165,7 +205,6 @@ class Automator:
                     counter += 1
 
             f2C, data = seg_automator.SegmentationAutomator(self.folderPath, key, self.totalFacesCount).calculate()
-#            dataList.extend(data)
             for d in data:
                 k, pB, fB, pA, fA = d
                 dataList.append((faceMapping[k], pB, fB, pA, fA))
@@ -187,7 +226,6 @@ class Automator:
         return steps
 
     def getOptimalChartCount(self, closed:bool=True):
-        return 2
         distCharts = self.getDistortionBasedChartCount()
         additionalCharts = len(self.faces) // (self.totalFacesCount * self.additionalChartFactor)
 
@@ -200,10 +238,16 @@ class Automator:
         return len(bnd) == 0
 
     def isBasicShape(self):
-        if len(self.faces) <= 100: return True
-        underThresh = 0
-        total = len(self.segmenter.parser.SOD.values())
+
+        sodsToAnalyze = []
         for val in self.segmenter.parser.SOD.values():
+            if val != 360 and val != 0:
+                sodsToAnalyze.append(val)
+
+    #    if len(self.faces) <= 100: return True
+        underThresh = 0
+        total = len(sodsToAnalyze)
+        for val in sodsToAnalyze:
             if val <= self.basicShapeThreshholdValue: underThresh += 1
 
         log("underThresh: " + str(underThresh))
@@ -214,39 +258,28 @@ class Automator:
     def flatten(self):
         #Use arap
 #        self.logger.start()
-        print("Testmsg")
             # do what you have to do to create some output
 #        with capture2() as output:
         _, pB1, fB1, pA1, fA1 = executeARAP(self.filename)
         _, pB2, fB2, pA2, fA2 = executeBFF(0, self.filename)
+        _, pB3, fB3, pA3, fA3 = executeBFF(1, self.filename)
 
         (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB1, fB1, pA1, fA1)
         (aD2, mAD2,iD2, mID2, mmaxID2, mmmaxID2) = self.calcDistortions(pB2, fB2, pA2, fA2)
+        (aD3, mAD3,iD3, mID3, mmaxID3, mmmaxID3) = self.calcDistortions(pB3, fB3, pA3, fA3)
 
-        if iD1 <= iD2:
+        if iD1 <= iD2 and iD1 <= iD3 and not self.overlaps(pA1, fA1):
             self.setDistortionValues(aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1)
             return pB1, fB1, pA1, fA1
+
+        elif iD3 <= iD1 and iD3 <= iD1 and not self.overlaps(pA3, fA3):
+            self.setDistortionValues(aD3, mAD3,iD3, mID3, mmaxID3, mmmaxID3)
+            return pB3, fB3, pA3, fA3
+
         else:
-            self.setDistortionValues(aD2, mAD2,iD2, mID2, mmaxID2, mmmaxID2)
+            self.setDistortionValues(aD2, mAD2, iD2, mID2, mmaxID2, mmmaxID2)
             return pB2, fB2, pA2, fA2
 
-
-        if self.angularDist > 0.4 or self.isometricDist > 0.4:
-        
-    # do what you want with the output_string
-#        output = run("pwd", capture_output=True).stdout
-#        print("Testmsg 2")
-#        self.logger.stop()
-
-#        log("custom output: " + str(output))
-
-#        if output[-1].endswith("Error: Numerical issue."):
-#        if False:
-            log("Switching to BFF")
-            _, pB, fB, pA, fA = executeBFF(0, self.filename)
-
-        return pB, fB, pA, fA
-        
     def setDistortionValues(self, angularDist, maxAngularDist,
       isometricDist, maxIsometricDist, misometricDist, maxmIsometricDist):
         self.angularDist = angularDist
@@ -255,6 +288,17 @@ class Automator:
         self.maxIsometricDist = maxIsometricDist
         self.misometricDist = misometricDist
         self.maxmIsometricDist = maxmIsometricDist
+
+    def processSingleTriangle(self):
+        p1 = self.vertices[self.faces[0][0]]
+        p2 = self.vertices[self.faces[0][1]]
+        p3 = self.vertices[self.faces[0][2]]
+        x1, x2, x3 = getFlatTriangle(p1, p2, p3)
+        del x1[-1]
+        del x2[-1]
+        del x3[-1]
+        log("RETURNING AUTO " + str((0, self.vertices, self.faces, [x1, x2, x3], self.faces)))
+        return [], [(0, self.vertices, self.faces, [x1, x2, x3], self.faces)]
 
 
 import gui.left_side_menu.algorithm.segmentation_automator as seg_automator

@@ -1,6 +1,7 @@
 import os
 from gui.canvas.plotting_options.plotting_option import PlottingOption
 import gui.left_side_menu.algorithm.automator as automator
+from util import getFlatTriangle
 from logger import log
 
 class SegmentationAutomator(automator.Automator):
@@ -12,13 +13,16 @@ class SegmentationAutomator(automator.Automator):
 
     def calculate(self):
         self.read()
+
+        if len(self.faces) == 1:
+            return self.processSingleTriangle()
+
         pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
 
         log("chart " + self.folderPath + " angularDist: " + str(self.angularDist))
         log("chart " + self.folderPath + " isometricDist: " + str(self.isometricDist))
         log("chart " + self.folderPath + " max angular dist: " + str(self.maxAngularDist))
         log("chart " + self.folderPath + " max isometric dist: " + str(self.maxIsometricDist))
-        #Todo: check overlapping
         if self.shouldSegment(pointsAfter, facesAfter):
             faceToChart, data = self.segmentAndProcess()
             return faceToChart, data

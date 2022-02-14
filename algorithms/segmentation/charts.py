@@ -34,7 +34,7 @@ class Charts:
 
 #        self.removeSmallCharts()
         self.removeSmallChartsNew()
-#        self.mergeFlatNeighbors()
+        self.mergeFlatNeighbors()
         log("expand charts finished")
         log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
@@ -178,33 +178,37 @@ class Charts:
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 edge = e.idx()
                 oppFace = self.getOppositeFace(edge, face)
-                if oppFace != -1:
+                if oppFace != -1 and self.charts[oppFace] == chart2:
                     edgeCount += 1
                     totalSOD += self.parser.SOD[edge]
 
+        if edgeCount == 0: return -1
         return totalSOD/edgeCount
 
 
     def mergeFlatNeighbors(self):
+        log("Merging Flat Neighbors")
 #        neighborSODs = {}
         nextLoop = True
         while(nextLoop):
-#            log("entering next mainLoop")
+            log("entering next mainLoop")
             nextLoop = False
             #Compute avg SOD of all neighbors
             charts = self.getCharts()
+            if len(charts) <= 2: break
+            log("Charts: " + str(charts))
             for c in charts:
                 if nextLoop:continue
                 for c2 in charts:
                     if nextLoop:continue
                     if c != c2:
                         sod = self.getNeighborSOD(c, c2)
-                        if not math.isnan(sod):
- #                           log("sod: " + str(sod) + ", mergingUpToSOD: " + str(mergingUpToSOD))
+                        if sod != -1:
+                            log("sod: " + str(sod) + ", mergingUpToSOD: " + str(mergingUpToSOD))
                             if sod < mergingUpToSOD:
                                 self.merge(c, c2)
                                 nextLoop = True
-#                                log("Merging " + str(c) + " and " + str(c2))
+                                log("Merging " + str(c) + " and " + str(c2))
 
 
             # When somewhere below mergingUpToSOD

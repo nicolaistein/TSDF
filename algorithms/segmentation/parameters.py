@@ -30,7 +30,7 @@ featureBarrier = False
 
 maxSOD = 10
 
-mergingUpToSOD = 5
+mergingUpToSOD = 14
 
 # Absolute count of seeds used for chart generation
 localMaximumSeedCount = 50

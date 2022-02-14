@@ -17,6 +17,7 @@ class Mesh3DPlotter:
     showEdges = False
     defaultColor = "#1f77b4ff"
     segmenter = Segmenter()
+    segmented = False
 
     def __init__(self, master: Frame):
         self.mainFrame = Frame(master, width=360, height=480)
@@ -29,7 +30,7 @@ class Mesh3DPlotter:
         self.charts = []
         self.selectedChart = -1
 
-    def isSegmented(self): return len(self.chartList) != 0
+    def isSegmented(self): return self.segmented
 
     def viewBrowser(self):
         if len(self.faces) > 0:
@@ -135,6 +136,7 @@ class Mesh3DPlotter:
             if val not in self.chartList:
                 self.chartList.append(val)
         log("chartList: " + str(self.chartList))
+        self.segmented = False
         self.selectedChart = -1
         self.refreshColors()
         self.show()
@@ -145,6 +147,7 @@ class Mesh3DPlotter:
         self.faces = faces
         self.chartList = []
         self.charts = []
+        self.segmented = False
         self.faceColors = [self.defaultColor] * len(faces)
         self.selectedChart = -1
         self.show()
@@ -156,6 +159,7 @@ class Mesh3DPlotter:
 #        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
         self.chartCount = self.chartCountInput.getNumberInput()
         self.charts, self.chartList = self.segmenter.compute(self.vertices, self.faces, self.chartCount)
+        self.segmented = True
         self.selectedChart = -1
         self.refreshColors()
         self.show()

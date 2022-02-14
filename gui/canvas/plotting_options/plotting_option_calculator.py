@@ -4,7 +4,7 @@ from typing import List, Mapping
 import abc
 import math 
 import numpy as np
-from util import faceToArea, angle_between
+from util import faceToArea, angle_between, getFlatTriangle
 
 
 class PlottingOptionCalculator:
@@ -50,27 +50,11 @@ class PlottingOptionCalculator:
             return [1, 1, 1]
 
 
-    def getFlatTriangle(self, x1:List[float], x2:List[float], x3:List[float]):
-        vector1 = np.array(x2)-np.array(x1)
-        vector2 = np.array(x3)-np.array(x1)
-
-        x1New = [0, 0, 1]
-
-        length12 = np.linalg.norm(vector1)
-        x2New = [length12, 0, 1]
-
-        length23 = np.linalg.norm(vector2)
-        angle = angle_between(vector1, vector2)
-
-        x3New = [math.cos(angle) * length23, math.sin(angle) * length23, 1]
-        return x1New, x2New, x3New
-        
-
     def getTransformationMatrix(self, faceBefore:List[int], faceAfter=List[int]):
         """Returns the linear part of the tansformation matrix (2x2)
          with the first index being the row"""
         t1, t2, t3 = self.getVerticesOfFace(faceBefore, self.verticesBefore)
-        x1, x2, x3 = self.getFlatTriangle(t1, t2, t3)
+        x1, x2, x3 = getFlatTriangle(t1, t2, t3)
         y1, y2, y3 = self.getVerticesOfFace(faceAfter, self.verticesAfter)
 
 
