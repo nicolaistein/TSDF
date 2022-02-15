@@ -14,6 +14,7 @@ class PlacedPatternsItem:
 
     #d1d1d1
     colorBlue = "#cde3fa"
+    colorGreen = "#b8dbbd"
     colorRed = "#f29696"
 
     def __init__(self, master: Frame, pattern: PatternModel, menu, canvasManager:CanvasManager):
@@ -82,12 +83,23 @@ class PlacedPatternsItem:
 
         return result
 
-    def checkBoundaries(self):
-        if len(self.canvasManager.objectPlotters) == 0: return
-        intersects = self.intersectsWithBoundary()
-
-        self.color = self.colorRed if intersects else self.colorBlue
+    def resetColor(self):
+        self.color = self.colorBlue
         self.refreshColor()
+
+
+    def checkIfInsideAndRefreshColors(self):
+        self.resetColor()
+        intersects = self.isInsideBoundaries()
+        self.color = self.colorRed if intersects else self.colorGreen
+        self.refreshColor()
+
+    def checkBoundaries(self):
+        thread = Thread(target = self.checkIfInsideAndRefreshColors)
+        thread.start()
+#        thread.join()
+#        intersects = self.intersectsWithBoundary()
+
 #        log("Pattern " + self.pattern.name + " intersects: " + str(intersects))
 
     def refreshColor(self):
@@ -133,7 +145,8 @@ class PlacedPatternsItem:
     
 
 
-    def intersectsWithBoundary(self):
+    def isInsideBoundaries(self):
+        if len(self.canvasManager.objectPlotters) == 0: return False
         selfPoints = self.toPoints()
         pointInside = [False] * len(selfPoints)
 

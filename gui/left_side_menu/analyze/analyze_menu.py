@@ -41,7 +41,7 @@ class AnalyzeMenu:
             timeLimit = timeLimit
             edgeCount =  self.edgeCount.get("1.0", END)[:-1]
             closed = self.closed.get() or len(igl.boundary_loop(self.fileMenu.triangles)) == 0
-            AnalyzeWindow(self.content, len(self.fileMenu.triangles), closed,
+            AnalyzeWindow(self.content, len(self.fileMenu.v), len(self.fileMenu.triangles), closed,
              self.basicShape.get(), self.curves.get(), timeLimit, edgeCount).openWindow()
         else:
             self.error.configure(text="You have to select a file first!")

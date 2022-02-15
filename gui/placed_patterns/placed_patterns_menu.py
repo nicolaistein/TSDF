@@ -21,15 +21,19 @@ class PlacedPatternsMenu:
         self.placedPatternItems = {}
 
     def deleteAll(self):
-        for p in self.placedPatternItems.values():
+        values = list(self.placedPatternItems.values())
+        for p in values:
             p.delete()
         self.placedPatternItems.clear()
         self.build()
 
     def delete(self, placedPatternItem):
         self.canvasManager.patternPlotter.deletePattern(placedPatternItem.pattern)
+        del self.placedPatternItems[placedPatternItem.pattern]
 
     def onCheckBoundaries(self):
+        for p in self.placedPatternItems.values():
+            p.resetColor()
         log("Checking boundaries")
         for p in self.placedPatternItems.values():
             p.checkBoundaries()
@@ -87,6 +91,7 @@ class PlacedPatternsMenu:
         messagebox.showinfo("Export", "Successfully exported "
          + str(length) + " " + text + " to " + file.name)
 
+
     def getKeyValueFrame(self, parent: Frame, key: str, value:str, padx:bool=False):
         keyValFrame = Frame(parent)
         keyLabel = Label(keyValFrame, text=key, width=12,
@@ -109,12 +114,12 @@ class PlacedPatternsMenu:
         title.configure(font=("Helvetica", 12, "bold"))
         title.pack(fill='both', side=TOP, pady=(20,15))
 
-        self.innerContent = ListView(self.content, 310, 640).build()
+        self.innerContent = ListView(self.content, 310, 600).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=200, pady=20)
+        generationFrame = Frame(self.mainFrame, width=323, height=240, pady=20)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
         InputFrame1 = Frame(inputParentFrame)
@@ -139,6 +144,9 @@ class PlacedPatternsMenu:
         inputParentFrame.pack(side=TOP, padx=(20,20))
 
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
+                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(15, 0))
+        
+        TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
                             corner_radius=60, height=25, width=160).pack(side=TOP, pady=(15, 0))
 
         generationFrame.pack(side=TOP)

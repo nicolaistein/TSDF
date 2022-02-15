@@ -40,6 +40,7 @@ class PatternPlotter:
 
     def deletePattern(self, pattern:PatternModel):
         self.removePatternFromCanvas(pattern)
+        del self.patterns[pattern]
         if self.selectedPattern == pattern:
             self.selectedPattern = None
 

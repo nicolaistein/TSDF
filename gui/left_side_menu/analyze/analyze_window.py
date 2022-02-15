@@ -7,7 +7,7 @@ import gui.time_formatter as formatter
 
 class AnalyzeWindow:
 
-    def __init__(self, root, triangleCount:int, closed:bool, basicShape:bool, curves:bool,
+    def __init__(self, root, vertexCount:int, triangleCount:int, closed:bool, basicShape:bool, curves:bool,
      timeLimit:int, edgeCount:str):
         self.window = Toplevel(root)
         self.closed = closed
@@ -15,9 +15,11 @@ class AnalyzeWindow:
         self.curves = curves
         self.timeLimit = timeLimit
         self.edgeCount = edgeCount
+        self.vertexCount = vertexCount
         self.triangleCount = triangleCount
 
     def abort(self):
+        self.buttonCancel.delete()
         self.window.destroy()
 
     def buildHeading(self, master:Frame, text:str, pady=20):
@@ -62,16 +64,22 @@ class AnalyzeWindow:
         self.window.resizable(False, False)
 
         mainContainer = Frame(self.window, padx=20, pady=20)
+        self.buildHeading(mainContainer, "Info")
+        self.getKeyValueFrame(mainContainer, "ARAP", formatter.formatTime(runtimes.arapTime(self.triangleCount)))
+
         self.buildHeading(mainContainer, "Estimated Runtimes", 0)
         self.getKeyValueFrame(mainContainer, "BFF", formatter.formatTime(runtimes.bffTime(self.triangleCount, self.basicShape)) + " per cone")
         self.getKeyValueFrame(mainContainer, "LSCM", formatter.formatTime(runtimes.lscmTime(self.triangleCount)))
         self.getKeyValueFrame(mainContainer, "ARAP", formatter.formatTime(runtimes.arapTime(self.triangleCount)))
 
+
         self.buildHeading(mainContainer, "Possibilities")
         
         availableOptions = False
         if runtimes.bffTime(self.triangleCount, self.basicShape) <= self.timeLimit:
-            Label(mainContainer, text="BFF with max. " + str(self.getMaxConeCount()) + " cones").pack(side="top", anchor="w")
+            maxCones = self.getMaxConeCount()
+            if maxCones > self.vertexCount: maxCones = self.vertexCount
+            Label(mainContainer, text="BFF with max. " + str(maxCones) + " cones").pack(side="top", anchor="w")
             availableOptions = True
         if not self.closed:
             if runtimes.lscmTime(self.triangleCount) <= self.timeLimit:
