@@ -8,6 +8,8 @@ from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_item import PlacedPatternsItem
 from gui.listview import ListView
 from gui.numeric_text import NumericText
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 from logger import log
 import os
 
@@ -108,13 +110,11 @@ class PlacedPatternsMenu:
         for widget in self.mainFrame.winfo_children():
             widget.destroy()
 
-        self.content = Frame(self.mainFrame)
+        self.content = Frame(self.mainFrame, pady=20)
 
-        title = Label(self.content, text="Placed Patterns")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(20,15))
+        MenuHeading("Placed Patterns", infotexts.palcedPatterns).build(self.content)
 
-        self.innerContent = ListView(self.content, 310, 600).build()
+        self.innerContent = ListView(self.content, 310, 580).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)

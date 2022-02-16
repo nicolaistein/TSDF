@@ -32,7 +32,14 @@ def angle_between(v1, v2):
     v2_u = v2 / norm2
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
-def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], shouldLog:bool=False):
+
+def isFirstBigger(val1, val2, neighboring:bool):
+    if neighboring: return val1 > val2
+    else: return val1 >= val2
+
+
+def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float],
+  shouldLog:bool=False, neighboring:bool=False):
     """Calculates whether the line from p1 to p2 intersects with the line from p3 to p4"""
     x1 = p1[0]
     y1 = p1[1]
@@ -42,6 +49,7 @@ def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], 
     y3 = p3[1]
     x4 = p4[0]
     y4 = p4[1]
+    n = neighboring
 
     xTop = (x2-x1)*(x3*y4-y3*x4)-(x4-x3)*(x1*y2-y1*x2)
     yTop = (y2-y1)*(x3*y4-y3*x4)-(y4-y3)*(x1*y2-y1*x2)
@@ -54,44 +62,49 @@ def doIntersect(p1:List[float], p2:List[float], p3:List[float], p4:List[float], 
 
     if bottom == 0: 
         if (x2-x1) == 0 and (x4-x3) == 0:
-            b1 = yVals1[1] >= yVals2[0] and yVals1[1] <=yVals2[1]
-            b2 = yVals1[0] >= yVals2[0] and yVals1[0] <=yVals2[1]
-            b3 = yVals2[1] >= yVals1[0] and yVals2[1] <=yVals1[1]
-            b4 = yVals2[0] >= yVals1[0] and yVals2[0] <=yVals1[1]
+    #        b1 =              yVals1[1] >= yVals2[0] and                 yVals1[1] <= yVals2[1]
+            b1 = isFirstBigger(yVals1[1], yVals2[0], n) and isFirstBigger(yVals2[1], yVals1[1], n)
+    #        b2 =              yVals1[0] >= yVals2[0] and                 yVals1[0] <= yVals2[1]
+            b2 = isFirstBigger(yVals1[0], yVals2[0], n) and isFirstBigger(yVals2[1], yVals1[0], n)
+    #        b3 =              yVals2[1] >= yVals1[0] and                 yVals2[1] <= yVals1[1]
+            b3 = isFirstBigger(yVals2[1], yVals1[0], n) and isFirstBigger(yVals1[1], yVals2[1], n)
+    #        b4 =              yVals2[0] >= yVals1[0] and                 yVals2[0] <= yVals1[1]
+            b4 = isFirstBigger(yVals2[0], yVals1[0], n) and isFirstBigger(yVals1[1], yVals2[0], n)
 
             if x1 == x3:
-#                log("Error1 applicable")
+    #            log("Error1 applicable")
 
                 return (b1 or b2 or b3 or b4) and x1 == x3
         
         if (y4-y3) == 0 and (y2-y1) == 0:
             if y1 == y3:
-#                log("Error2 applicable")
-                b1 = xVals1[1] >= xVals2[0] and xVals1[1] <=xVals2[1]
-                b2 = xVals1[0] >= xVals2[0] and xVals1[0] <=xVals2[1]
-                b3 = xVals2[1] >= xVals1[0] and xVals2[1] <=xVals1[1]
-                b4 = xVals2[0] >= xVals1[0] and xVals2[0] <=xVals1[1]
+    #            log("Error2 applicable")
+    #            b1 =              xVals1[1] >= xVals2[0] and                 xVals1[1] <= xVals2[1]
+                b1 = isFirstBigger(xVals1[1], xVals2[0], n) and isFirstBigger(xVals2[1], xVals1[1], n)
+    #            b2 =              xVals1[0] >= xVals2[0] and                 xVals1[0] <= xVals2[1]
+                b2 = isFirstBigger(xVals1[0], xVals2[0], n) and isFirstBigger(xVals2[1], xVals1[0], n)
+    #            b3 =              xVals2[1] >= xVals1[0] and                 xVals2[1] <= xVals1[1]
+                b3 = isFirstBigger(xVals2[1], xVals1[0], n) and isFirstBigger(xVals1[1], xVals2[1], n)
+    #            b4 =              xVals2[0] >= xVals1[0] and                 xVals2[0] <= xVals1[1]
+                b4 = isFirstBigger(xVals2[0], xVals1[0], n) and isFirstBigger(xVals1[1], xVals2[0], n)
                 return (b1 or b2 or b3 or b4) and y1 == y3
 
-#        log("ERROR BOTTOM IS 0")
-#        log("p1: " + str(p1) + ", p2: " + str(p2))
-#        log("p3: " + str(p3) + ", p4: " + str(p4))
         return False
 
     xInter = round(xTop/bottom, 6)
     yInter = round(yTop/bottom, 6)
 
 
-    insideFirstX = xInter >= round(xVals1[0], 6) and xInter <= round(xVals1[1], 6)
-    insideFirstY = yInter >= round(yVals1[0], 6) and yInter <= round(yVals1[1], 6)
-    insideSecX = xInter >= round(xVals2[0], 6) and xInter <= round(xVals2[1], 6)
-    insideSecY = yInter >= round(yVals2[0], 6) and yInter <= round(yVals2[1], 6)
+#    insideFirstX =             xInter >= round(xVals1[0], 6) and               xInter <= round(xVals1[1], 6)
+    insideFirstX = isFirstBigger(xInter, round(xVals1[0], 6), n) and isFirstBigger(round(xVals1[1], 6), xInter, n)
+#    insideFirstY =             yInter >= round(yVals1[0], 6) and                   yInter <= round(yVals1[1], 6)
+    insideFirstY = isFirstBigger(yInter, round(yVals1[0], 6), n) and isFirstBigger(round(yVals1[1], 6), yInter, n)
+#    insideSecX =               xInter >= round(xVals2[0], 6) and               xInter <= round(xVals2[1], 6)
+    insideSecX = isFirstBigger(xInter, round(xVals2[0], 6), n) and isFirstBigger(round(xVals2[1], 6), xInter, n)
+#    insideSecY =               yInter >= round(yVals2[0], 6) and               yInter <= round(yVals2[1], 6)
+    insideSecY = isFirstBigger(yInter, round(yVals2[0], 6), n) and isFirstBigger(round(yVals2[1], 6), yInter, n)
 
     res = insideFirstX and insideFirstY and insideSecX and insideSecY
- #   if not res and shouldLog:
- #       log("p1: " + str(p1) + ", p2: " + str(p2))
- #       log("p3: " + str(p3) + ", p4: " + str(p4))
- #       log("xInter: " + str(xInter) + ", yInter: " + str(yInter))
     return res
 
 

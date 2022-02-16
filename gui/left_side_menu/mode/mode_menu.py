@@ -7,6 +7,8 @@ from gui.left_side_menu.computation_info import ComputationInfo
 from gui.left_side_menu.mode.computation_mode import ComputationMode
 from gui.left_side_menu.measuring_tool import MeasuringTool
 from gui.left_side_menu.export_menu import ExportMenu
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 from logger import log
 
 class ModeMenu:
@@ -42,9 +44,7 @@ class ModeMenu:
         self.button.pack(side=TOP)
 
     def build(self):
-        title = Label(self.mainFrame, text="Select Mode")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 15))
+        MenuHeading("Select Mode", infotexts.selectMode).build(self.mainFrame)
 
         self.mainFrame.pack_propagate(0)
 

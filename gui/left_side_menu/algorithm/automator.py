@@ -1,3 +1,4 @@
+from functools import partial
 from tkinter import *
 
 import numpy as np
@@ -127,6 +128,7 @@ class Automator:
 
     def getOptimalConeCount(self):
         max = len(self.vertices)
+        bnd = list(igl.boundary_loop(np.array(self.faces)))
 
         corners = 0
         for index, _ in enumerate(self.vertices):
@@ -143,7 +145,7 @@ class Automator:
                             bigAngleDetected = True
 
                 
-            if relevantEdges >= 3 and not bigAngleDetected:
+            if relevantEdges >= 3 and not bigAngleDetected and index not in bnd:
                 corners += 1
 
         log("Corners: " + str(corners))
@@ -157,8 +159,8 @@ class Automator:
         log("Checking overlaps")
         
         bnd = list(igl.boundary_loop(np.array(facesAfter)))
-#        if len(bnd) > 0:
-#            bnd.append(bnd[0])
+        if len(bnd) > 0:
+            bnd.append(bnd[0])
 
         for index1 in range(0, len(bnd)-1):
             p1 = pointsAfter[bnd[index1]]
@@ -167,7 +169,7 @@ class Automator:
                 p3 = pointsAfter[bnd[index2]]
                 p4 = pointsAfter[bnd[index2+1]]
 
-                if doIntersect(p1, p2, p3, p4):
+                if doIntersect(p1, p2, p3, p4, neighboring=bnd[index1] == bnd[index2+1]):
                     log("Overlaps returning True")
                     return True
 
@@ -184,15 +186,20 @@ class Automator:
             log("shouldSegment returning True 1")
             return True
 
+        if len(self.faces) >= self.facesThreshhold and (self.angularDist > self.maxAllowedAngularDistortion or
+                 self.isometricDist > self.maxAllowedIsometricDistortion):
+                log("shouldSegment returning True 3")
+                return True
+        
+
         if (self.maxIsometricDist > self.isometricDistLimitForMaxValue
          or self.maxAngularDist > self.angularDistLimitForMaxValue
          or self.maxmIsometricDist > self.misometricDistLimitForMaxValue):
             log("shouldSegment returning True 2")
             return True
 
-        log("shouldSegment returning 3")
-        return len(self.faces) >= self.facesThreshhold and (self.angularDist > self.maxAllowedAngularDistortion or
-                 self.isometricDist > self.maxAllowedIsometricDistortion)
+        log("shouldSegment returning False")
+        return False
 
     def segmentAndProcess(self, closed:bool=False):
         faceToChart, chartKeys = self.segmenter.compute(self.vertices,
@@ -254,10 +261,34 @@ class Automator:
 
         log("underThresh: " + str(underThresh))
         log("total: " + str(total))
+        if total == 0: return True
         log("underThresh / total: " + str(underThresh / total))
         return (underThresh / total) < self.basicShapeThreshholdPercentage
 
+
     def flatten(self):
+        methods = [executeARAP
+        , partial(executeLSCM)
+        , partial(executeBFF, 0)
+        , partial(executeBFF, 1)
+        , partial(executeBFF, 2)
+        ]
+        res = None
+        for m in methods:
+            _, pB, fB, pA, fA = m(self.filename)
+            (aD, mAD,iD, mID, mmaxID, mmmaxID) = self.calcDistortions(pB, fB, pA, fA)
+
+            if  res is None:
+                self.setDistortionValues(aD, mAD,iD, mID, mmaxID, mmmaxID)
+                res = pB, fB, pA, fA
+                continue
+
+            if not self.overlaps(pA, fA):
+                if res is None or iD < self.isometricDist :
+                    self.setDistortionValues(aD, mAD,iD, mID, mmaxID, mmmaxID)
+                    res = pB, fB, pA, fA
+        return res
+
         #Use arap
 #        self.logger.start()
             # do what you have to do to create some output

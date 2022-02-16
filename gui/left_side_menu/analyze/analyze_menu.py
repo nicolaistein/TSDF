@@ -4,7 +4,10 @@ from algorithms.algorithms import *
 from gui.left_side_menu.file_menu import FileMenu
 from gui.left_side_menu.analyze.analyze_window import AnalyzeWindow
 from gui.left_side_menu.mode.computation_mode import ComputationMode
+from gui.menu_heading.menu_heading import MenuHeading
 from logger import log
+import gui.menu_heading.info_texts as infotexts
+from tkinter import messagebox
 import igl
 
 
@@ -35,7 +38,6 @@ class AnalyzeMenu:
 
     def showResult(self):
         if self.fileMenu.getPath():
-            self.error.configure(text="")
             timeLimiText =  self.timeLimit.get("1.0", END)[:-1]
             timeLimit = int(timeLimiText) if timeLimiText else 0
             timeLimit = timeLimit
@@ -44,7 +46,7 @@ class AnalyzeMenu:
             AnalyzeWindow(self.content, len(self.fileMenu.v), len(self.fileMenu.triangles), closed,
              self.basicShape.get(), self.curves.get(), timeLimit, edgeCount).openWindow()
         else:
-            self.error.configure(text="You have to select a file first!")
+            messagebox.showerror("You have to select a file first!")
 
     def buildTextInput(self, label:str, val:str = ""):
         textInputFrame = Frame(self.content)
@@ -60,9 +62,8 @@ class AnalyzeMenu:
         self.mainFrame = Frame(self.master, bg=self.defaultColor)
         self.content = Frame(
             self.mainFrame, width=260, height=260, padx=20, pady=20)
-        title = Label(self.content, text="Analyze")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 15))
+
+        MenuHeading("Analyze", infotexts.analyze).build(self.content)
 
         self.content.pack_propagate(0)
         Checkbutton(self.content, text="Object is closed and not segmented", variable=self.closed).pack(
@@ -82,11 +83,6 @@ class AnalyzeMenu:
         
         TkinterCustomButton(master=self.content, text="Show result", command=self.showResult,
                             corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
-
-        self.error = Label(self.content, text="", fg="red")
-        self.error.pack(side="top", pady=(4, 0))
-
-        
 
         self.content.pack(side=TOP, pady=(2, 0))
         self.mainFrame.pack()

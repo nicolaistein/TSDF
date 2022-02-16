@@ -7,7 +7,9 @@ from PIL import ImageTk, Image
 from gui.pattern_model import PatternModel
 from gui.pattern_input.pattern_input_window import PatternInputWindow
 from gui.placed_patterns.placed_patterns_menu import PlacedPatternsMenu
+from gui.menu_heading.menu_heading import MenuHeading
 from gui.canvas.canvas_manager import CanvasManager
+import gui.menu_heading.info_texts as infotexts
 import os
 from gui.listview import ListView
 
@@ -62,9 +64,7 @@ class AllPatterns:
 
     def build(self):
 
-        title = Label(self.content, text="All Patterns")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 15))
+        MenuHeading("All Patterns", infotexts.allPatterns).build(self.content)
 
         self.innerContent = ListView(self.content, width=340, height=320, padx=0).build()
 

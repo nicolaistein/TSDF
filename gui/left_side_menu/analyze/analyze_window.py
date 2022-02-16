@@ -10,6 +10,7 @@ class AnalyzeWindow:
     def __init__(self, root, vertexCount:int, triangleCount:int, closed:bool, basicShape:bool, curves:bool,
      timeLimit:int, edgeCount:str):
         self.window = Toplevel(root)
+        self.window.iconbitmap("image.ico")
         self.closed = closed
         self.basicShape = basicShape
         self.curves = curves

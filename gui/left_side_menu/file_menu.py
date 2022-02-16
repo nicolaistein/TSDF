@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 import igl
 import os
 
@@ -13,7 +15,8 @@ class FileMenu:
     currentObject = ""
     currentChart = ""
 
-    def __init__(self, master: Frame, plotter:Mesh3DPlotter):
+    def __init__(self, master: Frame, plotter:Mesh3DPlotter, mainColor:str):
+        self.mainColor = mainColor
         self.plotter = plotter
         plotter.notifyFileMenu = self.onChartSelect
         self.mainFrame = Frame(master)
@@ -77,9 +80,9 @@ class FileMenu:
 
     def build(self):
         self.content.pack_propagate(False)
-        title = Label(self.content, text="Select File")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill=BOTH, side=TOP, pady=(0, 15))
+
+        MenuHeading("Select File", infotexts.selectFile).build(self.content)
+#        title = Label(self.content, text="Select File")
 
         fileSelectionFrame = Frame(self.content)
         chooseFrame = Frame(fileSelectionFrame)
@@ -101,5 +104,5 @@ class FileMenu:
         infoFrame.pack(side=TOP, anchor=W)
         fileSelectionFrame.pack(side=TOP, anchor=W)
 
-        self.content.pack(side="top")
-        self.mainFrame.pack(side="top", anchor=N)
+        self.content.pack(side=TOP)
+        self.mainFrame.pack(side=TOP, anchor=N)

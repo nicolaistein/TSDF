@@ -4,6 +4,8 @@ import gui.time_formatter as formatter
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
 from gui.canvas.plotting_options.plotting_option import PlottingOption
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 from logger import log
 
 
@@ -82,9 +84,7 @@ class ComputationInfo:
                              height=400, padx=20, pady=20)
         self.content.pack_propagate(0)
 
-        title = Label(self.content, text="Plotting Options")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 15))
+        MenuHeading("Plotting Options", infotexts.plottingOptions).build(self.content)
 
         chooseFile = Label(self.content, text="Computation Info")
         chooseFile.configure(font=("Helvetica", 12, "bold"))

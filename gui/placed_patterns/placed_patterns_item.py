@@ -89,6 +89,7 @@ class PlacedPatternsItem:
 
 
     def checkIfInsideAndRefreshColors(self):
+#        self.plotBoundaryLoop()
         self.resetColor()
         intersects = self.isInsideBoundaries()
         self.color = self.colorRed if intersects else self.colorGreen
@@ -164,6 +165,23 @@ class PlacedPatternsItem:
         
         
 
+    def plotBoundaryLoop(self):
+        for obPlotter in self.canvasManager.objectPlotters:
+ #           log("Checking plotter " + str(obPlotter.id))
+            boundaryPoints = list(obPlotter.getBoundary())
+            vertices = obPlotter.verticesForExport
+
+            for index, p in enumerate(boundaryPoints):
+                xP = vertices[p][0]
+                yP = vertices[p][1]
+                x, y = self.canvasManager.P(xP, yP)
+
+ #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
+                r = 3
+ #
+                self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
+                self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
+
         
 
     def intersectsWithBoundary2(self):
@@ -173,16 +191,16 @@ class PlacedPatternsItem:
             boundaryPoints = list(obPlotter.getBoundary())
             vertices = obPlotter.verticesForExport
 
- #           for index, p in enumerate(boundaryPoints):
- #               xP = vertices[p][0]
- #               yP = vertices[p][1]
- #               x, y = self.canvasManager.P(xP, yP)
+            for index, p in enumerate(boundaryPoints):
+                xP = vertices[p][0]
+                yP = vertices[p][1]
+                x, y = self.canvasManager.P(xP, yP)
 
  #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
- #               r = 3
+                r = 3
  #
- #               self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
- #               self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
+                self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
+                self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
 
 
             boundaryPoints.append(boundaryPoints[0])

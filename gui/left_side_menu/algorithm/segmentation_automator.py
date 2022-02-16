@@ -1,6 +1,7 @@
 import os
 from gui.canvas.plotting_options.plotting_option import PlottingOption
 import gui.left_side_menu.algorithm.automator as automator
+from algorithms.algorithms import *
 from util import getFlatTriangle
 from logger import log
 
@@ -13,12 +14,22 @@ class SegmentationAutomator(automator.Automator):
 
     def calculate(self):
         self.read()
-
         if len(self.faces) == 1:
             return self.processSingleTriangle()
 
-        pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
+        if self.isBasicShape():
+            log("Object is a basic shape")
+            _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
+            (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB, fB, pA, fA)
+            self.setDistortionValues(aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1)
+            if self.shouldSegment(pA, fA):
+                return self.segmentAndProcess()
+            else:
+                log("Object is not a basic shape")
+                return [1]*len(self.faces), [(1, pB, fB, pA, fA)]
 
+
+        pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
         log("chart " + self.folderPath + " angularDist: " + str(self.angularDist))
         log("chart " + self.folderPath + " isometricDist: " + str(self.isometricDist))
         log("chart " + self.folderPath + " max angular dist: " + str(self.maxAngularDist))

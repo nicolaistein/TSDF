@@ -16,7 +16,7 @@ class PatternPlotter:
         self.selectedPattern = None
 
     def build(self):
-        self.tag = self.canvas.create_text(10, 10, text="", anchor="nw") 
+        self.tag = self.canvas.create_text(10, 10, text="", anchor=NW) 
 
     def selectPattern(self, pattern: PatternModel):
         selected = self.selectedPattern

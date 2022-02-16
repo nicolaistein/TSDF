@@ -5,6 +5,8 @@ import numpy as np
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 from logger import log
 
 
@@ -98,9 +100,7 @@ class MeasuringTool:
 
     def build(self):
         self.mainFrame = Frame(self.master, width=260, height=160, padx=20, pady=20)
-        title = Label(self.mainFrame, text="Measure")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 15))
+        MenuHeading("Measure", infotexts.measuringTool).build(self.mainFrame)
 
         self.mainFrame.pack_propagate(0)
 

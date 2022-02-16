@@ -12,6 +12,8 @@ from algorithms.segmentation.segmentation import folder
 from gui.left_side_menu.mode.computation_mode import ComputationMode
 from gui.left_side_menu.algorithm.automator import Automator
 from tkinter import messagebox
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 import igl
 import os
 from logger import log
@@ -151,9 +153,7 @@ class AlgorithmMenu:
     def build(self):
         height = 200 if self.mode == ComputationMode.MANUAL else 110
         self.mainFrame = Frame(self.master, width=260, height=height, padx=20, pady=20)
-        title = Label(self.mainFrame, text="Flatten")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill='both', side=TOP, pady=(0, 15))
+        MenuHeading("Flatten", infotexts.flatten).build(self.mainFrame)
 
         self.mainFrame.pack_propagate(0)
         
