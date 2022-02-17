@@ -38,15 +38,11 @@ class AnalyzeMenu:
 
     def showResult(self):
         if self.fileMenu.getPath():
-            timeLimiText =  self.timeLimit.get("1.0", END)[:-1]
-            timeLimit = int(timeLimiText) if timeLimiText else 0
-            timeLimit = timeLimit
-            edgeCount =  self.edgeCount.get("1.0", END)[:-1]
-            closed = self.closed.get() or len(igl.boundary_loop(self.fileMenu.triangles)) == 0
+            closed = self.closed.get() and len(igl.boundary_loop(self.fileMenu.triangles)) == 0
             AnalyzeWindow(self.content, len(self.fileMenu.v), len(self.fileMenu.triangles), closed,
-             self.basicShape.get(), self.curves.get(), timeLimit, edgeCount).openWindow()
+             self.basicShape.get(), self.curves.get()).openWindow()
         else:
-            messagebox.showerror("You have to select a file first!")
+            messagebox.showerror("Analyze", "You have to select a file first!")
 
     def buildTextInput(self, label:str, val:str = ""):
         textInputFrame = Frame(self.content)
@@ -61,12 +57,12 @@ class AnalyzeMenu:
         if self.mode == ComputationMode.AUTOMATIC: return
         self.mainFrame = Frame(self.master, bg=self.defaultColor)
         self.content = Frame(
-            self.mainFrame, width=260, height=260, padx=20, pady=20)
+            self.mainFrame, width=260, height=190, padx=20, pady=20)
 
         MenuHeading("Analyze", infotexts.analyze).build(self.content)
 
         self.content.pack_propagate(0)
-        Checkbutton(self.content, text="Object is closed and not segmented", variable=self.closed).pack(
+        Checkbutton(self.content, text="Object is not segmented yet", variable=self.closed).pack(
             side="top", anchor="w")
 
         Checkbutton(self.content, text="Object is a basic shape", variable=self.basicShape).pack(
@@ -75,12 +71,6 @@ class AnalyzeMenu:
         Checkbutton(self.content, text="Object contains arcs/curves", variable=self.curves).pack(
             side="top", anchor="w")
 
-        
-        self.timeLimit = self.buildTextInput("Time limit in seconds:", "30")
-        self.edgeCount = self.buildTextInput("Edge count(Leave empty if not obvious):")
-
-
-        
         TkinterCustomButton(master=self.content, text="Show result", command=self.showResult,
                             corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
 
