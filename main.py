@@ -25,7 +25,7 @@ canvasSize = 900
 allPatternsContainer = Frame(root, bg=mainColor)
 
 leftContainerParent = Frame(root)
-leftContainer = ListView(leftContainerParent, 260, 900, 0, mainColor).build()
+leftContainer = ListView(leftContainerParent, 255, 900, 0, mainColor).build()
 
 plotter = Mesh3DPlotter(allPatternsContainer)
 canvasManager = CanvasManager(root, canvasSize, plotter)

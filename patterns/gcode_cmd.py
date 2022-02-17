@@ -7,7 +7,7 @@ class GCodeCmd:
     arcLines:int = 5
 
     def __init__(self, prefix:str, x:float, y:float,
-         z:float=None, i:float=None, j:float=None, e:float=None, f:float=None,
+         z:float=None, i:float=None, j:float=None, e:float=None, f:float=None, p:int=None,
           arcDegrees:int=None, previousX:float=0.0, previousY=0.0, isOverrun:bool=False,
           moving:bool=False, printing:bool=False):
         self.prefix = prefix
@@ -17,6 +17,7 @@ class GCodeCmd:
         self.z = z
         self.i = i
         self.j = j
+        self.p = p
         self.e = e
         self.f = f
         self.moving = moving
@@ -38,11 +39,13 @@ class GCodeCmd:
 
     def toGCode(self, eFactor, currentE, fValue):
         cmd = self.prefix
-        cmd += self.getCmdParam("X", self.x)
-        cmd += self.getCmdParam("Y", self.y)
-        cmd += self.getCmdParam("Z", self.z)
-        cmd += self.getCmdParam("I", self.i)
-        cmd += self.getCmdParam("J", self.j)
+        if self.moving:
+            cmd += self.getCmdParam("X", self.x)
+            cmd += self.getCmdParam("Y", self.y)
+            cmd += self.getCmdParam("Z", self.z)
+            cmd += self.getCmdParam("I", self.i)
+            cmd += self.getCmdParam("J", self.j)
+        cmd += self.getCmdParam("P", self.p)
         if self.printing:
             distance = self.getDistance(prevX=self.previousX, prevY=self.previousY,
               x=self.x, y=self.y, i=self.i, j=self.j, arcDegrees=self.arcDegrees)

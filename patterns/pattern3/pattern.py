@@ -51,6 +51,8 @@ class Pattern(PatternParent):
         self.printTo(x=0)
 
         self.freeMoveHeight()
+        
+        self.onFinish()
 
         return self.getResult(), self.commands, self.currentE
 

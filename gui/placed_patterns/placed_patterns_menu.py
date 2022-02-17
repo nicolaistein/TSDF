@@ -76,16 +76,22 @@ class PlacedPatternsMenu:
         eFactor = self.eFactorText.getNumberInput()
         fFactor = self.fFactorText.getNumberInput()
         overrunStart, overrunEnd, printOverrun = self.getOverruns()
+        cleaningX = self.cleaningXText.getNumberInput()
+        cleaningY = self.cleaningYText.getNumberInput()
+        pause = self.pauseText.getNumberInput()
 
         file.write("G90\n")
         file.write("G0 Z" + str(freeMoveHeight) + " F" + str(fFactor) + "\n\n")
         currentE = 0
-        for pattern in self.placedPatternItems.keys():
+        alllPatterns = self.placedPatternItems.keys()
+        for index, pattern in enumerate(alllPatterns):
             result, commands, e = pattern.getGcode(workHeight,freeMoveHeight,
-              eFactor, currentE, fFactor, overrunStart, overrunEnd, printOverrun)
+              eFactor, currentE, fFactor, overrunStart, overrunEnd, printOverrun,
+              pause, cleaningX, cleaningY)
             currentE = e
             file.write(result)
             file.write("\n")
+        file.write("G0 X0 Y0")
         file.close()
         
         length = len(self.placedPatternItems)
@@ -94,16 +100,16 @@ class PlacedPatternsMenu:
          + str(length) + " " + text + " to " + file.name)
 
 
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str, padx:bool=False):
+    def getKeyValueFrame(self, parent: Frame, key: str, value:str, padx:bool=False, defaultValue=0):
         keyValFrame = Frame(parent)
         keyLabel = Label(keyValFrame, text=key, width=12,
                             anchor=W, justify=LEFT)
         keyLabel.pack(side=LEFT)
-        valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True)
+        valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True, defaultValue=defaultValue)
         valText.build().pack(side=LEFT, padx=(2,0))
         valText.bindOnChange(self.canvasManager.patternPlotter.refresh)
 
-        keyValFrame.pack(side=LEFT, pady=(5,0), padx=(30 if padx else 0, 0))
+        keyValFrame.pack(side=LEFT, pady=(5,0), padx=(26 if padx else 0, 0))
         return valText
 
     def build(self):
@@ -114,12 +120,12 @@ class PlacedPatternsMenu:
 
         MenuHeading("Placed Patterns", infotexts.palcedPatterns).build(self.content)
 
-        self.innerContent = ListView(self.content, 310, 580).build()
+        self.innerContent = ListView(self.content, 310, 550).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=323, height=240, pady=20)
+        generationFrame = Frame(self.mainFrame, width=327, height=270, pady=20)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
         InputFrame1 = Frame(inputParentFrame)
@@ -138,9 +144,15 @@ class PlacedPatternsMenu:
         InputFrame3.pack(side=TOP, anchor=W, pady=(5,0))
         inputParentFrame.pack(side=TOP, padx=(20,20))
         
-        InputFrame3 = Frame(inputParentFrame)
-        self.printOverrunStartText = self.getKeyValueFrame(InputFrame3, "Print-overrun", "1")
-        InputFrame3.pack(side=TOP, anchor=W, pady=(5,0))
+        InputFrame4 = Frame(inputParentFrame)
+        self.printOverrunStartText = self.getKeyValueFrame(InputFrame4, "Print-overrun", "1")
+        self.pauseText = self.getKeyValueFrame(InputFrame4, "Pause in ms", "1000", padx=True)
+        InputFrame4.pack(side=TOP, anchor=W, pady=(5,0))
+        
+        InputFrame5 = Frame(inputParentFrame)
+        self.cleaningXText = self.getKeyValueFrame(InputFrame5, "Cleaning x", "", defaultValue=None)
+        self.cleaningYText = self.getKeyValueFrame(InputFrame5, "Cleaning y", "", defaultValue=None, padx=True)
+        InputFrame5.pack(side=TOP, anchor=W, pady=(5,0))
         inputParentFrame.pack(side=TOP, padx=(20,20))
 
         TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,

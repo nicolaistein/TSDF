@@ -91,8 +91,9 @@ class PlacedPatternsItem:
     def checkIfInsideAndRefreshColors(self):
 #        self.plotBoundaryLoop()
         self.resetColor()
-        intersects = self.isInsideBoundaries()
-        self.color = self.colorRed if intersects else self.colorGreen
+        inside = self.isInsideBoundaries()
+        intersects = self.intersectsWithBoundary()
+        self.color = self.colorRed if intersects or not inside else self.colorGreen
         self.refreshColor()
 
     def checkBoundaries(self):
@@ -147,7 +148,7 @@ class PlacedPatternsItem:
 
 
     def isInsideBoundaries(self):
-        if len(self.canvasManager.objectPlotters) == 0: return False
+        if len(self.canvasManager.objectPlotters) == 0: return True
         selfPoints = self.toPoints()
         pointInside = [False] * len(selfPoints)
 
@@ -159,11 +160,9 @@ class PlacedPatternsItem:
                     if self.pointInTriangle(p, vertices[face[0]], vertices[face[1]], vertices[face[2]]):
                         pointInside[index] = True
                         if all(pointInside):
-                            return False
+                            return True
 
-        return True
-        
-        
+        return False
 
     def plotBoundaryLoop(self):
         for obPlotter in self.canvasManager.objectPlotters:
@@ -181,26 +180,25 @@ class PlacedPatternsItem:
  #
                 self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
                 self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
-
         
 
-    def intersectsWithBoundary2(self):
+    def intersectsWithBoundary(self):
         selfPoints = self.toPoints()
         for obPlotter in self.canvasManager.objectPlotters:
  #           log("Checking plotter " + str(obPlotter.id))
             boundaryPoints = list(obPlotter.getBoundary())
             vertices = obPlotter.verticesForExport
 
-            for index, p in enumerate(boundaryPoints):
-                xP = vertices[p][0]
-                yP = vertices[p][1]
-                x, y = self.canvasManager.P(xP, yP)
+ #           for index, p in enumerate(boundaryPoints):
+ #               xP = vertices[p][0]
+ #               yP = vertices[p][1]
+ #               x, y = self.canvasManager.P(xP, yP)
 
  #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
-                r = 3
+ #               r = 3
  #
-                self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
-                self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
+ #               self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
+ #               self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
 
 
             boundaryPoints.append(boundaryPoints[0])

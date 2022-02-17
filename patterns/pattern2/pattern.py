@@ -43,5 +43,7 @@ class Pattern(PatternParent):
         self.clockArc(x=l1-r, y=(b2-b1)/2 +b1, i=r*-1, arcDegrees=90)
         self.printTo(x=0)
         self.freeMoveHeight()
+        
+        self.onFinish()
 
         return self.getResult(), self.commands, self.currentE

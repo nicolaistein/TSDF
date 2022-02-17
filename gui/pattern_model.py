@@ -25,7 +25,8 @@ class PatternModel:
             self.params[x] = "0.0"
 
     def getGcode(self, workHeight:float=0, freeMoveHeight:float=1, eFactor:float=0, eFactorStart:float=0,
-     fFactor:float=0, overrunStart:float=0, overrunEnd:float=0, printOverrun:float=0):
+      fFactor:float=0, overrunStart:float=0, overrunEnd:float=0, printOverrun:float=0,
+      pause:float=0, cleaningX:float=None, cleaningY:float=None):
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
@@ -35,7 +36,8 @@ class PatternModel:
         if self.folderName.endswith("pattern3"): patternCalc = Pattern3
 
         return patternCalc(values, workHeight, freeMoveHeight, eFactor, eFactorStart, fFactor,
-         overrunStart, overrunEnd, printOverrun, self.x, self.y, self.rotation).gcode()
+         overrunStart, overrunEnd, printOverrun, self.x, self.y, self.rotation,
+         pause, cleaningX, cleaningY).gcode()
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"

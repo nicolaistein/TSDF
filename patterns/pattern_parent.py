@@ -9,8 +9,8 @@ from logger import log
 class PatternParent:
     def __init__(self, values: Mapping, workHeight:float, freeMoveHeight:float, 
                 eFactor:float, eFactorStart:float, fValue:float, overrunStart:float, overrunEnd:float,
-                printOverrun:float, 
-                startX: float, startY: float, rotation:float):
+                printOverrun:float, startX: float, startY: float, rotation:float,
+                pause:float=0, cleaningX:float=None, cleaningY:float=None):
         self.values = values
         self.workheight = workHeight
         self.freemoveHeight = freeMoveHeight
@@ -21,6 +21,9 @@ class PatternParent:
         self.overrunStart = overrunStart
         self.overrunEnd = overrunEnd
         self.printOverrun = printOverrun
+        self.pause = pause
+        self.cleaningX = cleaningX
+        self.cleaningY = cleaningY
         self.currentX = 0
         self.currentY = 0
         self.currentE = eFactorStart
@@ -48,7 +51,8 @@ class PatternParent:
 
 
     def addCmd(self, prefix: str, x:float=None, y:float=None, z:float=None,
-     i:float=None, j:float=None, arcDegrees:int=None, printing:bool=False, moving:bool=False):
+      i:float=None, j:float=None, p:int=None, arcDegrees:int=None,
+      printing:bool=False, moving:bool=False):
 
         #x and y are both needed for rotation (even if one of them does not change)
         x = x if not x is None else self.currentX
@@ -122,7 +126,7 @@ class PatternParent:
                     previousX -= vec[0]
                     previousY -= vec[1]
 
-        self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
+        self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j, p=p,
             arcDegrees=arcDegrees, previousX=previousX, previousY=previousY,
               printing=printing, moving=moving))
 
@@ -143,12 +147,6 @@ class PatternParent:
     def counterClockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
         self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True)
 
-    def relativeMode(self):
-        self.add("G91")
-
-    def absoluteMode(self):
-        self.add("G90")
-
     def workHeight(self):
         self.moveTo(z=self.workheight)
 
@@ -158,6 +156,15 @@ class PatternParent:
     def rotate(self, x:float, y:float):
         result = self.rotationMatrix.dot(np.array([x, y]))
         return result[0], result[1]
+
+    def onFinish(self):
+        if self.pause != 0:
+            self.addCmd("G4", p=self.pause)
+        
+        if self.cleaningX is not None and self.cleaningY is not None:
+            self.commands.append(GCodeCmd("G0", x=self.cleaningX, y=self.cleaningY, moving=True))
+
+            #Todo: Move down
 
     @abc.abstractmethod
     def gcode(self, startX: float, startY: float, workHeight: float):
