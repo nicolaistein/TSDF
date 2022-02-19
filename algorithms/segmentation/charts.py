@@ -223,9 +223,8 @@ class Charts:
             if val == -1: found.append(key)
 
         log("Uncharted faces size: " + str(len(found)))
-
+        unprocessed =  0
         while len(found) > 0:
-
             face = found.pop(0)
             adjacent = []
 #            neighbors = 0
@@ -239,11 +238,13 @@ class Charts:
 
             if len(adjacent) == 0:
                 found.append(face)
+                unprocessed += 1
                 continue
 
-#            if neighbors >= 2 and len(adjacent) <= 1:
-#                found.append(face)
-#                continue
+            if len(adjacent) <= 2 and unprocessed < len(found)-1:
+                found.append(face)
+                unprocessed += 1
+                continue
 
 
             minChart = -1
@@ -255,6 +256,8 @@ class Charts:
                     minChart = oppChart
 
             self.charts[face] = minChart
+            unprocessed = 0
+            if len(found) % 400 == 0: log("Remaining: " + str(len(found)))
         
 
     def expandEdge(self, feature:int, edge:int, distance:int):
@@ -456,7 +459,7 @@ class Charts:
     #        facet F ← facet(h)
           
             f, h = heap.pop()
-            if h in self.features: continue
+    #        if h in self.features: continue
 
     #        facet Fopp ← the opposite facet of F relative to h
             fopp = self.getOppositeFace(h, f)
