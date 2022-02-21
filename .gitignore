@@ -7,5 +7,7 @@
 *.txt
 *.html
 *.log
+*.eps
 
+canvas.png
 test.py

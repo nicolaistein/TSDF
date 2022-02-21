@@ -1,3 +1,4 @@
+from fileinput import filename
 from tkinter import *
 from tkinter import messagebox
 from tkinter.filedialog import askdirectory
@@ -6,7 +7,13 @@ from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.menu_heading.menu_heading import MenuHeading
 import gui.menu_heading.info_texts as infotexts
+from gui.left_side_menu.file_menu import FileMenu
+from tkinter import filedialog
 from logger import log
+import shutil
+import win32gui
+
+from PIL import ImageGrab
 import os
 
 
@@ -14,12 +21,13 @@ class ExportMenu:
     mainFrame:Frame = None
     button:TkinterCustomButton = None
 
-    def __init__(self, master: Frame, canvasManager: CanvasManager):
+    def __init__(self, master: Frame, canvasManager: CanvasManager, fileMenu:FileMenu):
         self.master = master
+        self.fileMenu = fileMenu
         self.canvasManager = canvasManager
         self.plotter = canvasManager.measurePlotter
 
-    def buttonClick(self):
+    def exporObj(self):
         if len(self.canvasManager.objectPlotters) == 0: return
         folder = askdirectory()
         if not os.path.isdir(folder): return
@@ -46,8 +54,23 @@ class ExportMenu:
         messagebox.showinfo("Export", "Successfully exported "
          + str(length) + " " + text + " to " + file.name)
 
+
+    def exportPng(self):
+        chosenFile = filedialog.asksaveasfile(mode='w', defaultextension=".png", filetypes=[("Png Image", ".png")])
+        if chosenFile is None:
+            return
+        chosenFile.close()
+
+        HWND = self.canvasManager.canvas.winfo_id()
+        rect = win32gui.GetWindowRect(HWND)
+        im = ImageGrab.grab(rect)  
+        im.save("canvas.png")
+        shutil.copy("canvas.png",chosenFile.name)
+
+
     def refreshView(self):
-        self.button.delete()
+        self.objButton.delete()
+        self.pngButton.delete()
         for child in self.mainFrame.winfo_children():
             child.destroy()
         self.mainFrame.destroy()
@@ -59,8 +82,13 @@ class ExportMenu:
 
         self.mainFrame.pack_propagate(0)
 
-        self.button = TkinterCustomButton(master=self.mainFrame, text="Export", command=self.buttonClick,
-                            corner_radius=60, height=25, width=100)
-        self.button.pack(side=TOP)
+        buttonframe = Frame(self.mainFrame)
+        self.objButton = TkinterCustomButton(master=buttonframe, text="obj", command=self.exporObj,
+                            corner_radius=60, height=25, width=60)
+        self.objButton.pack(side=LEFT)
+        self.pngButton = TkinterCustomButton(master=buttonframe, text="png", command=self.exportPng,
+                            corner_radius=60, height=25, width=60)
+        self.pngButton.pack(side=LEFT, padx=(10,0))
+        buttonframe.pack(side=TOP)
 
         self.mainFrame.pack(side=TOP, pady=(2, 0))

@@ -32,7 +32,7 @@ canvasManager = CanvasManager(root, canvasSize, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
 measuringTool = MeasuringTool(leftContainer, canvasManager)
 fileMenu = FileMenu(leftContainer, plotter, mainColor)
-exportMenu = ExportMenu(leftContainer, canvasManager)
+exportMenu = ExportMenu(leftContainer, canvasManager, fileMenu)
 
 fileMenu.build()
 analyzeMenu = AnalyzeMenu(leftContainer, fileMenu, mainColor)
