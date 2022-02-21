@@ -81,7 +81,7 @@ class ComputationInfo:
 
         self.mainFrame = Frame(self.master)
         self.content = Frame(self.mainFrame, width=260,
-                             height=400, padx=20, pady=20)
+                             height=450, padx=20, pady=20)
         self.content.pack_propagate(0)
 
         MenuHeading("Plotting Options", infotexts.plottingOptions).build(self.content)

@@ -127,6 +127,8 @@ class PlottingOptionCalculator:
             self.totalDistortionWholeObject += dist2
 
         log(str(self.option) + " avg dist: " + str(self.totalDistortion))
+        log(str(self.option) + " avg dist rounded: " + str(round(self.totalDistortion, 4)))
+        log(str(self.option) + " min dist: " + str(min(self.distortions.values())))
         log(str(self.option) + " max dist: " + str(max(self.distortions.values())))
 
         return self.distortions, self.totalDistortion

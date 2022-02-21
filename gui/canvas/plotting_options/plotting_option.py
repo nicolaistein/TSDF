@@ -7,6 +7,7 @@ from gui.canvas.plotting_options.calculators.default_calculator import DefaultCa
 from gui.canvas.plotting_options.calculators.face_colors_calculator import FaceColorsCalculator
 from gui.canvas.plotting_options.calculators.arap_calculator import ArapCalculator
 from gui.canvas.plotting_options.calculators.maximal_isometric_calculator import MaximalIsometricCalculator
+from gui.canvas.plotting_options.calculators.efficient_isometric_calculator import EfficientIsometricCalculator
 
 class PlottingOption(Enum):
      NO_DIST = 0
@@ -14,6 +15,7 @@ class PlottingOption(Enum):
      LSCM = 2
      ARAP = 3
      MAX_ISOMETRIC = 4
+     EFFICIENT_ISOMETRIC = 5
 
      def toString(self):
           switcher = {
@@ -21,7 +23,8 @@ class PlottingOption(Enum):
                1: "Chart Colors",
                2: "Angular Dist.",
                3: "Isometric Dist.",
-               4: "Max. isom. Dist."
+               4: "Max. isom. Dist.",
+               5: "Fast isom. Dist."
           }
           return switcher[self.value]
 
@@ -33,7 +36,8 @@ class PlottingOption(Enum):
                1: FaceColorsCalculator,
                2: LscmCalculator,
                3: ArapCalculator,
-               4: MaximalIsometricCalculator
+               4: MaximalIsometricCalculator,
+               5: EfficientIsometricCalculator
           }
 
           calculator = switcher[self.value]
@@ -44,9 +48,10 @@ class PlottingOption(Enum):
           switcher = {
                0: (None, None),
                1: (None, None),
-               2: (0, 0.5),
-               3: (0, 1),
-               4: (1, 2)
+               2: (0, 0.4),
+               3: (0, 0.8),
+               4: (1, 1.8),
+               5: (4, 10)
           }
           return switcher[self.value]
 
@@ -56,7 +61,8 @@ class PlottingOption(Enum):
                1: None,
                2: (255, 0, 0),
                3: (0, 0, 255),
-               4: (255, 105, 36)
+               4: (255, 105, 36),
+               5: (65, 30, 148)
           }
           return switcher[self.value]
      
