@@ -37,9 +37,9 @@ class AllPatterns:
         imgFile = pattern.img
         imgFile.thumbnail([200, 200], Image.ANTIALIAS)
         img = ImageTk.PhotoImage(imgFile)
-        panel = Label(patternFrame, image=img, width=200, height=130)
+        panel = Label(patternFrame, image=img, width=200, height=200)
         panel.image = img
-        panel.pack(side=LEFT, fill="both", expand="yes", anchor=N)
+        panel.pack(side=LEFT, fill="both", expand="yes")
 
         infoFrame = Frame(patternFrame)
         for (key, value) in pattern.attributes.items():
@@ -59,8 +59,8 @@ class AllPatterns:
         TkinterCustomButton(master=infoFrame, text="Place", command=partial(self.place, pattern.folderName),
                             corner_radius=60, height=25, width=80).pack(side=LEFT, pady=(10, 0))
 
-        infoFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
-        patternFrame.pack(side=TOP, pady=(20, 0), anchor=W)
+        infoFrame.pack(side=LEFT, padx=(10, 0))
+        patternFrame.pack(side=TOP, pady=(0, 0))
 
     def build(self):
 
