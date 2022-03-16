@@ -77,18 +77,18 @@ class ExportMenu:
         self.build()
 
     def build(self):
-        self.mainFrame = Frame(self.master, width=260, height=120, padx=20, pady=20)
-        MenuHeading("Export Flat Shapes", infotexts.exportShapes).build(self.mainFrame)
+        self.mainFrame = Frame(self.master, width=260, height=140, padx=20, pady=20)
+        MenuHeading("Export", infotexts.exportShapes).build(self.mainFrame)
 
         self.mainFrame.pack_propagate(0)
 
         buttonframe = Frame(self.mainFrame)
-        self.objButton = TkinterCustomButton(master=buttonframe, text="obj", command=self.exporObj,
-                            corner_radius=60, height=25, width=60)
-        self.objButton.pack(side=LEFT)
-        self.pngButton = TkinterCustomButton(master=buttonframe, text="png", command=self.exportPng,
-                            corner_radius=60, height=25, width=60)
-        self.pngButton.pack(side=LEFT, padx=(10,0))
+        self.objButton = TkinterCustomButton(master=buttonframe, text="Flat Shapes (.obj)", command=self.exporObj,
+                            corner_radius=60, height=25, width=150)
+        self.objButton.pack(side=TOP)
+        self.pngButton = TkinterCustomButton(master=buttonframe, text="Canvas (.png)", command=self.exportPng,
+                            corner_radius=60, height=25, width=130)
+        self.pngButton.pack(side=TOP, pady=(10,0))
         buttonframe.pack(side=TOP)
 
         self.mainFrame.pack(side=TOP, pady=(2, 0))
