@@ -96,7 +96,7 @@ class CanvasManager:
         self.xmax = self.ymax = round(maxValue, 2)
 
 
-#        self.drawBorders(shapes, idToRect)
+    #   self.drawBorders(shapes, idToRect)
 
 
         # Transform to canvas coordinates
@@ -233,8 +233,8 @@ class CanvasManager:
             upper = yR+h
             right = xR+w
 
-            self.borders.append(self.canvas.create_line(self.P(xR,yR), self.P(right, yR), fill="red"))
-            self.borders.append(self.canvas.create_line(self.P(xR,yR), self.P(xR, upper), fill="red"))
+            self.borders.append(self.canvas.create_line(self.P(xR,yR), self.P(right, yR), fill="blue"))
+            self.borders.append(self.canvas.create_line(self.P(xR,yR), self.P(xR, upper), fill="blue"))
             
-            self.borders.append(self.canvas.create_line(self.P(right, upper), self.P(right, yR), fill="red"))
-            self.borders.append(self.canvas.create_line(self.P(right, upper), self.P(xR, upper), fill="red"))
+            self.borders.append(self.canvas.create_line(self.P(right, upper), self.P(right, yR), fill="blue"))
+            self.borders.append(self.canvas.create_line(self.P(right, upper), self.P(xR, upper), fill="blue"))

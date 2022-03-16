@@ -9,7 +9,6 @@ class SegmentationParser:
     """
     faces: List of faces
     vertices: List of vertices
-    SOD: mapping face1:face2 -> SOD
     edgeToFaces: mapping edge -> List of faces 
     """
 

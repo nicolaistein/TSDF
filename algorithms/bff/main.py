@@ -22,6 +22,7 @@ class BFF:
         execute_bff = subprocess.run(
             [commandPath, self.objPath, "./algorithms/bff/result.obj", "--nCones=%s" % (self.coneCount)])
 
+    #    resultFile = open("./algorithms/bff/result.obj", "r")
         resultFile = open("./algorithms/bff/result.obj", "r")
         content = resultFile.read()
 
@@ -40,5 +41,6 @@ class BFF:
                 x2 = self.getTextureVertex(split[2])
                 x3 = self.getTextureVertex(split[3])
                 faces.append([x2, x3, x1])
+    #            faces.append([x1, x2, x3])
 
         return vertices, faces
