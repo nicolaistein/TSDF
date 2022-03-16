@@ -481,10 +481,6 @@ class Charts:
                     + "/"
                     + str(len(self.parser.faces))
                 )
-            #        if counter % 10000 == 0: self.plotCurrent()
-            #        halfedge h ← e ∈ Heap such that dist(e) is maximum
-            #        remove h from Heap
-            #        facet F ← facet(h)
 
             f, h = heap.pop()
             #        if h in self.features: continue
@@ -533,11 +529,7 @@ class Charts:
                 if self.chartOf(fopp) != self.chartOf(f):
                     if self.max_dist(f) - dist[f] < self.epsilon:
                         if self.max_dist(fopp) - dist[f] < self.epsilon:
-                            #            merge chart(F ) and chart(Fopp)
-
-                            #                self.charts[fopp] = self.charts[f]
                             self.merge(f, fopp)
-                            #                log("Potential Merge")
                             pass
 
     #        end // if
@@ -571,7 +563,6 @@ class Charts:
     def merge(self, c1: int, c2: int):
         chart1 = self.chartOf(c1)
         chart2 = self.chartOf(c2)
-        #        log("Merge " + str(chart1) + " - " + str(chart2))
         for index, val in enumerate(self.charts):
             if val == chart2:
                 self.charts[index] = chart1

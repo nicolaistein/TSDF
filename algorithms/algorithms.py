@@ -1,7 +1,6 @@
 from logger import log
 from algorithms.bff.main import BFF
 from algorithms.arap.arap import ARAP
-from algorithms.lscm.lscm import LSCM
 import time
 
 
@@ -37,10 +36,6 @@ def getFaces(objPath: str):
 
 def executeBFF(coneCount: int, file: str):
     return executeAlgo(BFF(coneCount, file), False)
-
-
-def executeLSCM(file: str):
-    return executeAlgo(LSCM(file))
 
 
 def executeARAP(file: str):

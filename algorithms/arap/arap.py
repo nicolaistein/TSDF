@@ -1,8 +1,6 @@
 import numpy as np
 import os
 import igl
-import traceback
-import logging
 from logger import log
 
 

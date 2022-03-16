@@ -9,10 +9,7 @@ from algorithms.algorithms import *
 from logger import log
 from gui.canvas.plotting_options.plotting_option import PlottingOption
 from util import doIntersect, subtract, angle_between, getFlatTriangle
-import os
 import igl
-import sys
-import io
 
 
 class Automator:
@@ -320,34 +317,23 @@ class Automator:
         return len(bnd) == 0
 
     def isBasicShape(self):
-
         sodsToAnalyze = []
         for val in self.segmenter.parser.SOD.values():
             if val != 360 and val != 0:
                 sodsToAnalyze.append(val)
 
-        #    if len(self.faces) <= 100: return True
         underThresh = 0
         total = len(sodsToAnalyze)
         for val in sodsToAnalyze:
             if val <= self.basicShapeThreshholdValue:
                 underThresh += 1
 
-        log("underThresh: " + str(underThresh))
-        log("total: " + str(total))
         if total == 0:
             return True
-        log("underThresh / total: " + str(underThresh / total))
         return (underThresh / total) < self.basicShapeThreshholdPercentage
 
     def flatten(self):
-        methods = [
-            executeARAP,
-            partial(executeLSCM),
-            partial(executeBFF, 0)
-            #        , partial(executeBFF, 1)
-            #        , partial(executeBFF, 2)
-        ]
+        methods = [executeARAP, partial(executeBFF, 0)]
         res = None
         for m in methods:
             _, pB, fB, pA, fA = m(self.filename)
@@ -377,36 +363,6 @@ class Automator:
                     )
                     res = pB, fB, pA, fA
         return res
-
-        # Use arap
-        #        self.logger.start()
-        # do what you have to do to create some output
-        #        with capture2() as output:
-        _, pB1, fB1, pA1, fA1 = executeARAP(self.filename)
-        _, pB2, fB2, pA2, fA2 = executeBFF(0, self.filename)
-        _, pB3, fB3, pA3, fA3 = executeBFF(1, self.filename)
-
-        (aD1, mAD1, iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(
-            pB1, fB1, pA1, fA1
-        )
-        (aD2, mAD2, iD2, mID2, mmaxID2, mmmaxID2) = self.calcDistortions(
-            pB2, fB2, pA2, fA2
-        )
-        (aD3, mAD3, iD3, mID3, mmaxID3, mmmaxID3) = self.calcDistortions(
-            pB3, fB3, pA3, fA3
-        )
-
-        if iD1 <= iD2 and iD1 <= iD3 and not self.overlaps(pA1, fA1):
-            self.setDistortionValues(aD1, mAD1, iD1, mID1, mmaxID1, mmmaxID1)
-            return pB1, fB1, pA1, fA1
-
-        elif iD3 <= iD1 and iD3 <= iD1 and not self.overlaps(pA3, fA3):
-            self.setDistortionValues(aD3, mAD3, iD3, mID3, mmaxID3, mmmaxID3)
-            return pB3, fB3, pA3, fA3
-
-        else:
-            self.setDistortionValues(aD2, mAD2, iD2, mID2, mmaxID2, mmmaxID2)
-            return pB2, fB2, pA2, fA2
 
     def setDistortionValues(
         self,
@@ -438,10 +394,6 @@ class Automator:
         del x1[-1]
         del x2[-1]
         del x3[-1]
-        log(
-            "RETURNING AUTO "
-            + str((0, self.vertices, self.faces, [x1, x2, x3], self.faces))
-        )
         return [], [(0, self.vertices, self.faces, [x1, x2, x3], self.faces)]
 
 

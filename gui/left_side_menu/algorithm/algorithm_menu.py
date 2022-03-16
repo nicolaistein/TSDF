@@ -26,8 +26,7 @@ class AlgorithmMenu:
 
     algorithms = [
         ("BFF", 0),
-        ("LSCM", 1),
-        ("ARAP", 2),
+        ("ARAP", 1),
     ]
 
     def __init__(
@@ -104,8 +103,6 @@ class AlgorithmMenu:
             algorithmFunc = partial(executeBFF, coneCount)
             algoName = "BFF with " + str(coneCount) + " cones"
         if chosen == 1:
-            algorithmFunc = executeLSCM
-        if chosen == 2:
             algorithmFunc = executeARAP
 
         chartList = []
