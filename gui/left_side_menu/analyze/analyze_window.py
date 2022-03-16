@@ -7,8 +7,15 @@ import gui.time_formatter as formatter
 
 
 class AnalyzeWindow:
-
-    def __init__(self, root, vertexCount:int, triangleCount:int, closed:bool, basicShape:bool, curves:bool):
+    def __init__(
+        self,
+        root,
+        vertexCount: int,
+        triangleCount: int,
+        closed: bool,
+        basicShape: bool,
+        curves: bool,
+    ):
         self.window = Toplevel(root)
         self.window.iconbitmap("image.ico")
         self.closed = closed
@@ -21,12 +28,12 @@ class AnalyzeWindow:
         self.buttonCancel.delete()
         self.window.destroy()
 
-    def buildHeading(self, master:Frame, text:str, pady=30):
+    def buildHeading(self, master: Frame, text: str, pady=30):
         label = Label(master, text=text)
         label.configure(font=("Helvetica", 12, "bold"))
         label.pack(side=TOP, anchor=W, pady=(pady, 0))
-  
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
+
+    def getKeyValueFrame(self, parent: Frame, key: str, value: str):
         keyValFrame = Frame(parent)
         keyLabel = Label(keyValFrame, text=key, anchor=W, justify=LEFT, width=14)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
@@ -38,7 +45,7 @@ class AnalyzeWindow:
         return valLabel
 
     def getSuggestion(self):
-        
+
         if self.basicShape:
             if not self.curves:
                 res = "BFF with the amount of cones being the number of visible corners in the mesh."
@@ -51,7 +58,7 @@ class AnalyzeWindow:
 
             else:
                 res = "ARAP/BFF and if the distortion is too high continue with segmentation"
-            
+
         return res
 
     def openWindow(self):
@@ -61,31 +68,56 @@ class AnalyzeWindow:
         mainContainer = Frame(self.window, padx=20, pady=20)
 
         self.buildHeading(mainContainer, "Estimated Runtimes", 0)
-        self.getKeyValueFrame(mainContainer, "BFF", formatter.formatTime(runtimes.bffTime(self.triangleCount, self.basicShape)) + " per cone")
-        self.getKeyValueFrame(mainContainer, "LSCM", formatter.formatTime(runtimes.lscmTime(self.triangleCount)))
-        self.getKeyValueFrame(mainContainer, "ARAP", formatter.formatTime(runtimes.arapTime(self.triangleCount)))
+        self.getKeyValueFrame(
+            mainContainer,
+            "BFF",
+            formatter.formatTime(runtimes.bffTime(self.triangleCount, self.basicShape))
+            + " per cone",
+        )
+        self.getKeyValueFrame(
+            mainContainer,
+            "LSCM",
+            formatter.formatTime(runtimes.lscmTime(self.triangleCount)),
+        )
+        self.getKeyValueFrame(
+            mainContainer,
+            "ARAP",
+            formatter.formatTime(runtimes.arapTime(self.triangleCount)),
+        )
         self.getKeyValueFrame(mainContainer, "Segmentation", "No data available yet")
         self.getKeyValueFrame(mainContainer, "Automatic Mode", "No data available yet")
 
-
         self.buildHeading(mainContainer, "Possibilities")
-        
+
         maxCones = self.vertexCount
-        Label(mainContainer, text="BFF with max. " + str(maxCones) + " cones").pack(side="top", anchor="w")
+        Label(mainContainer, text="BFF with max. " + str(maxCones) + " cones").pack(
+            side="top", anchor="w"
+        )
         if not self.closed:
             Label(mainContainer, text="LSCM").pack(side="top", anchor="w")
             Label(mainContainer, text="ARAP").pack(side="top", anchor="w")
-        Label(mainContainer, text="Segmentation + BFF/ARAP/LSCM").pack(side="top", anchor="w")
+        Label(mainContainer, text="Segmentation + BFF/ARAP/LSCM").pack(
+            side="top", anchor="w"
+        )
 
         self.buildHeading(mainContainer, "Suggestion")
-        Label(mainContainer, text=self.getSuggestion(), wraplength=250, justify=LEFT).pack(side=TOP, anchor=W)
-      
+        Label(
+            mainContainer, text=self.getSuggestion(), wraplength=250, justify=LEFT
+        ).pack(side=TOP, anchor=W)
+
         # buttons
         buttonFrame = Frame(mainContainer)
 
-        self.buttonCancel = TkinterCustomButton(master=buttonFrame, text="Close", command=self.abort,
-                                                fg_color="#a62828", hover_color="#c75454",
-                                                corner_radius=60, height=25, width=80)
+        self.buttonCancel = TkinterCustomButton(
+            master=buttonFrame,
+            text="Close",
+            command=self.abort,
+            fg_color="#a62828",
+            hover_color="#c75454",
+            corner_radius=60,
+            height=25,
+            width=80,
+        )
         self.buttonCancel.pack(side=LEFT)
 
         buttonFrame.pack(side=TOP, anchor=W, pady=(30, 0))

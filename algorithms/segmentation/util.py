@@ -3,7 +3,8 @@ from algorithms.segmentation.data_parser import SegmentationParser
 
 filename = "features.txt"
 
-def saveMarkedFeatures(features:List[int], parser:SegmentationParser):
+
+def saveMarkedFeatures(features: List[int], parser: SegmentationParser):
     file = open(filename, "w")
     for edge in features:
         v = parser.edgeToVertices[edge]
@@ -11,12 +12,10 @@ def saveMarkedFeatures(features:List[int], parser:SegmentationParser):
 
     file.close()
 
+
 def loadMarkedFeatures():
     file = open("features.txt", "r")
     vertices = []
     for line in file:
         vertices.append(int(line.split("#")[0]))
     return vertices
-
-
-

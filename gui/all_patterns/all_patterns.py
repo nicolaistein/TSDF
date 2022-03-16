@@ -15,9 +15,13 @@ from gui.listview import ListView
 
 
 class AllPatterns:
-
-    def __init__(self, master: Frame, mainColor: str,
-     patternList: PlacedPatternsMenu, canvasManager:CanvasManager):
+    def __init__(
+        self,
+        master: Frame,
+        mainColor: str,
+        patternList: PlacedPatternsMenu,
+        canvasManager: CanvasManager,
+    ):
         self.canvasManager = canvasManager
         self.mainFrame = Frame(master, bg=mainColor)
         self.patternList = patternList
@@ -27,8 +31,14 @@ class AllPatterns:
         pass
 
     def place(self, patternFolderName):
-        PatternInputWindow(self.mainFrame, PatternModel(patternFolderName), self.onEdit,
-                           self.patternList.addPattern, self.canvasManager, False).openWindow()
+        PatternInputWindow(
+            self.mainFrame,
+            PatternModel(patternFolderName),
+            self.onEdit,
+            self.patternList.addPattern,
+            self.canvasManager,
+            False,
+        ).openWindow()
 
     def buildPattern(self, folderName: str):
         patternFrame = Frame(self.innerContent)
@@ -44,20 +54,32 @@ class AllPatterns:
         infoFrame = Frame(patternFrame)
         for (key, value) in pattern.attributes.items():
             keyVal = Frame(infoFrame)
-            keyLabel = Label(keyVal, text=key, width=6,
-                             anchor=W, justify=LEFT, wraplength=50)
+            keyLabel = Label(
+                keyVal, text=key, width=6, anchor=W, justify=LEFT, wraplength=50
+            )
             keyLabel.configure(font=("Helvetica", 10, "bold"))
             keyLabel.pack(side=LEFT)
-            Label(keyVal, text=value if value else "-", anchor=S, justify=LEFT, wraplength=70
-                  ).pack(side=LEFT)
+            Label(
+                keyVal,
+                text=value if value else "-",
+                anchor=S,
+                justify=LEFT,
+                wraplength=70,
+            ).pack(side=LEFT)
 
             keyLabel.configure(font=("Helvetica", 10, "bold"))
             keyLabel.pack(side=LEFT)
 
             keyVal.pack(side=TOP, anchor=W)
 
-        TkinterCustomButton(master=infoFrame, text="Place", command=partial(self.place, pattern.folderName),
-                            corner_radius=60, height=25, width=80).pack(side=LEFT, pady=(10, 0))
+        TkinterCustomButton(
+            master=infoFrame,
+            text="Place",
+            command=partial(self.place, pattern.folderName),
+            corner_radius=60,
+            height=25,
+            width=80,
+        ).pack(side=LEFT, pady=(10, 0))
 
         infoFrame.pack(side=LEFT, padx=(10, 0))
         patternFrame.pack(side=TOP, pady=(0, 0))
@@ -66,7 +88,9 @@ class AllPatterns:
 
         MenuHeading("All Patterns", infotexts.allPatterns).build(self.content)
 
-        self.innerContent = ListView(self.content, width=340, height=320, padx=0).build()
+        self.innerContent = ListView(
+            self.content, width=340, height=320, padx=0
+        ).build()
 
         for file in os.listdir("patterns"):
             if os.path.isdir("patterns/" + file) and file.startswith("pattern"):

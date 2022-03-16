@@ -11,17 +11,14 @@ class LSCM:
     def execute(self):
         root_folder = os.getcwd()
 
-        # Load a mesh in OFF format
         v, f = igl.read_triangle_mesh(os.path.join(root_folder, self.objPath))
         log("Vertices: " + str(len(v)))
         log("Faces: " + str(len(f)))
 
         if len(f) > 0 and type(f[0]) is not np.ndarray:
             f = np.matrix([list(f)])
-            
-        # Fix two points on the boundary
-        b = np.array([2, 1])
 
+        b = np.array([2, 1])
         bnd = igl.boundary_loop(f)
         log("Boundary loop length: " + str(len(bnd)))
 
@@ -29,8 +26,6 @@ class LSCM:
         b[1] = bnd[int(bnd.size / 2)]
 
         bc = np.array([[0.0, 0.0], [1.0, 0.0]])
-
-        # LSCM parametrization
         _, uv = igl.lscm(v, f, b, bc)
 
         return uv

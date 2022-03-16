@@ -13,20 +13,20 @@ from logger import log
 class MeasuringTool:
     length = -1
     angle = -1
-    currentlyMeasuring:bool = False
-    mainFrame:Frame = None
-    button:TkinterCustomButton = None
+    currentlyMeasuring: bool = False
+    mainFrame: Frame = None
+    button: TkinterCustomButton = None
 
     def __init__(self, master: Frame, canvasManager: CanvasManager):
         self.master = master
         self.canvasManager = canvasManager
         self.plotter = canvasManager.measurePlotter
 
-
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
+    def getKeyValueFrame(self, parent: Frame, key: str, value: str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=10,
-                            anchor=W, justify=LEFT, wraplength=120)
+        keyLabel = Label(
+            keyValFrame, text=key, width=10, anchor=W, justify=LEFT, wraplength=120
+        )
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
         valLabel = Label(keyValFrame, text=value, wraplength=100)
@@ -40,21 +40,22 @@ class MeasuringTool:
             self.length = distance.euclidean(points[0], points[1])
 
         if len(points) >= 3:
-            v1 = np.array(points[1])-np.array(points[0])
-            v2 = np.array(points[1])-np.array(points[2])
+            v1 = np.array(points[1]) - np.array(points[0])
+            v2 = np.array(points[1]) - np.array(points[2])
             norm1 = np.linalg.norm(v1)
             norm2 = np.linalg.norm(v2)
-            if norm1 == 0 or norm2 == 0: return
+            if norm1 == 0 or norm2 == 0:
+                return
             v1_u = v1 / norm1
             v2_u = v2 / norm2
             self.angle = math.degrees(np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0)))
 
         self.refreshValues()
 
-
     def buttonClick(self):
-        if self.currentlyMeasuring: self.onAbort()
-        else: 
+        if self.currentlyMeasuring:
+            self.onAbort()
+        else:
             self.currentlyMeasuring = True
             self.refreshValues()
             self.refreshButton()
@@ -75,7 +76,6 @@ class MeasuringTool:
         self.refreshValues()
         self.refreshButton()
 
-
     def refreshButton(self):
         if self.button is not None:
             self.button.delete()
@@ -83,11 +83,25 @@ class MeasuringTool:
         text = "Abort" if self.currentlyMeasuring else "Measure"
 
         if not self.currentlyMeasuring:
-            self.button = TkinterCustomButton(master=self.mainFrame, text=text, command=self.buttonClick,
-                            corner_radius=60, height=25, width=140)
+            self.button = TkinterCustomButton(
+                master=self.mainFrame,
+                text=text,
+                command=self.buttonClick,
+                corner_radius=60,
+                height=25,
+                width=140,
+            )
         else:
-            self.button = TkinterCustomButton(master=self.mainFrame, text=text, command=self.buttonClick,
-                            fg_color="#a62828", hover_color="#c75454", corner_radius=60, height=25, width=140)
+            self.button = TkinterCustomButton(
+                master=self.mainFrame,
+                text=text,
+                command=self.buttonClick,
+                fg_color="#a62828",
+                hover_color="#c75454",
+                corner_radius=60,
+                height=25,
+                width=140,
+            )
 
         self.button.pack(side=TOP, pady=(10, 0))
 
@@ -96,7 +110,6 @@ class MeasuringTool:
         self.lengthText.configure(text=lengthT)
         angleT = "-" if self.angle == -1 else str(round(self.angle, 2)) + "°"
         self.angleText.configure(text=angleT)
-
 
     def build(self):
         self.mainFrame = Frame(self.master, width=260, height=160, padx=20, pady=20)

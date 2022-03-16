@@ -12,9 +12,15 @@ from gui.canvas.canvas_manager import CanvasManager
 
 
 class PatternInputWindow:
-
-    def __init__(self, root, pattern: PatternModel, onEdit, onComplete,
-     canvasManager:CanvasManager, isEditMode:bool):
+    def __init__(
+        self,
+        root,
+        pattern: PatternModel,
+        onEdit,
+        onComplete,
+        canvasManager: CanvasManager,
+        isEditMode: bool,
+    ):
         self.window = Toplevel(root)
         self.window.iconbitmap("image.ico")
         self.oldObject = copy(pattern)
@@ -42,24 +48,22 @@ class PatternInputWindow:
         self.pickingLocation = False
 
     def onCanvasClickRight(self, event):
-        if not self.pickingLocation: return
+        if not self.pickingLocation:
+            return
         self.pickingLocation = False
         self.positionInput.setValues(self.previousLocation)
 
     def onMouseMoved(self, event):
         x, y = self.canvasManager.reverseP(event.x, event.y)
-    #    self.canvas.itemconfigure(self.tag, text="(%r, %r)" % (x, y))
         if self.pickingLocation:
             self.collectValues()
             self.pattern.x = x
             self.pattern.y = y
             self.canvasManager.patternPlotter.refreshPattern(self.pattern)
-            self.positionInput.setValues({"x":x, "y":y})
+            self.positionInput.setValues({"x": x, "y": y})
             self.onEdit()
 
-
     def abort(self):
-        #Reset values
         self.pattern.name = self.oldObject.name
         self.pattern.params = self.oldObject.params
         self.pattern.x = self.oldObject.x
@@ -74,7 +78,6 @@ class PatternInputWindow:
         self.deleteButtons()
         self.window.destroy()
         self.pickingLocation = False
-#        self.onComplete(self.pattern)
 
     def deleteButtons(self):
         self.buttonAccept.delete()
@@ -87,7 +90,6 @@ class PatternInputWindow:
     def onValueChange(self):
         self.collectValues()
         self.canvasManager.patternPlotter.refreshPattern(self.pattern)
-
 
     def completed(self):
         self.collectValues()
@@ -107,36 +109,41 @@ class PatternInputWindow:
             self.pattern.setLocation(float(loc["x"]), float(loc["y"]))
 
     def openWindow(self):
- #       self.tag = self.canvas.create_text(10, 10, text="", anchor="nw") 
+        #       self.tag = self.canvas.create_text(10, 10, text="", anchor="nw")
         self.window.title(
-            "Place Pattern " + self.pattern.id if not self.pattern.name
-            else "Edit Pattern " + self.pattern.name)
+            "Place Pattern " + self.pattern.id
+            if not self.pattern.name
+            else "Edit Pattern " + self.pattern.name
+        )
         self.window.resizable(False, False)
 
         mainContainer = Frame(self.window, padx=20, pady=20)
 
         pattern = self.pattern
         # Name row
-        self.nameInput = PatternInputLine(self,
-            "Name", {"name": pattern.name}, isNumeric=False)
+        self.nameInput = PatternInputLine(
+            self, "Name", {"name": pattern.name}, isNumeric=False
+        )
         self.nameInput.build(mainContainer, 10, textWidth=10)
         self.nameInput.display()
 
         # Parameter row
-        self.parameterInput = PatternInputLine(self,
-            "Parameters", self.pattern.params)
+        self.parameterInput = PatternInputLine(self, "Parameters", self.pattern.params)
         self.parameterInput.build(mainContainer, 15)
         if len(self.pattern.params) > 0:
             self.parameterInput.display()
 
         # Rotation row
-        self.rotationInput = PatternSliderInput(self,"Rotation", "degrees", pattern.rotation, 360)
+        self.rotationInput = PatternSliderInput(
+            self, "Rotation", "degrees", pattern.rotation, 360
+        )
         self.rotationInput.build(mainContainer, 15)
         self.rotationInput.display()
 
         # Position row
-        self.positionInput = PatternLocationInput(self,
-            "Position", {"x": pattern.x, "y": pattern.y})
+        self.positionInput = PatternLocationInput(
+            self, "Position", {"x": pattern.x, "y": pattern.y}
+        )
         self.positionInput.build(mainContainer, 15)
         self.positionInput.display()
 
@@ -144,14 +151,28 @@ class PatternInputWindow:
 
         # buttons
         buttonFrame = Frame(mainContainer)
-        self.buttonAccept = TkinterCustomButton(master=buttonFrame, text="Accept", command=self.completed,
-                                                fg_color="#28a63f", hover_color="#54c76d",
-                                                corner_radius=60, height=25, width=80)
+        self.buttonAccept = TkinterCustomButton(
+            master=buttonFrame,
+            text="Accept",
+            command=self.completed,
+            fg_color="#28a63f",
+            hover_color="#54c76d",
+            corner_radius=60,
+            height=25,
+            width=80,
+        )
         self.buttonAccept.pack(side=LEFT)
 
-        self.buttonCancel = TkinterCustomButton(master=buttonFrame, text="Cancel", command=self.abort,
-                                                fg_color="#a62828", hover_color="#c75454",
-                                                corner_radius=60, height=25, width=80)
+        self.buttonCancel = TkinterCustomButton(
+            master=buttonFrame,
+            text="Cancel",
+            command=self.abort,
+            fg_color="#a62828",
+            hover_color="#c75454",
+            corner_radius=60,
+            height=25,
+            width=80,
+        )
         self.buttonCancel.pack(side=LEFT, padx=(10, 0))
 
         buttonFrame.pack(side=TOP, anchor=W, pady=(30, 0))
@@ -160,4 +181,3 @@ class PatternInputWindow:
 
         self.window.protocol("WM_DELETE_WINDOW", self.abort)
         self.window.mainloop()
-

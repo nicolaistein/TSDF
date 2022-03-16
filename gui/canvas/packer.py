@@ -4,11 +4,12 @@ import gui.canvas.translator as translator
 import sys
 from logger import log
 
+
 def calc(rects, size):
     packer = newPacker(rotation=False)
 
     bins = [(float2dec(r[0], 3), float2dec(r[1], 3)) for r in [(size, size)]]
-    bins = [(size,size)]
+    bins = [(size, size)]
 
     dec_rects = [(float2dec(r[0], 3), float2dec(r[1], 3)) for r in rects]
     dec_rects = rects
@@ -24,6 +25,7 @@ def calc(rects, size):
     packer.pack()
 
     return packer.rect_list()
+
 
 def pack(shapes):
     rectangles = []
@@ -53,6 +55,7 @@ def pack(shapes):
 
     return result
 
+
 def shapeToRectangle(vertices: List[List[float]]):
     maxX = maxY = 0
     minX = minY = sys.float_info.max
@@ -64,10 +67,10 @@ def shapeToRectangle(vertices: List[List[float]]):
             minX = x
         if y < minY:
             minY = y
-        
+
         if x > maxX:
             maxX = x
         if y > maxY:
             maxY = y
 
-    return (maxX-minX, maxY-minY)
+    return (maxX - minX, maxY - minY)

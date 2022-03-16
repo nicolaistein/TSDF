@@ -15,7 +15,6 @@ from gui.listview import ListView
 mainColor = "#cccccc"
 root = Tk()
 root.title("GCode Pattern Manager")
-#root.resizable(False, False)
 root.iconbitmap("image.ico")
 root.geometry("1920x900")
 root.configure(bg=mainColor)
@@ -36,8 +35,17 @@ exportMenu = ExportMenu(leftContainer, canvasManager, fileMenu)
 
 fileMenu.build()
 analyzeMenu = AnalyzeMenu(leftContainer, fileMenu, mainColor)
-algorithmMenu = AlgorithmMenu(leftContainer, canvasManager, fileMenu, computationInfo, plotter)
-ModeMenu(leftContainer, analyzeMenu, algorithmMenu, computationInfo, measuringTool, exportMenu).build()
+algorithmMenu = AlgorithmMenu(
+    leftContainer, canvasManager, fileMenu, computationInfo, plotter
+)
+ModeMenu(
+    leftContainer,
+    analyzeMenu,
+    algorithmMenu,
+    computationInfo,
+    measuringTool,
+    exportMenu,
+).build()
 analyzeMenu.build()
 algorithmMenu.build()
 computationInfo.build()
@@ -51,7 +59,7 @@ placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
 AllPatterns(allPatternsContainer, mainColor, placedPatterns, canvasManager).build()
 plotter.show()
 
-allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20,0))
+allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20, 0))
 placedPatterns.build()
 
 root.mainloop()

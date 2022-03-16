@@ -11,13 +11,21 @@ from gui.menu_heading.menu_heading import MenuHeading
 import gui.menu_heading.info_texts as infotexts
 from logger import log
 
+
 class ModeMenu:
 
-    currentMode:ComputationMode = ComputationMode.default()
-    button:TkinterCustomButton = None
+    currentMode: ComputationMode = ComputationMode.default()
+    button: TkinterCustomButton = None
 
-    def __init__(self, master: Frame, analyzeMenu: AnalyzeMenu, algoMenu: AlgorithmMenu,
-     compInfo:ComputationInfo, measuringTool:MeasuringTool, exportMenu:ExportMenu):
+    def __init__(
+        self,
+        master: Frame,
+        analyzeMenu: AnalyzeMenu,
+        algoMenu: AlgorithmMenu,
+        compInfo: ComputationInfo,
+        measuringTool: MeasuringTool,
+        exportMenu: ExportMenu,
+    ):
         self.mainFrame = Frame(master, width=260, height=110, padx=20, pady=20)
         self.analyzeMenu = analyzeMenu
         self.algoMenu = algoMenu
@@ -37,10 +45,21 @@ class ModeMenu:
     def refreshButton(self):
         for el in self.buttonFrame.winfo_children():
             el.destroy()
-        text = "Automatic Mode" if not self.currentMode == ComputationMode.AUTOMATIC else "Manual Mode"
-        if self.button is not None: self.button.delete()
-        self.button = TkinterCustomButton(master=self.buttonFrame, text=text, command=self.changeMode,
-                            corner_radius=60, height=25, width=160)
+        text = (
+            "Automatic Mode"
+            if not self.currentMode == ComputationMode.AUTOMATIC
+            else "Manual Mode"
+        )
+        if self.button is not None:
+            self.button.delete()
+        self.button = TkinterCustomButton(
+            master=self.buttonFrame,
+            text=text,
+            command=self.changeMode,
+            corner_radius=60,
+            height=25,
+            width=160,
+        )
         self.button.pack(side=TOP)
 
     def build(self):

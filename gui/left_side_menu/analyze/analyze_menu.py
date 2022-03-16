@@ -12,18 +12,18 @@ import igl
 
 
 class AnalyzeMenu:
-    mode:ComputationMode = ComputationMode.default()
+    mode: ComputationMode = ComputationMode.default()
     mainFrame = None
 
-    def __init__(self, master: Frame, fileMenu:FileMenu, defaultColor:str):
+    def __init__(self, master: Frame, fileMenu: FileMenu, defaultColor: str):
         self.fileMenu = fileMenu
         self.master = master
         self.defaultColor = defaultColor
         self.closed = IntVar()
         self.basicShape = IntVar()
         self.curves = IntVar()
-        
-    def setMode(self, mode:ComputationMode):
+
+    def setMode(self, mode: ComputationMode):
         self.mode = mode
         self.refreshView()
 
@@ -33,18 +33,27 @@ class AnalyzeMenu:
                 el.destroy()
             self.mainFrame.destroy()
             self.mainFrame = None
-        
+
         self.build()
 
     def showResult(self):
         if self.fileMenu.getPath():
-            closed = self.closed.get() and len(igl.boundary_loop(self.fileMenu.triangles)) == 0
-            AnalyzeWindow(self.content, len(self.fileMenu.v), len(self.fileMenu.triangles), closed,
-             self.basicShape.get(), self.curves.get()).openWindow()
+            closed = (
+                self.closed.get()
+                and len(igl.boundary_loop(self.fileMenu.triangles)) == 0
+            )
+            AnalyzeWindow(
+                self.content,
+                len(self.fileMenu.v),
+                len(self.fileMenu.triangles),
+                closed,
+                self.basicShape.get(),
+                self.curves.get(),
+            ).openWindow()
         else:
             messagebox.showerror("Analyze", "You have to select a file first!")
 
-    def buildTextInput(self, label:str, val:str = ""):
+    def buildTextInput(self, label: str, val: str = ""):
         textInputFrame = Frame(self.content)
         Label(textInputFrame, text=label, wraplength=130).pack(side=LEFT, anchor=W)
         text = Text(textInputFrame, height=1, width=4)
@@ -54,26 +63,34 @@ class AnalyzeMenu:
         return text
 
     def build(self):
-        if self.mode == ComputationMode.AUTOMATIC: return
+        if self.mode == ComputationMode.AUTOMATIC:
+            return
         self.mainFrame = Frame(self.master, bg=self.defaultColor)
-        self.content = Frame(
-            self.mainFrame, width=260, height=190, padx=20, pady=20)
+        self.content = Frame(self.mainFrame, width=260, height=190, padx=20, pady=20)
 
         MenuHeading("Analyze", infotexts.analyze).build(self.content)
 
         self.content.pack_propagate(0)
-        Checkbutton(self.content, text="Object is not segmented yet", variable=self.closed).pack(
-            side="top", anchor="w")
+        Checkbutton(
+            self.content, text="Object is not segmented yet", variable=self.closed
+        ).pack(side="top", anchor="w")
 
-        Checkbutton(self.content, text="Object is a basic shape", variable=self.basicShape).pack(
-            side="top", anchor="w")
+        Checkbutton(
+            self.content, text="Object is a basic shape", variable=self.basicShape
+        ).pack(side="top", anchor="w")
 
-        Checkbutton(self.content, text="Object contains arcs/curves", variable=self.curves).pack(
-            side="top", anchor="w")
+        Checkbutton(
+            self.content, text="Object contains arcs/curves", variable=self.curves
+        ).pack(side="top", anchor="w")
 
-        TkinterCustomButton(master=self.content, text="Show result", command=self.showResult,
-                            corner_radius=60, height=25, width=140).pack(side=TOP, pady=(10, 0))
+        TkinterCustomButton(
+            master=self.content,
+            text="Show result",
+            command=self.showResult,
+            corner_radius=60,
+            height=25,
+            width=140,
+        ).pack(side=TOP, pady=(10, 0))
 
         self.content.pack(side=TOP, pady=(2, 0))
         self.mainFrame.pack()
-

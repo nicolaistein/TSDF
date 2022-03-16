@@ -16,9 +16,8 @@ from logger import log
 
 folder = "segmentation_results"
 
-class Segmenter:
 
-    
+class Segmenter:
     def __init__(self):
         self.faces = []
         self.vertices = []
@@ -26,13 +25,13 @@ class Segmenter:
         self.computedFeatures = None
 
     def parse(self, vertices, faces):
-            self.faces = faces
-            self.vertices = vertices
-            self.parser = SegmentationParser()
-            self.parser.parse(self.vertices, self.faces, True)
-            self.computedFeatures = None
+        self.faces = faces
+        self.vertices = vertices
+        self.parser = SegmentationParser()
+        self.parser.parse(self.vertices, self.faces, True)
+        self.computedFeatures = None
 
-    def compute(self, vertices, faces, chartCount:int, targetFolder:str=None):
+    def compute(self, vertices, faces, chartCount: int, targetFolder: str = None):
         if self.faces is not faces and self.vertices is not vertices:
             self.parse(vertices, faces)
 
@@ -40,18 +39,17 @@ class Segmenter:
             features = Features(self.parser)
             self.computedFeatures = features.computeFeatures()
             features.plotResult()
-        
+
         self.charts = Charts(self.parser, chartCount)
         faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)
         self.clearFolder(targetFolder)
         self.charts.plotCurrentCharts(targetFolder)
         for x in chartKeys:
             self.extract(faceToChart, x, targetFolder)
-        
-        return faceToChart, chartKeys
-        
 
-    def calc(self, targetFolder:str=None):
+        return faceToChart, chartKeys
+
+    def calc(self, targetFolder: str = None):
         self.parser.parse(self.vertices, self.faces, True)
         log("parsing finished")
 
@@ -64,28 +62,28 @@ class Segmenter:
         self.clearFolder(targetFolder)
         for x in chartKeys:
             self.extract(faceToChart, x, targetFolder)
-        
+
         return faceToChart, chartKeys
 
-    def clearFolder(self, folderName:str=None):
-        if folderName is None: folderName = os.getcwd() + "/" + folder
+    def clearFolder(self, folderName: str = None):
+        if folderName is None:
+            folderName = os.getcwd() + "/" + folder
         if os.path.isdir(folderName):
             shutil.rmtree(folderName)
 
         os.mkdir(folderName)
 
-
-    def extract(self, faceToChart, key, folderName:str=None):
-        if folderName is None: folderName = os.getcwd() + "/" + folder
+    def extract(self, faceToChart, key, folderName: str = None):
+        if folderName is None:
+            folderName = os.getcwd() + "/" + folder
         usedVertices = {}
         counter = 1
         for index, ch in enumerate(faceToChart):
             if ch == key:
                 for v in self.faces[index]:
-                    if v not in usedVertices: 
+                    if v not in usedVertices:
                         usedVertices[v] = counter
                         counter += 1
-
 
         file = open(folderName + "/" + str(key) + ".obj", "w")
         for k, v in usedVertices.items():
@@ -96,13 +94,10 @@ class Segmenter:
                 file.write(self.arrayToString("f", self.faces[index], usedVertices))
         file.close()
 
-
-    def arrayToString(self, prefix:str, list:List[int], mapping:Mapping=None):
+    def arrayToString(self, prefix: str, list: List[int], mapping: Mapping = None):
         s = prefix
         for num in list:
             s += " " + str(mapping[num] if mapping is not None else num)
 
         s += "\n"
         return s
-
-

@@ -4,8 +4,8 @@ from typing import List, Mapping
 from gui.button import TkinterCustomButton
 from gui.custom_text import CustomText
 
-class PatternInputLine:
 
+class PatternInputLine:
     def __init__(self, window, title: str, values: Mapping, isNumeric: bool = True):
         self.window = window
         self.values = values
@@ -17,16 +17,15 @@ class PatternInputLine:
             return {}
         result = {}
         for key, text in self.texts.items():
-            # Remove the /n at the end
             currentValue = text.get("1.0", END)[:-1]
             result[key] = currentValue if currentValue or not self.isNumeric else "0.0"
         return result
 
-    def setValues(self, values:Mapping):
+    def setValues(self, values: Mapping):
         for k, v in self.texts.items():
             if k in values:
                 v.delete(1.0, END)
-                v.insert(END, str(round(values[k],2)))
+                v.insert(END, str(round(values[k], 2)))
 
     def reset(self):
         for key, textField in self.texts.items():
@@ -53,7 +52,7 @@ class PatternInputLine:
                 num = float(t.get("1.0", END)[:-1])
 
             # Make sure everything is initialized
-    #        if len(self.texts) == len(self.values):
+            #        if len(self.texts) == len(self.values):
             self.window.onValueChange()
         except ValueError:
             pass
@@ -71,17 +70,23 @@ class PatternInputLine:
         for key, value in self.values.items():
             Label(self.mainContainer, text=key + "=").pack(side=LEFT)
             text = CustomText(self.mainContainer, width=textWidth, height=1)
-            text.bind('<Return>', self.cancelInput)
-            text.bind('<Tab>', self.cancelInput)
-            text.bind('<BackSpace>', self.allowInput)
-            text.bind('<KeyPress>', self.onKeyPress)
-            text.bind('<<TextModified>>', self.onInputCHange)
+            text.bind("<Return>", self.cancelInput)
+            text.bind("<Tab>", self.cancelInput)
+            text.bind("<BackSpace>", self.allowInput)
+            text.bind("<KeyPress>", self.onKeyPress)
+            text.bind("<<TextModified>>", self.onInputCHange)
             text.insert(END, value)
             self.texts[key] = text
             text.pack(side=LEFT, padx=(0, 10))
 
-        self.button = TkinterCustomButton(master=self.mainContainer, text="Reset", command=self.reset,
-                                          corner_radius=60, height=25, width=80)
+        self.button = TkinterCustomButton(
+            master=self.mainContainer,
+            text="Reset",
+            command=self.reset,
+            corner_radius=60,
+            height=25,
+            width=80,
+        )
         self.button.pack(side=LEFT, padx=(10, 0))
 
     def display(self):

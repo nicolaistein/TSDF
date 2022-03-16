@@ -5,9 +5,9 @@ from algorithms.algorithms import *
 from util import getFlatTriangle
 from logger import log
 
-class SegmentationAutomator(automator.Automator):
 
-    def __init__(self, parentFolder:str, chartId:int, totalFacesCount:int=None):
+class SegmentationAutomator(automator.Automator):
+    def __init__(self, parentFolder: str, chartId: int, totalFacesCount: int = None):
         self.chartId = chartId
         name = parentFolder + "/" + str(chartId)
         super().__init__(os.getcwd() + "/" + name + ".obj", name, totalFacesCount)
@@ -20,22 +20,35 @@ class SegmentationAutomator(automator.Automator):
         if self.isBasicShape():
             log("Object is a basic shape")
             _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
-            (aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(pB, fB, pA, fA)
-            self.setDistortionValues(aD1, mAD1,iD1, mID1, mmaxID1, mmmaxID1)
+            (aD1, mAD1, iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(
+                pB, fB, pA, fA
+            )
+            self.setDistortionValues(aD1, mAD1, iD1, mID1, mmaxID1, mmmaxID1)
             if self.shouldSegment(pA, fA):
                 return self.segmentAndProcess()
             else:
                 log("Object is not a basic shape")
-                return [1]*len(self.faces), [(1, pB, fB, pA, fA)]
-
+                return [1] * len(self.faces), [(1, pB, fB, pA, fA)]
 
         pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
         log("chart " + self.folderPath + " angularDist: " + str(self.angularDist))
         log("chart " + self.folderPath + " isometricDist: " + str(self.isometricDist))
-        log("chart " + self.folderPath + " max angular dist: " + str(self.maxAngularDist))
-        log("chart " + self.folderPath + " max isometric dist: " + str(self.maxIsometricDist))
+        log(
+            "chart "
+            + self.folderPath
+            + " max angular dist: "
+            + str(self.maxAngularDist)
+        )
+        log(
+            "chart "
+            + self.folderPath
+            + " max isometric dist: "
+            + str(self.maxIsometricDist)
+        )
         if self.shouldSegment(pointsAfter, facesAfter):
             faceToChart, data = self.segmentAndProcess()
             return faceToChart, data
-        else: 
-            return [1]*len(self.faces), [(1, pointsBefore, facesBefore, pointsAfter, facesAfter)]
+        else:
+            return [1] * len(self.faces), [
+                (1, pointsBefore, facesBefore, pointsAfter, facesAfter)
+            ]

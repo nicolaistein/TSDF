@@ -1,5 +1,6 @@
 from tkinter import *
 
+
 class CustomText(Text):
     def __init__(self, *args, **kwargs):
         """A text widget that report on internal widget commands"""

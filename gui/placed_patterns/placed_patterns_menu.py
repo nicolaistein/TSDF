@@ -15,8 +15,7 @@ import os
 
 
 class PlacedPatternsMenu:
-
-    def __init__(self, master: Frame, canvasManager:CanvasManager, mainColor: str):
+    def __init__(self, master: Frame, canvasManager: CanvasManager, mainColor: str):
         self.mainFrame = Frame(master, bg=mainColor)
         self.canvasManager = canvasManager
         canvasManager.placedPatternsMenu = self
@@ -43,14 +42,20 @@ class PlacedPatternsMenu:
     def onPlacedPatternItemClick(self, pattern):
         self.canvasManager.patternPlotter.selectPattern(pattern)
 
-    def onEditFinished(self, pattern:PatternModel):
+    def onEditFinished(self, pattern: PatternModel):
         self.canvasManager.patternPlotter.refreshPattern(pattern)
         self.placedPatternItems[pattern].refreshValues()
         self.placedPatternItems[pattern].checkBoundaries()
 
-    def edit(self, patternItem:PlacedPatternsItem):
-        PatternInputWindow(self.mainFrame, patternItem.pattern, patternItem.onEdit,
-                           self.onEditFinished, self.canvasManager, True).openWindow()
+    def edit(self, patternItem: PlacedPatternsItem):
+        PatternInputWindow(
+            self.mainFrame,
+            patternItem.pattern,
+            patternItem.onEdit,
+            self.onEditFinished,
+            self.canvasManager,
+            True,
+        ).openWindow()
 
     def addPattern(self, pattern: PatternModel):
         self.canvasManager.patternPlotter.addPattern(pattern)
@@ -66,10 +71,12 @@ class PlacedPatternsMenu:
         return overrunStart, overrunEnd, printOverrun
 
     def generateGCode(self):
-        if len(self.placedPatternItems) == 0: return
+        if len(self.placedPatternItems) == 0:
+            return
         filename = askdirectory()
         log("direcory: " + str(filename))
-        if not os.path.isdir(filename): return
+        if not os.path.isdir(filename):
+            return
         file = open(filename + "/result.gcode", "w")
         workHeight = self.workHeightText.getNumberInput()
         freeMoveHeight = self.freeMoveHeightText.getNumberInput()
@@ -85,31 +92,49 @@ class PlacedPatternsMenu:
         currentE = 0
         alllPatterns = self.placedPatternItems.keys()
         for index, pattern in enumerate(alllPatterns):
-            result, commands, e = pattern.getGcode(workHeight,freeMoveHeight,
-              eFactor, currentE, fFactor, overrunStart, overrunEnd, printOverrun,
-              pause, cleaningX, cleaningY)
+            result, commands, e = pattern.getGcode(
+                workHeight,
+                freeMoveHeight,
+                eFactor,
+                currentE,
+                fFactor,
+                overrunStart,
+                overrunEnd,
+                printOverrun,
+                pause,
+                cleaningX,
+                cleaningY,
+            )
             currentE = e
             file.write(result)
             file.write("\n")
         file.write("G0 X0 Y0")
         file.close()
-        
+
         length = len(self.placedPatternItems)
         text = "pattern" if length == 1 else "patterns"
-        messagebox.showinfo("Export", "Successfully exported "
-         + str(length) + " " + text + " to " + file.name)
+        messagebox.showinfo(
+            "Export",
+            "Successfully exported " + str(length) + " " + text + " to " + file.name,
+        )
 
-
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str, padx:bool=False, defaultValue=0):
+    def getKeyValueFrame(
+        self, parent: Frame, key: str, value: str, padx: bool = False, defaultValue=0
+    ):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=12,
-                            anchor=W, justify=LEFT)
+        keyLabel = Label(keyValFrame, text=key, width=12, anchor=W, justify=LEFT)
         keyLabel.pack(side=LEFT)
-        valText = NumericText(keyValFrame, width=4, initialText=value, floatingPoint=True, defaultValue=defaultValue)
-        valText.build().pack(side=LEFT, padx=(2,0))
+        valText = NumericText(
+            keyValFrame,
+            width=4,
+            initialText=value,
+            floatingPoint=True,
+            defaultValue=defaultValue,
+        )
+        valText.build().pack(side=LEFT, padx=(2, 0))
         valText.bindOnChange(self.canvasManager.patternPlotter.refresh)
 
-        keyValFrame.pack(side=LEFT, pady=(5,0), padx=(26 if padx else 0, 0))
+        keyValFrame.pack(side=LEFT, pady=(5, 0), padx=(26 if padx else 0, 0))
         return valText
 
     def build(self):
@@ -130,36 +155,62 @@ class PlacedPatternsMenu:
         inputParentFrame = Frame(generationFrame)
         InputFrame1 = Frame(inputParentFrame)
         self.workHeightText = self.getKeyValueFrame(InputFrame1, "Print height", "2.3")
-        self.freeMoveHeightText = self.getKeyValueFrame(InputFrame1, "Move height", "10", padx=True)
+        self.freeMoveHeightText = self.getKeyValueFrame(
+            InputFrame1, "Move height", "10", padx=True
+        )
         InputFrame1.pack(side=TOP, anchor=W)
-        
+
         InputFrame2 = Frame(inputParentFrame)
         self.eFactorText = self.getKeyValueFrame(InputFrame2, "E Factor", "4")
-        self.fFactorText = self.getKeyValueFrame(InputFrame2, "F Value", "250", padx=True)
-        InputFrame2.pack(side=TOP, anchor=W, pady=(5,0))
-        
+        self.fFactorText = self.getKeyValueFrame(
+            InputFrame2, "F Value", "250", padx=True
+        )
+        InputFrame2.pack(side=TOP, anchor=W, pady=(5, 0))
+
         InputFrame3 = Frame(inputParentFrame)
         self.overrunStartText = self.getKeyValueFrame(InputFrame3, "Overrun Start", "2")
-        self.overrunEndText = self.getKeyValueFrame(InputFrame3, "Overrun End", "1", padx=True)
-        InputFrame3.pack(side=TOP, anchor=W, pady=(5,0))
-        inputParentFrame.pack(side=TOP, padx=(20,20))
-        
-        InputFrame4 = Frame(inputParentFrame)
-        self.printOverrunStartText = self.getKeyValueFrame(InputFrame4, "Print-overrun", "1")
-        self.pauseText = self.getKeyValueFrame(InputFrame4, "Pause in ms", "1000", padx=True)
-        InputFrame4.pack(side=TOP, anchor=W, pady=(5,0))
-        
-        InputFrame5 = Frame(inputParentFrame)
-        self.cleaningXText = self.getKeyValueFrame(InputFrame5, "Cleaning x", "", defaultValue=None)
-        self.cleaningYText = self.getKeyValueFrame(InputFrame5, "Cleaning y", "", defaultValue=None, padx=True)
-        InputFrame5.pack(side=TOP, anchor=W, pady=(5,0))
-        inputParentFrame.pack(side=TOP, padx=(20,20))
+        self.overrunEndText = self.getKeyValueFrame(
+            InputFrame3, "Overrun End", "1", padx=True
+        )
+        InputFrame3.pack(side=TOP, anchor=W, pady=(5, 0))
+        inputParentFrame.pack(side=TOP, padx=(20, 20))
 
-        TkinterCustomButton(master=generationFrame, text="Generate GCode", command=self.generateGCode,
-                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(15, 0))
-        
-        TkinterCustomButton(master=generationFrame, text="Check Boundaries", command=self.onCheckBoundaries,
-                            corner_radius=60, height=25, width=160).pack(side=TOP, pady=(15, 0))
+        InputFrame4 = Frame(inputParentFrame)
+        self.printOverrunStartText = self.getKeyValueFrame(
+            InputFrame4, "Print-overrun", "1"
+        )
+        self.pauseText = self.getKeyValueFrame(
+            InputFrame4, "Pause in ms", "1000", padx=True
+        )
+        InputFrame4.pack(side=TOP, anchor=W, pady=(5, 0))
+
+        InputFrame5 = Frame(inputParentFrame)
+        self.cleaningXText = self.getKeyValueFrame(
+            InputFrame5, "Cleaning x", "", defaultValue=None
+        )
+        self.cleaningYText = self.getKeyValueFrame(
+            InputFrame5, "Cleaning y", "", defaultValue=None, padx=True
+        )
+        InputFrame5.pack(side=TOP, anchor=W, pady=(5, 0))
+        inputParentFrame.pack(side=TOP, padx=(20, 20))
+
+        TkinterCustomButton(
+            master=generationFrame,
+            text="Generate GCode",
+            command=self.generateGCode,
+            corner_radius=60,
+            height=25,
+            width=160,
+        ).pack(side=TOP, pady=(15, 0))
+
+        TkinterCustomButton(
+            master=generationFrame,
+            text="Check Boundaries",
+            command=self.onCheckBoundaries,
+            corner_radius=60,
+            height=25,
+            width=160,
+        ).pack(side=TOP, pady=(15, 0))
 
         generationFrame.pack(side=TOP)
         self.mainFrame.pack(side=LEFT, padx=(20, 0), anchor=N)

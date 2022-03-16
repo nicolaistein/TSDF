@@ -14,7 +14,7 @@ class PatternModel:
         self.img = Image.open(folderName + "/image.png")
         self.name = ""
         self.id = self.attributes["id"]
-        if(self.attributes["id"] == "NoID"):
+        if self.attributes["id"] == "NoID":
             raise "Pattern " + self.name + " does not have an ID"
         self.location = {}
         self.x = 0.0
@@ -24,20 +24,48 @@ class PatternModel:
         for x in [i for i in self.attributes["params"].split(",") if i]:
             self.params[x] = "0.0"
 
-    def getGcode(self, workHeight:float=0, freeMoveHeight:float=1, eFactor:float=0, eFactorStart:float=0,
-      fFactor:float=0, overrunStart:float=0, overrunEnd:float=0, printOverrun:float=0,
-      pause:float=0, cleaningX:float=None, cleaningY:float=None):
+    def getGcode(
+        self,
+        workHeight: float = 0,
+        freeMoveHeight: float = 1,
+        eFactor: float = 0,
+        eFactorStart: float = 0,
+        fFactor: float = 0,
+        overrunStart: float = 0,
+        overrunEnd: float = 0,
+        printOverrun: float = 0,
+        pause: float = 0,
+        cleaningX: float = None,
+        cleaningY: float = None,
+    ):
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
 
-        if self.folderName.endswith("pattern1"): patternCalc = Pattern1
-        if self.folderName.endswith("pattern2"): patternCalc = Pattern2
-        if self.folderName.endswith("pattern3"): patternCalc = Pattern3
+        if self.folderName.endswith("pattern1"):
+            patternCalc = Pattern1
+        if self.folderName.endswith("pattern2"):
+            patternCalc = Pattern2
+        if self.folderName.endswith("pattern3"):
+            patternCalc = Pattern3
 
-        return patternCalc(values, workHeight, freeMoveHeight, eFactor, eFactorStart, fFactor,
-         overrunStart, overrunEnd, printOverrun, self.x, self.y, self.rotation,
-         pause, cleaningX, cleaningY).gcode()
+        return patternCalc(
+            values,
+            workHeight,
+            freeMoveHeight,
+            eFactor,
+            eFactorStart,
+            fFactor,
+            overrunStart,
+            overrunEnd,
+            printOverrun,
+            self.x,
+            self.y,
+            self.rotation,
+            pause,
+            cleaningX,
+            cleaningY,
+        ).gcode()
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"
@@ -57,7 +85,7 @@ class PatternModel:
 
     def getPosition(self):
         return str(self.x) + ", " + str(self.y)
-    
+
     def parsePatternAttributes(self):
         pattern = open(self.folderName + "/pattern.py", "r")
         mapping: Mapping = {}
@@ -65,13 +93,13 @@ class PatternModel:
         mapping["author"] = "NoAuthor"
         mapping["params"] = ""
         for line in pattern:
-            if(line.startswith("#")):
-                while(line.startswith("#") or line.startswith(" ")):
+            if line.startswith("#"):
+                while line.startswith("#") or line.startswith(" "):
                     line = line[1:]
-                if(line.endswith("\n")):
-                    line = line[:len(line)-1]
+                if line.endswith("\n"):
+                    line = line[: len(line) - 1]
                 split = line.split("=")
-                if(len(split) == 2):
+                if len(split) == 2:
                     mapping[split[0]] = split[1]
             else:
                 break

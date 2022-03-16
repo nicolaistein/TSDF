@@ -7,8 +7,7 @@ import gui.time_formatter as formatter
 
 
 class InfoWindow:
-
-    def __init__(self, root, title:str, keyVals:Mapping):
+    def __init__(self, root, title: str, keyVals: Mapping):
         self.window = Toplevel(root)
         self.window.iconbitmap("image.ico")
         self.title = title
@@ -17,13 +16,17 @@ class InfoWindow:
     def abort(self):
         self.buttonCancel.delete()
         self.window.destroy()
-  
-    def getKeyValueFrame(self, parent: Frame, key: str, value:str):
+
+    def getKeyValueFrame(self, parent: Frame, key: str, value: str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, anchor=W, justify=LEFT, width=12, wraplength=90)
+        keyLabel = Label(
+            keyValFrame, text=key, anchor=W, justify=LEFT, width=12, wraplength=90
+        )
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        valLabel = Label(keyValFrame, text=value, anchor=W, justify=LEFT, wraplength=300)
+        valLabel = Label(
+            keyValFrame, text=value, anchor=W, justify=LEFT, wraplength=300
+        )
         valLabel.pack(side=LEFT)
 
         keyValFrame.pack(side="top", anchor=NW, pady=(10, 0))
@@ -38,13 +41,20 @@ class InfoWindow:
         label.pack(side=TOP, anchor=W, pady=(0, 10))
         for key, val in self.keyVals.items():
             self.getKeyValueFrame(mainContainer, key, val)
-      
+
         # buttons
         buttonFrame = Frame(mainContainer)
 
-        self.buttonCancel = TkinterCustomButton(master=buttonFrame, text="Close", command=self.abort,
-                                                fg_color="#a62828", hover_color="#c75454",
-                                                corner_radius=60, height=25, width=80)
+        self.buttonCancel = TkinterCustomButton(
+            master=buttonFrame,
+            text="Close",
+            command=self.abort,
+            fg_color="#a62828",
+            hover_color="#c75454",
+            corner_radius=60,
+            height=25,
+            width=80,
+        )
         self.buttonCancel.pack(side=LEFT)
 
         buttonFrame.pack(side=TOP, anchor=W, pady=(30, 0))

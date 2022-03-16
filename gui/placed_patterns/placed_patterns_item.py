@@ -12,12 +12,13 @@ from logger import log
 
 class PlacedPatternsItem:
 
-    #d1d1d1
     colorBlue = "#cde3fa"
     colorGreen = "#b8dbbd"
     colorRed = "#f29696"
 
-    def __init__(self, master: Frame, pattern: PatternModel, menu, canvasManager:CanvasManager):
+    def __init__(
+        self, master: Frame, pattern: PatternModel, menu, canvasManager: CanvasManager
+    ):
         self.pattern = pattern
         self.menu = menu
         self.master = master
@@ -35,19 +36,36 @@ class PlacedPatternsItem:
         self.menu.edit(self)
 
     def onEdit(self):
- #       self.checkBoundaries()
         pass
 
-    def getKeyValueFrame(self, parent: Frame, key: str, value: str, valueLength: float = 80):
-        keyValFrame = Frame(parent, bg=self.color,)
+    def getKeyValueFrame(
+        self, parent: Frame, key: str, value: str, valueLength: float = 80
+    ):
+        keyValFrame = Frame(
+            parent,
+            bg=self.color,
+        )
         self.toRefresh.append(keyValFrame)
-        keyLabel = Label(keyValFrame, text=key, width=7, bg=self.color,
-                         anchor=W, justify=LEFT, wraplength=50)
+        keyLabel = Label(
+            keyValFrame,
+            text=key,
+            width=7,
+            bg=self.color,
+            anchor=W,
+            justify=LEFT,
+            wraplength=50,
+        )
         self.toRefresh.append(keyLabel)
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        label = Label(keyValFrame, text=value if value else "-", anchor=S,
-         bg=self.color, justify=LEFT, wraplength=valueLength)
+        label = Label(
+            keyValFrame,
+            text=value if value else "-",
+            anchor=S,
+            bg=self.color,
+            justify=LEFT,
+            wraplength=valueLength,
+        )
         label.pack(side=LEFT)
         self.toRefresh.append(label)
 
@@ -63,23 +81,25 @@ class PlacedPatternsItem:
 
     def toPoints(self):
         overrunStart, overrunEnd, printOverrun = self.menu.getOverruns()
-        _, commands, _ = self.pattern.getGcode(overrunStart=overrunStart, overrunEnd=overrunEnd, printOverrun=printOverrun)
+        _, commands, _ = self.pattern.getGcode(
+            overrunStart=overrunStart, overrunEnd=overrunEnd, printOverrun=printOverrun
+        )
         result = []
         for index, c in enumerate(commands):
             result.extend(c.toPoints())
 
-#        log("result: " + str(result))
-#        counter = 1
-#        text = 'Execute[{'
-#        for index, r in enumerate(result):
-#            log("r: " + str(r))
-#            text += '"A' + str(counter) + ' = (' + str(r[0]) + ", " + str(r[1]) + ')"'
-#            if index != len(result)-1:
-#                text += ','
-#            counter += 1
-#        text += '}]'
-#        print(text)
-#        log("points: " + str(result))
+        #        log("result: " + str(result))
+        #        counter = 1
+        #        text = 'Execute[{'
+        #        for index, r in enumerate(result):
+        #            log("r: " + str(r))
+        #            text += '"A' + str(counter) + ' = (' + str(r[0]) + ", " + str(r[1]) + ')"'
+        #            if index != len(result)-1:
+        #                text += ','
+        #            counter += 1
+        #        text += '}]'
+        #        print(text)
+        #        log("points: " + str(result))
 
         return result
 
@@ -87,9 +107,8 @@ class PlacedPatternsItem:
         self.color = self.colorBlue
         self.refreshColor()
 
-
     def checkIfInsideAndRefreshColors(self):
-#        self.plotBoundaryLoop()
+        #        self.plotBoundaryLoop()
         self.resetColor()
         inside = self.isInsideBoundaries()
         intersects = self.intersectsWithBoundary()
@@ -97,12 +116,13 @@ class PlacedPatternsItem:
         self.refreshColor()
 
     def checkBoundaries(self):
-        thread = Thread(target = self.checkIfInsideAndRefreshColors)
+        thread = Thread(target=self.checkIfInsideAndRefreshColors)
         thread.start()
-#        thread.join()
-#        intersects = self.intersectsWithBoundary()
 
-#        log("Pattern " + self.pattern.name + " intersects: " + str(intersects))
+    #        thread.join()
+    #        intersects = self.intersectsWithBoundary()
+
+    #        log("Pattern " + self.pattern.name + " intersects: " + str(intersects))
 
     def refreshColor(self):
         for el in self.toRefresh:
@@ -128,13 +148,12 @@ class PlacedPatternsItem:
             self.paramsLabel.configure(text=self.formatParams())
 
     def sign(self, p1, p2, p3):
-    
+
         return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
-    
 
     def pointInTriangle(self, pt, v1, v2, v3):
-#        d1, d2, d3
-#        has_neg, has_pos
+        #        d1, d2, d3
+        #        has_neg, has_pos
 
         d1 = self.sign(pt, v1, v2)
         d2 = self.sign(pt, v2, v3)
@@ -144,11 +163,10 @@ class PlacedPatternsItem:
         has_pos = (d1 > 0) or (d2 > 0) or (d3 > 0)
 
         return not (has_neg and has_pos)
-    
-
 
     def isInsideBoundaries(self):
-        if len(self.canvasManager.objectPlotters) == 0: return True
+        if len(self.canvasManager.objectPlotters) == 0:
+            return True
         selfPoints = self.toPoints()
         pointInside = [False] * len(selfPoints)
 
@@ -157,7 +175,9 @@ class PlacedPatternsItem:
             faces = obPlotter.faces
             for face in faces:
                 for index, p in enumerate(selfPoints):
-                    if self.pointInTriangle(p, vertices[face[0]], vertices[face[1]], vertices[face[2]]):
+                    if self.pointInTriangle(
+                        p, vertices[face[0]], vertices[face[1]], vertices[face[2]]
+                    ):
                         pointInside[index] = True
                         if all(pointInside):
                             return True
@@ -166,7 +186,7 @@ class PlacedPatternsItem:
 
     def plotBoundaryLoop(self):
         for obPlotter in self.canvasManager.objectPlotters:
- #           log("Checking plotter " + str(obPlotter.id))
+            #           log("Checking plotter " + str(obPlotter.id))
             boundaryPoints = list(obPlotter.getBoundary())
             vertices = obPlotter.verticesForExport
 
@@ -175,54 +195,65 @@ class PlacedPatternsItem:
                 yP = vertices[p][1]
                 x, y = self.canvasManager.P(xP, yP)
 
- #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
+                #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
                 r = 3
- #
-                self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
-                self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
-        
+                #
+                self.canvasManager.canvas.create_oval(
+                    x - r, y - r, x + r, y + r, fill="green"
+                )
+                self.canvasManager.canvas.create_text(
+                    x, y, anchor="sw", fill="blue", font=("Purisa", 10), text=str(index)
+                )
 
     def intersectsWithBoundary(self):
         selfPoints = self.toPoints()
         for obPlotter in self.canvasManager.objectPlotters:
- #           log("Checking plotter " + str(obPlotter.id))
+            #           log("Checking plotter " + str(obPlotter.id))
             boundaryPoints = list(obPlotter.getBoundary())
             vertices = obPlotter.verticesForExport
 
- #           for index, p in enumerate(boundaryPoints):
- #               xP = vertices[p][0]
- #               yP = vertices[p][1]
- #               x, y = self.canvasManager.P(xP, yP)
+            #           for index, p in enumerate(boundaryPoints):
+            #               xP = vertices[p][0]
+            #               yP = vertices[p][1]
+            #               x, y = self.canvasManager.P(xP, yP)
 
- #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
- #               r = 3
- #
- #               self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
- #               self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
-
+            #               log("boundary x y: (" + str(x) + ", " + str(y) + ")")
+            #               r = 3
+            #
+            #               self.canvasManager.canvas.create_oval(x - r, y - r, x + r, y + r, fill="green")
+            #               self.canvasManager.canvas.create_text(x, y, anchor="sw", fill="blue",font=("Purisa", 10), text=str(index))
 
             boundaryPoints.append(boundaryPoints[0])
             for index1, point in enumerate(selfPoints):
-                if index1 == len(selfPoints)-1: continue
+                if index1 == len(selfPoints) - 1:
+                    continue
                 for index2, boundaryPoint in enumerate(boundaryPoints):
-                    if index2 == len(boundaryPoints)-1: continue
+                    if index2 == len(boundaryPoints) - 1:
+                        continue
 
                     shouldLog = index2 == 3 and index1 == 3
-                    intersects = doIntersect(selfPoints[index1], selfPoints[index1+1],
-                      vertices[boundaryPoints[index2]], vertices[boundaryPoints[index2+1]], shouldLog)
-                    if intersects: return True
+                    intersects = doIntersect(
+                        selfPoints[index1],
+                        selfPoints[index1 + 1],
+                        vertices[boundaryPoints[index2]],
+                        vertices[boundaryPoints[index2 + 1]],
+                        shouldLog,
+                    )
+                    if intersects:
+                        return True
 
         return False
-            
 
     def build(self):
         self.toRefresh.clear()
-        self.container = Frame(self.master, borderwidth=1, bg=self.color, padx=10, pady=10)
+        self.container = Frame(
+            self.master, borderwidth=1, bg=self.color, padx=10, pady=10
+        )
         self.toRefresh.append(self.container)
         topContent = Frame(self.container, bg=self.color)
         self.toRefresh.append(topContent)
 
-    #    container.pack_propagate(0)
+        #    container.pack_propagate(0)
         importantValues = {}
         importantValues["name"] = self.pattern.name
         importantValues["id"] = self.pattern.id
@@ -231,7 +262,9 @@ class PlacedPatternsItem:
 
         leftFrame = Frame(topContent, bg=self.color)
         self.toRefresh.append(leftFrame)
-        frame, self.nameLabel = self.getKeyValueFrame(leftFrame, "name", self.pattern.name)
+        frame, self.nameLabel = self.getKeyValueFrame(
+            leftFrame, "name", self.pattern.name
+        )
         frame.pack(side=TOP, anchor=W)
 
         frame, self.idLabel = self.getKeyValueFrame(leftFrame, "id", self.pattern.id)
@@ -240,9 +273,13 @@ class PlacedPatternsItem:
 
         rightFrame = Frame(topContent, bg=self.color)
         self.toRefresh.append(rightFrame)
-        frame, self.positionLabel = self.getKeyValueFrame(rightFrame, "position", self.pattern.getPosition())
+        frame, self.positionLabel = self.getKeyValueFrame(
+            rightFrame, "position", self.pattern.getPosition()
+        )
         frame.pack(side=TOP, anchor=W)
-        frame, self.rotationLabel = self.getKeyValueFrame(rightFrame, "rotation", str(self.pattern.rotation) + "°")
+        frame, self.rotationLabel = self.getKeyValueFrame(
+            rightFrame, "rotation", str(self.pattern.rotation) + "°"
+        )
         frame.pack(side=TOP, anchor=W)
         rightFrame.pack(side=LEFT, anchor=N, padx=(10, 0))
 
@@ -250,23 +287,45 @@ class PlacedPatternsItem:
 
         paramsText = self.formatParams()
         if len(self.pattern.params) > 0:
-            frame, self.paramsLabel = self.getKeyValueFrame(self.container, "params", paramsText, 200)
+            frame, self.paramsLabel = self.getKeyValueFrame(
+                self.container, "params", paramsText, 200
+            )
             frame.pack(side=TOP, anchor=W, pady=(0, 0))
 
         buttonContainer = Frame(self.container, bg=self.color, width=275, height=30)
         self.toRefresh.append(buttonContainer)
-        self.button1 = TkinterCustomButton(master=buttonContainer, text="Edit", command=self.edit,
-                                            fg_color="#28a63f", hover_color="#54c76d",
-                                           corner_radius=60, height=25, width=70)
+        self.button1 = TkinterCustomButton(
+            master=buttonContainer,
+            text="Edit",
+            command=self.edit,
+            fg_color="#28a63f",
+            hover_color="#54c76d",
+            corner_radius=60,
+            height=25,
+            width=70,
+        )
         self.button1.pack(side=LEFT)
 
-        self.button3 = TkinterCustomButton(master=buttonContainer, text="Show", command=self.onShowClick,
-                                           corner_radius=60, height=25, width=70)
+        self.button3 = TkinterCustomButton(
+            master=buttonContainer,
+            text="Show",
+            command=self.onShowClick,
+            corner_radius=60,
+            height=25,
+            width=70,
+        )
         self.button3.pack(side=LEFT, padx=(10, 0))
 
-        self.button2 = TkinterCustomButton(master=buttonContainer, text="Delete", command=self.delete,
-                                           fg_color="#a62828", hover_color="#c75454",
-                                           corner_radius=60, height=25, width=70)
+        self.button2 = TkinterCustomButton(
+            master=buttonContainer,
+            text="Delete",
+            command=self.delete,
+            fg_color="#a62828",
+            hover_color="#c75454",
+            corner_radius=60,
+            height=25,
+            width=70,
+        )
         self.button2.pack(side=LEFT, padx=(10, 0))
 
         buttonContainer.pack_propagate(0)

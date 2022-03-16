@@ -1,25 +1,24 @@
 import PyInstaller.__main__
 import shutil
 
-oneFile:bool = True
-name:str = "GCodePatternManager"
+oneFile: bool = True
+name: str = "GCodePatternManager"
 
-def copy(path:str):
+
+def copy(path: str):
     dirName = "" if oneFile else name + "/"
-    shutil.copytree(path, 'dist/' + dirName + path)
+    shutil.copytree(path, "dist/" + dirName + path)
 
 
-PyInstaller.__main__.run([
-    'main.py',
-    '-n=' + name,
-    '--icon=image.ico',
-    '--onefile' if oneFile else "--onedir",
-], )
+PyInstaller.__main__.run(
+    [
+        "main.py",
+        "-n=" + name,
+        "--icon=image.ico",
+        "--onefile" if oneFile else "--onedir",
+    ],
+)
 
 copy("algorithms/bff/windows")
 copy("algorithms/bff/unix")
 copy("patterns")
-
-
-#shutil.copytree('algorithms/bff/windows', 'dist/algorithms/bff/window')
-#shutil.copytree('algorithms/bff/windows', 'dist/algorithms/bff/window')

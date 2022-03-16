@@ -1,7 +1,6 @@
 from tkinter import *
 from functools import partial
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.backend_bases import key_press_handler
 import matplotlib.pyplot as plt
 from gui.button import TkinterCustomButton
@@ -30,7 +29,8 @@ class Mesh3DPlotter:
         self.charts = []
         self.selectedChart = -1
 
-    def isSegmented(self): return self.segmented
+    def isSegmented(self):
+        return self.segmented
 
     def viewBrowser(self):
         if len(self.faces) > 0:
@@ -48,35 +48,54 @@ class Mesh3DPlotter:
 
         leftSide = Frame(self.mainFrame)
         segmentFrame = Frame(leftSide)
-        button1 = TkinterCustomButton(master=segmentFrame, text="Segment",
-                command=self.segment, corner_radius=60, height=25, width=85)
+        button1 = TkinterCustomButton(
+            master=segmentFrame,
+            text="Segment",
+            command=self.segment,
+            corner_radius=60,
+            height=25,
+            width=85,
+        )
         button1.pack(side=LEFT)
-        self.chartCountInput = NumericText(segmentFrame, width=2, initialText=str(self.chartCount))
+        self.chartCountInput = NumericText(
+            segmentFrame, width=2, initialText=str(self.chartCount)
+        )
         self.chartCountInput.build().pack(side=LEFT, padx=(10, 0))
-        segmentFrame.pack(side=TOP, pady=(10,0))
+        segmentFrame.pack(side=TOP, pady=(10, 0))
 
-        button2 = TkinterCustomButton(master=leftSide, text="Browserview",
-                command=self.viewBrowser, corner_radius=60, height=25, width=120)
-        button2.pack(side=TOP, pady=(10,0))
-        button3 = TkinterCustomButton(master=leftSide, text="Hide Edges" if self.showEdges else "Show Edges",
-                command=self.changeEdgeView, corner_radius=60, height=25, width=120)
-        button3.pack(side=TOP, pady=(10,0))
-        leftSide.pack(side=LEFT, anchor=N, padx=(10,0))
+        button2 = TkinterCustomButton(
+            master=leftSide,
+            text="Browserview",
+            command=self.viewBrowser,
+            corner_radius=60,
+            height=25,
+            width=120,
+        )
+        button2.pack(side=TOP, pady=(10, 0))
+        button3 = TkinterCustomButton(
+            master=leftSide,
+            text="Hide Edges" if self.showEdges else "Show Edges",
+            command=self.changeEdgeView,
+            corner_radius=60,
+            height=25,
+            width=120,
+        )
+        button3.pack(side=TOP, pady=(10, 0))
+        leftSide.pack(side=LEFT, anchor=N, padx=(10, 0))
 
         self.buttons.extend([button1, button2, button3])
-        
+
         rightSide = Frame(self.mainFrame)
         self.list = ListView(rightSide, width=180, height=150).build()
 
-        rightSide.pack(side=LEFT, anchor=N, padx=(20,10))
-        self.mainFrame.pack(side=TOP, pady=(20,0))
+        rightSide.pack(side=LEFT, anchor=N, padx=(20, 10))
+        self.mainFrame.pack(side=TOP, pady=(20, 0))
 
     def deselectIfSelected(self):
         if self.selectedChart != -1:
             self.selectedChart = -1
             self.faceColors = self.refreshColors(self.selectedChart)
             self.show()
-
 
     def selectChart(self, chart):
         self.selectedChart = chart if self.selectedChart != chart else -1
@@ -91,25 +110,33 @@ class Mesh3DPlotter:
         cols = self.refreshColors()
         cols = self.faceColors
         for ch in self.chartList:
-            if self.selectedChart != ch and self.selectedChart != -1: continue
+            if self.selectedChart != ch and self.selectedChart != -1:
+                continue
             text = "Select" if self.selectedChart != ch else "Deselect"
             text += " Chart #" + str(ch)
 
-            b = TkinterCustomButton(master=self.list, text=text,
-             fg_color=cols[ch][:7], hover_color=cols[ch][:7], command=partial(self.selectChart, ch),
-              corner_radius=60, height=25, width=170)
-            b.pack(side=TOP, pady=(10,0))
+            b = TkinterCustomButton(
+                master=self.list,
+                text=text,
+                fg_color=cols[ch][:7],
+                hover_color=cols[ch][:7],
+                command=partial(self.selectChart, ch),
+                corner_radius=60,
+                height=25,
+                width=170,
+            )
+            b.pack(side=TOP, pady=(10, 0))
             self.buttons.append(b)
 
-    def getChartColor(self, chart:int):
+    def getChartColor(self, chart: int):
         return self.chartToColor[chart]
 
-    def refreshColors(self, selectedChart:int=-1):
+    def refreshColors(self, selectedChart: int = -1):
         self.chartToColor = {}
         if selectedChart == -1:
             for index, val in enumerate(self.chartList):
                 self.chartToColor[val] = distinctColors[index % len(distinctColors)]
-            
+
         else:
             for index, val in enumerate(self.chartList):
                 if val == selectedChart:
@@ -117,13 +144,13 @@ class Mesh3DPlotter:
                 else:
                     self.chartToColor[val] = "#ffffff"
 
-        colors = [self.defaultColor]*len(self.faces)
+        colors = [self.defaultColor] * len(self.faces)
 
         if len(self.chartList) != 0:
-            for index, x in enumerate(self.charts): 
+            for index, x in enumerate(self.charts):
                 color = self.chartToColor[x] + "ff"
                 colors[index] = color
-            
+
         self.faceColors = colors
         return colors
 
@@ -140,7 +167,6 @@ class Mesh3DPlotter:
         self.selectedChart = -1
         self.refreshColors()
         self.show()
-        
 
     def plotFile(self, vertices, faces):
         self.vertices = vertices
@@ -152,18 +178,19 @@ class Mesh3DPlotter:
         self.selectedChart = -1
         self.show()
 
-
     def segment(self):
         # abort if no file has been chosen
-        if len(self.vertices) == 0: return
-#        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
+        if len(self.vertices) == 0:
+            return
+        #        self.charts, self.chartList = Segmenter(self.vertices, self.faces).calc()
         self.chartCount = self.chartCountInput.getNumberInput()
-        self.charts, self.chartList = self.segmenter.compute(self.vertices, self.faces, self.chartCount)
+        self.charts, self.chartList = self.segmenter.compute(
+            self.vertices, self.faces, self.chartCount
+        )
         self.segmented = True
         self.selectedChart = -1
         self.refreshColors()
         self.show()
-
 
     def show(self):
 
@@ -173,20 +200,23 @@ class Mesh3DPlotter:
             widget.destroy()
 
         self.build()
-        
+
         root = self.plotContainer
 
         self.fig.clf()
-        
-        ax = self.fig.add_subplot(111, projection='3d')
+
+        ax = self.fig.add_subplot(111, projection="3d")
 
         if len(self.faces) > 0:
-            p3dc = ax.plot_trisurf(self.vertices[:, 0], self.vertices[:,1],
-            triangles=self.faces, Z=self.vertices[:,2])
+            p3dc = ax.plot_trisurf(
+                self.vertices[:, 0],
+                self.vertices[:, 1],
+                triangles=self.faces,
+                Z=self.vertices[:, 2],
+            )
             p3dc.set_fc(self.faceColors)
             if self.showEdges:
                 p3dc.set_edgecolor("black")
-
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=root)
         self.canvas.draw()
