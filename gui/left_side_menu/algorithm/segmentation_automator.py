@@ -20,10 +20,12 @@ class SegmentationAutomator(automator.Automator):
         if self.isBasicShape():
             log("Object is a basic shape")
             _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
-            (aD1, mAD1, iD1, mID1, mmaxID1, mmmaxID1) = self.calcDistortions(
-                pB, fB, pA, fA
-            )
-            self.setDistortionValues(aD1, mAD1, iD1, mID1, mmaxID1, mmmaxID1)
+            (
+                fI,
+                maxfI,
+                minfi,
+            ) = self.calcDistortions(pB, fB, pA, fA)
+            self.setDistortionValues(fI, maxfI, minfi)
             if self.shouldSegment(pA, fA):
                 return self.segmentAndProcess()
             else:
@@ -31,20 +33,6 @@ class SegmentationAutomator(automator.Automator):
                 return [1] * len(self.faces), [(1, pB, fB, pA, fA)]
 
         pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
-        log("chart " + self.folderPath + " angularDist: " + str(self.angularDist))
-        log("chart " + self.folderPath + " isometricDist: " + str(self.isometricDist))
-        log(
-            "chart "
-            + self.folderPath
-            + " max angular dist: "
-            + str(self.maxAngularDist)
-        )
-        log(
-            "chart "
-            + self.folderPath
-            + " max isometric dist: "
-            + str(self.maxIsometricDist)
-        )
         if self.shouldSegment(pointsAfter, facesAfter):
             faceToChart, data = self.segmentAndProcess()
             return faceToChart, data

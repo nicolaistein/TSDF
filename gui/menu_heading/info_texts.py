@@ -15,8 +15,7 @@ analyze = {
 flatten = {
     "BFF": "Cones are cuts into the surface done by the algorithm when flattening. "
     "This works especially well with basic objects.",
-    "ARAP": "Focuses on shape and area preserving.",
-    "LSCM": "Focuses on angle preservation.",
+    "ARAP": "Focuses on length and area preservation.",
 }
 plottingOptions = {
     "Edges": "Edge visibility can be turned on and off in order to view the distortion better and have a "
