@@ -37,7 +37,9 @@ class Segmenter:
             self.parse(vertices, faces)
 
         if self.computedFeatures == None:
-            self.computedFeatures = Features(self.parser).computeFeatures()
+            features = Features(self.parser)
+            self.computedFeatures = features.computeFeatures()
+            features.plotResult()
         
         self.charts = Charts(self.parser, chartCount)
         faceToChart, chartKeys = self.charts.computeCharts(self.computedFeatures)

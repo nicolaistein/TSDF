@@ -4,7 +4,7 @@
 max_string_length:int = 5
 
 # minimum feature length
-min_feature_length:int = 5
+min_feature_length:int = 15
 
 # percentage of edges that are used for feature generation
 featureCountPercentage = 0.05
@@ -26,13 +26,15 @@ seedMinFeatureDistance = 2
 #Best:1/25
 minChartSizeFactor = 1/50
 
-featureBarrier = False
+featureBarrier = True
+
+expandingUntilFeatureDistance = 1
 
 maxSOD = 10
 
 mergingUpToSOD = 14
 
 # Absolute count of seeds used for chart generation
-localMaximumSeedCount = 50
+localMaximumSeedCount = 500000
 
-globalMaximumSeedCount = 30
+globalMaximumSeedCount = 0

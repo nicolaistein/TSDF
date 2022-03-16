@@ -29,6 +29,7 @@ class Features:
         util.saveMarkedFeatures(edges, self.parser)
 
     def computeFeatures(self):
+
         relevantFeatures = self.getInitialFeatures()
         #Just for error safety
         if len(relevantFeatures) == 0:
@@ -36,6 +37,22 @@ class Features:
         log("relevant feature size: " + str(len(relevantFeatures)))
         self.marked_features = array.array('i',(False,)*self.parser.edgeCount)
         self.marked_feature_neighbors = array.array('i',(False,)*self.parser.edgeCount)
+  
+    #--------------------------------------------------------    
+
+        for edge in relevantFeatures:
+            self.marked_features[edge] = True
+
+
+        for edge in self.parser.edgeToFaces.keys():
+            if self.parser.SOD[edge] >= 20:
+                self.marked_features[edge] = True
+
+
+        return self.marked_features
+
+    #--------------------------------------------------------    
+
         self.feature_count = 0
         count = 0
         for edge in relevantFeatures:

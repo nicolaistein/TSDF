@@ -24,13 +24,13 @@ class Charts:
     def computeCharts(self, features:List[int]):
         self.features = features
         self.computeFeatureDistance()
-#        self.plotCurrentFeatureDistance()
+        self.plotCurrentFeatureDistance()
 
         self.expand_charts()
-#        self.plotCurrentCharts()
+        self.plotCurrentCharts()
 
         self.fixUnchartedFaces()
-#        self.plotCurrentCharts()
+        self.plotCurrentCharts()
 
 #        self.removeSmallCharts()
         self.removeSmallChartsNew()
@@ -241,7 +241,7 @@ class Charts:
                 unprocessed += 1
                 continue
 
-            if len(adjacent) <= 2 and unprocessed < len(found)-1:
+            if len(adjacent) < 2 and unprocessed < len(found)-1:
                 found.append(face)
                 unprocessed += 1
                 continue
@@ -427,8 +427,9 @@ class Charts:
     #    foreach facet F where dist(F ) is a local maximum
     #    for index, (face, val) in enumerate(sortedFaces.items()):
 
+        localMaximaSize = len(self.localMaxima)
         for index, face in enumerate(self.localMaxima):
-            if index >= localMaximumSeedCount: break
+    #        if index >= 0.3 * localMaximaSize: break
     #        create a new chart with seed F
             self.charts[face] = face
     #        add the halfedges of F to Heap
@@ -441,8 +442,11 @@ class Charts:
             self.charts[face] = face
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
+
+
+
     #    end // foreach
-    #    self.plotCurrentCharts()
+        self.plotCurrentCharts()
     #    log("initial charts")
     #    print(self.getCharts())
         counter = 0
@@ -468,8 +472,18 @@ class Charts:
             if fopp == -1: continue
 
             # Do not go beyond features
-            if self.features[h] and featureBarrier: continue
+
+
+
+    #        if self.features[h] and featureBarrier: continue
+
+    #--------------------------------------------------------   
             if self.parser.SOD[h] > maxSOD: continue
+    #--------------------------------------------------------   
+
+
+
+    #        if self.featureDistances[f] <= expandingUntilFeatureDistance: continue
 
     #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:

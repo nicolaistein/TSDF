@@ -42,7 +42,8 @@ def plotFeatures(vertices:List[List[float]], faces:List[List[int]], coloredVerti
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', vertexcolor=colors, opacity=1)])
-    offline.plot(fig, filename='FeaturePlot.html')
+    removeGrid(fig)
+    offline.plot(fig, filename='FeaturePlot.html', auto_open=False)
 
 
 def plotFeatureDistance(vertices:List[List[float]], faces:List[List[int]], featureDistances):
@@ -65,7 +66,8 @@ def plotFeatureDistance(vertices:List[List[float]], faces:List[List[int]], featu
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
          color='lightpink', facecolor=colors, opacity=1)])
-    offline.plot(fig, filename='FeatureDistancePlot.html')
+    removeGrid(fig)
+    offline.plot(fig, filename='FeatureDistancePlot.html', auto_open=False)
 
 
 distinctColors = ["#808080", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860b",
@@ -73,13 +75,16 @@ distinctColors = ["#808080", "#556b2f", "#8b4513", "#228b22", "#483d8b", "#b8860
     "#deb887", "#00ff00", "#8a2be2", "#00ff7f", "#dc143c", "#00ffff", "#00bfff", "#0000ff", "#ff7f50",
     "#ff00ff", "#1e90ff", "#dda0dd", "#90ee90", "#ff1493", "#7b68ee"]
 
-def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartList, folder:str=None):
+def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartList, folder:str=None, filename:str=None):
     if folder is None: folder = ""
     else: folder += "/"
 
     chartToColor = {}
     for index, val in enumerate(chartList):
         chartToColor[val] = distinctColors[index % len(distinctColors)]
+        if val == -1: 
+            log("Uncharted faces: " + str(chartToColor[val]))
+            chartToColor[val] = "#ff1100"
 
     vt = np.transpose(vertices)
     ft = np.transpose(faces)
@@ -87,7 +92,6 @@ def plotCharts(vertices:List[List[float]], faces:List[List[int]], charts, chartL
     colors = ["green"]*len(faces)
     for index, x in enumerate(charts): 
         color = chartToColor[x] + "ff"
-#        if index == 15318: color = "#000000ff"
         colors[index] = color
 
     fig = go.Figure(data=[go.Mesh3d(x=vt[0], y=vt[1], z=vt[2], i=ft[0], j=ft[1], k=ft[2],
