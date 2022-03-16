@@ -14,15 +14,13 @@ from gui.listview import ListView
 
 mainColor = "#cccccc"
 root = Tk()
-root.title("GCode Pattern Manager")
+root.title("Tactile Sensing Development Framework")
 root.iconbitmap("image.ico")
 root.geometry("1920x900")
 root.configure(bg=mainColor)
-
 canvasSize = 900
 
 allPatternsContainer = Frame(root, bg=mainColor)
-
 leftContainerParent = Frame(root)
 leftContainer = ListView(leftContainerParent, 255, 900, 0, mainColor).build()
 
@@ -32,34 +30,36 @@ computationInfo = ComputationInfo(leftContainer, canvasManager)
 measuringTool = MeasuringTool(leftContainer, canvasManager)
 fileMenu = FileMenu(leftContainer, plotter, mainColor)
 exportMenu = ExportMenu(leftContainer, canvasManager, fileMenu)
-
-fileMenu.build()
 analyzeMenu = AnalyzeMenu(leftContainer, fileMenu, mainColor)
 algorithmMenu = AlgorithmMenu(
     leftContainer, canvasManager, fileMenu, computationInfo, plotter
 )
-ModeMenu(
+modeMenu = ModeMenu(
     leftContainer,
     analyzeMenu,
     algorithmMenu,
     computationInfo,
     measuringTool,
     exportMenu,
-).build()
+)
+placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
+allPatterns = AllPatterns(
+    allPatternsContainer, mainColor, placedPatterns, canvasManager
+)
+
+fileMenu.build()
+modeMenu.build()
 analyzeMenu.build()
 algorithmMenu.build()
 computationInfo.build()
 measuringTool.build()
 exportMenu.build()
 leftContainerParent.pack(side=LEFT, anchor=N, padx=(0, 20))
-
 canvasManager.build()
-placedPatterns = PlacedPatternsMenu(root, canvasManager, mainColor)
-
-AllPatterns(allPatternsContainer, mainColor, placedPatterns, canvasManager).build()
+allPatterns.build()
 plotter.show()
-
 allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20, 0))
 placedPatterns.build()
+
 
 root.mainloop()

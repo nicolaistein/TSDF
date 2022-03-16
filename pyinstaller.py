@@ -2,7 +2,7 @@ import PyInstaller.__main__
 import shutil
 
 oneFile: bool = True
-name: str = "GCodePatternManager"
+name: str = "TSDF"
 
 
 def copy(path: str):
