@@ -64,7 +64,7 @@ class PatternPlotter:
         color = "blue"
         overrunColor = "orange"
         printOverrunColor = "green"
-        width = 1
+        width = 2
         #Change color to red if selected
         if not self.selectedPattern is None:
             color = "red" if self.selectedPattern == pattern else "blue"

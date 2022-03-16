@@ -117,6 +117,7 @@ class PlottingOptionCalculator:
             if index % 2000 == 0 and index > 0: log(str(round(100*index/len(self.facesAfter), 2))
                 + "% (" + str(index) + "/" + str(len(self.facesAfter)) + ")")
 
+        
 
             weight = allAreas[index] / totalArea
             dist1 = self.distortions[index] * weight
@@ -126,6 +127,7 @@ class PlottingOptionCalculator:
             dist2 = self.distortions[index] * weight2
             self.totalDistortionWholeObject += dist2
 
+        
         log(str(self.option) + " avg dist: " + str(self.totalDistortion))
         log(str(self.option) + " avg dist rounded: " + str(round(self.totalDistortion, 4)))
         log(str(self.option) + " min dist: " + str(min(self.distortions.values())))
