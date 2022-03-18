@@ -311,47 +311,28 @@ class Charts:
         self.lastExpanded = [-1] * self.parser.edgeCount
 
         while handledFaces < faceCount and len(self.currentFeatureDistance) > 0:
-            #        if handledFaces / faceCount < 0.4:
-            #            self.plotCurrentFeatureDistance()
-            #        log(str(handledFaces*100/len(self.parser.faces)) + ", remaining features: " + str(len(self.currentFeatureDistance)))
             toRemove = []
             for feature, distance in self.currentFeatureDistance.items():
                 expanded = False
-                #            log("feature " + str(feature) + ": New round! expanded: " + str(expanded) + ", " + str(self.currentFeatureDistance))
                 for edge in self.featureBorders[feature]:
 
                     fc = self.expandEdge(feature, edge, distance)
 
                     handledFaces += fc
                     if fc > 0:
-                        #                     if not expanded: log("feature " + str(feature) + ": expanded changed to True")
                         expanded = True
-
-                #            log("expanded after: " + str(expanded) + ", fc: " + str(fc))
-
-                #                 if not expanded: log("feature " + str(feature) + ": failed to expand: " + str(expanded))
 
                 self.currentFeatureDistance[feature] += 1
                 if not expanded:
-                    #                log("feature " + str(feature) + ": ACTUALLY FAILED: " + str(expanded))
                     toRemove.append(feature)
-            #            else: print("feature was actually expanded")
-
-            #        if len(toRemove) > 0: log("Removing " + str(len(toRemove)) + " elements")
 
             for f in toRemove:
-                #            log("removing " + str(f) + ", lastExpanded: " + str(self.lastExpanded[f]))
                 if self.lastExpanded[f] != -1:
                     self.localMaxima.append(self.lastExpanded[f])
                 del self.currentFeatureDistance[f]
 
         self.epsilon = self.maxDistance * epsilonFactor
-
         log("local maxima: " + str(len(self.localMaxima)))
-        #    log("while loop end")
-        #    log("handled faces: " + str(handledFaces))
-        #    log("faceCount: " + str(faceCount))
-        #    log("current feature distance length: " + str(len(self.currentFeatureDistance)))
 
         # Fix not reachable faces
         repeat = False
@@ -373,7 +354,6 @@ class Charts:
                     if len(total) != 0:
                         self.featureDistances[key] = int(round(sum(total) / len(total)))
                     else:
-                        #                       log("Repeat = True")
                         repeat = True
 
             if not repeat:
@@ -415,27 +395,21 @@ class Charts:
         return faces[0] if faces[0] != face else faces[1]
 
     def chartOf(self, face: int):
-        #    log("chartOf " + str(face))
         if self.charts[face] == -1:
             return -1
         current = face
         while current != self.charts[current] and current != -1:
             current = self.charts[current]
 
-        #    log("chartOf " + str(face) + " is " + str(current))
         return current
 
     def expand_charts(self):
         dist = self.featureDistances
         self.charts = [-1] * len(self.parser.faces)
 
-        #    priority_queue<halfedge> Heap sorted by dist(facet(half edge))
         heap = PriorityQueue(self.featureDistances)
-
-        #    set<edge> chart_boundaries initialized with all the edges of the surface
         chart_boundaries = [True] * self.parser.edgeCount
 
-        #    #Initialize Heap
         sortedFaces = {
             k: v
             for k, v in sorted(
@@ -443,32 +417,22 @@ class Charts:
             )
         }
 
-        #    foreach facet F where dist(F ) is a local maximum
-        #    for index, (face, val) in enumerate(sortedFaces.items()):
-
-        localMaximaSize = len(self.localMaxima)
         for index, face in enumerate(self.localMaxima):
             #        if index >= 0.3 * localMaximaSize: break
             #        create a new chart with seed F
             self.charts[face] = face
-            #        add the halfedges of F to Heap
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
 
-        for index, (face, val) in enumerate(sortedFaces.items()):
-            if index >= globalMaximumSeedCount:
-                break
-            self.charts[face] = face
-            for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
-                heap.insert(face, e.idx())
+        #    for index, (face, val) in enumerate(sortedFaces.items()):
+        #        if index >= globalMaximumSeedCount:
+        #            break
+        #        self.charts[face] = face
+        #        for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
+        #            heap.insert(face, e.idx())
 
-        #    end // foreach
         self.plotCurrentCharts()
-        #    log("initial charts")
-        #    print(self.getCharts())
         counter = 0
-        #   #Charts-growing phase
-        #   while(Heap is not empty)
         while heap.size() > 0:
             counter += 1
             if counter % 5000 == 0:
