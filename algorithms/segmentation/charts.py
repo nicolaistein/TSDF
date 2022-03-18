@@ -1,4 +1,3 @@
-import math
 from typing import List
 from algorithms.segmentation.data_parser import SegmentationParser
 from algorithms.segmentation.plotter import plotFeatureDistance, plotCharts
@@ -28,24 +27,10 @@ class Charts:
         self.features = features
         self.computeFeatureDistance()
         self.plotCurrentFeatureDistance()
-
         self.expand_charts()
-        self.plotCurrentCharts()
-
         self.fixUnchartedFaces()
-        self.plotCurrentCharts()
-
-        #        self.removeSmallCharts()
         self.removeSmallChartsNew()
-        #        self.mergeFlatNeighbors()
-        log("expand charts finished")
-        log("Epsilon: " + str(self.epsilon))
         ch = self.getCharts()
-        log("Charts count: " + str(len(ch)))
-        print([(key, val) for key, val in ch.items() if val > -1])
-        #    plotCharts(self.parser.vertices, self.parser.faces, self.charts, ch.keys())
-        #    print(self.featureDistances)
-
         return self.charts, ch.keys()
 
     def getBorderCharts(self, face: int, chart: int):
@@ -58,17 +43,12 @@ class Charts:
                 continue
             result.append((oppChart, self.parser.SOD[edgeId]))
 
-        #     log("result: " + str(result))
         return result
 
     def removeChart(self, chart: int):
-        #        if chart != 696: return
-        #        log("Removing chart " + str(chart))
         chartsBefore = self.getCharts()
 
-        # chart => number of faces of this chart that are next to the currentChart
         borderChartCount = {}
-        # chart => total sod count of the border edges which separate chart and the currentChart
         borderSod = {}
         for index, ic in enumerate(self.charts):
             if ic == chart:
@@ -93,8 +73,6 @@ class Charts:
 
         maxValue = min(v)
         largestNeighborId = k[v.index(maxValue)]
-        #        log("max: " + str(maxValue))
-        #        log("largestNeighborId: " + str(largestNeighborId))
         for index, val in enumerate(self.charts):
             if val == chart:
                 self.charts[index] = largestNeighborId
@@ -106,8 +84,6 @@ class Charts:
                 diff[key] = val
             elif chartsAfter[key] != val:
                 diff[key] = chartsAfter[key] - val
-        #        log("Charts after: " + str(chartsAfter))
-        #        log("Differences: " + str(diff))
 
         return largestNeighborId
 
@@ -117,17 +93,13 @@ class Charts:
             if val == chart or chart == -1:
                 res += faceToArea(self.parser.faces[index], self.parser.vertices)
 
-        #    log("chart: " + str(chart) + " => " + str(res))
         return res
 
     def removeSmallChartsNew(self):
         log("Removing small charts")
         ch = self.getCharts()
         print(ch)
-
-        #        min = len(self.parser.faces)*minChartSizeFactor
         min = self.getAreaOfChart(-1) * minChartSizeFactor
-        #        log("removeSmallCharts min: " + str(min))
 
         chartAreas = {}
         for key, val in ch.items():
@@ -137,7 +109,6 @@ class Charts:
         sortedCharts = {
             k: v for k, v in sorted(chartAreas.items(), key=lambda item: item[1])
         }
-        #        log("sortedCharts: " + str(sortedCharts))
 
         while True:
             if len(self.getCharts()) <= self.maxChartCount:
@@ -149,27 +120,6 @@ class Charts:
             sortedCharts = {
                 k: v for k, v in sorted(chartAreas.items(), key=lambda item: item[1])
             }
-
-    def removeSmallCharts(self):
-        log("Removing small charts")
-        ch = self.getCharts()
-        print(ch)
-
-        #        min = len(self.parser.faces)*minChartSizeFactor
-        min = self.getAreaOfChart(-1) * minChartSizeFactor
-        #        log("removeSmallCharts min: " + str(min))
-        toRemove = []
-        for key, val in ch.items():
-            area = self.getAreaOfChart(key)
-            if area <= min:
-                toRemove.append((key, area))
-
-        sortedRemove = sorted(toRemove, key=lambda tup: tup[1])
-
-        #        log("toRemove: " + str(sortedRemove))
-
-        for chart, _ in sortedRemove:
-            self.removeChart(chart)
 
     def getNeighborSOD(self, chart1: int, chart2: int):
         totalSOD = 0
@@ -190,39 +140,8 @@ class Charts:
             return -1
         return totalSOD / edgeCount
 
-    def mergeFlatNeighbors(self):
-        log("Merging Flat Neighbors")
-        #        neighborSODs = {}
-        nextLoop = True
-        while nextLoop:
-            nextLoop = False
-            # Compute avg SOD of all neighbors
-            charts = self.getCharts()
-            if len(charts) <= 2:
-                break
-            for c in charts:
-                if nextLoop:
-                    continue
-                for c2 in charts:
-                    if nextLoop:
-                        continue
-                    if c != c2:
-                        sod = self.getNeighborSOD(c, c2)
-                        if sod != -1:
-                            if sod < mergingUpToSOD:
-                                self.merge(c, c2)
-                                nextLoop = True
-                                log("Merging " + str(c) + " and " + str(c2))
-
-            # When somewhere below mergingUpToSOD
-            # Merge
-
-            if not nextLoop:
-                break
-
     def fixUnchartedFaces(self):
         log("Fixing uncharted faces")
-        #        chartsBefore = self.getCharts()
         found = []
         for key, val in enumerate(self.charts):
             if val == -1:
@@ -233,11 +152,9 @@ class Charts:
         while len(found) > 0:
             face = found.pop(0)
             adjacent = []
-            #            neighbors = 0
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 edge = e.idx()
                 oppFace = self.getOppositeFace(edge, face)
-                #                if oppFace != -1: neighbors += 1
                 oppChart = self.charts[oppFace]
                 if oppFace != -1 and oppChart != -1:
                     adjacent.append((self.parser.SOD[edge], oppChart))
@@ -266,7 +183,6 @@ class Charts:
                 log("Remaining: " + str(len(found)))
 
     def expandEdge(self, feature: int, edge: int, distance: int):
-
         newEdges = []
         handledFaces = 0
         for face in self.parser.edgeToFaces[edge]:
@@ -410,26 +326,10 @@ class Charts:
         heap = PriorityQueue(self.featureDistances)
         chart_boundaries = [True] * self.parser.edgeCount
 
-        sortedFaces = {
-            k: v
-            for k, v in sorted(
-                self.featureDistances.items(), key=lambda item: item[1], reverse=True
-            )
-        }
-
         for index, face in enumerate(self.localMaxima):
-            #        if index >= 0.3 * localMaximaSize: break
-            #        create a new chart with seed F
             self.charts[face] = face
             for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
                 heap.insert(face, e.idx())
-
-        #    for index, (face, val) in enumerate(sortedFaces.items()):
-        #        if index >= globalMaximumSeedCount:
-        #            break
-        #        self.charts[face] = face
-        #        for e in self.parser.mesh.fe(self.parser.faceHandles[face]):
-        #            heap.insert(face, e.idx())
 
         self.plotCurrentCharts()
         counter = 0
@@ -447,57 +347,30 @@ class Charts:
                 )
 
             f, h = heap.pop()
-            #        if h in self.features: continue
-
-            #        facet Fopp ← the opposite facet of F relative to h
             fopp = self.getOppositeFace(h, f)
 
-            # Opposite face does not exist (edge part of boundary loop)
             if fopp == -1:
                 continue
-
-            # Do not go beyond features
-
-            #        if self.features[h] and featureBarrier: continue
 
             # --------------------------------------------------------
             if self.parser.SOD[h] > maxSOD:
                 continue
             # --------------------------------------------------------
 
-            #        if self.featureDistances[f] <= expandingUntilFeatureDistance: continue
-
-            #        if ( chart(Fopp) is undefined ) then
             if self.chartOf(fopp) == -1:
-                #            add Fopp to chart(F)
                 self.charts[fopp] = self.charts[f]
-                #            remove E from chart_boundaries
                 chart_boundaries[h] = False
-
-                #            remove non-extremal edges from chart_boundaries,
-                #            #(i.e. edges that do not link two other chart boundary edges)
                 chart_boundaries = self.removeNonExtremalEdges(chart_boundaries, h)
-
-                #            add the halfedges of Fopp belonging to
-                #            chart_boundaries to Heap
                 for eh in self.parser.mesh.fe(self.parser.faceHandles[fopp]):
                     id = eh.idx()
                     if chart_boundaries[id]:
                         heap.insert(fopp, id)
-
-            #        elseif ( chart(Fopp) != chart(F ) and
-            #            max_dist(chart(F )) - dist(F ) < ε and
-            #            max_dist(chart(Fopp)) - dist(F ) < ε ) then
             else:
-
                 if self.chartOf(fopp) != self.chartOf(f):
                     if self.max_dist(f) - dist[f] < self.epsilon:
                         if self.max_dist(fopp) - dist[f] < self.epsilon:
                             self.merge(f, fopp)
                             pass
-
-    #        end // if
-    #    end // while
 
     def getChartedFaces(self):
         count = 0
