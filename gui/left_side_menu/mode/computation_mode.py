@@ -2,6 +2,8 @@ from enum import Enum
 
 
 class ComputationMode(Enum):
+    """The different modi for unwrapping an object"""
+
     AUTOMATIC = 0
     MANUAL = 1
 

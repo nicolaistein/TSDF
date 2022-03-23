@@ -12,18 +12,21 @@ from gui.left_side_menu.mode.mode_menu import ModeMenu
 from gui.left_side_menu.export_menu import ExportMenu
 from gui.listview import ListView
 
+# Constants
+canvasSize = 900
 mainColor = "#cccccc"
+
+# Framework startup
 root = Tk()
 root.title("Tactile Sensing Development Framework")
 root.iconbitmap("image.ico")
 root.geometry("1920x900")
 root.configure(bg=mainColor)
-canvasSize = 900
 
+# UI Initialization
 allPatternsContainer = Frame(root, bg=mainColor)
 leftContainerParent = Frame(root)
 leftContainer = ListView(leftContainerParent, 255, 900, 0, mainColor).build()
-
 plotter = Mesh3DPlotter(allPatternsContainer)
 canvasManager = CanvasManager(root, canvasSize, plotter)
 computationInfo = ComputationInfo(leftContainer, canvasManager)
@@ -47,6 +50,7 @@ allPatterns = AllPatterns(
     allPatternsContainer, mainColor, placedPatterns, canvasManager
 )
 
+# UI Rendering
 fileMenu.build()
 modeMenu.build()
 analyzeMenu.build()
@@ -60,6 +64,5 @@ allPatterns.build()
 plotter.show()
 allPatternsContainer.pack(side=LEFT, anchor=N, padx=(20, 0))
 placedPatterns.build()
-
 
 root.mainloop()

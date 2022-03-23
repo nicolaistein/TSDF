@@ -1,4 +1,3 @@
-import math
 from typing import List
 from gui.canvas.plotting_options.plotting_option_calculator import (
     PlottingOptionCalculator,

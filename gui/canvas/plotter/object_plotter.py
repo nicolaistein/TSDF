@@ -12,7 +12,7 @@ import igl
 class ObjectPlotter:
     def __init__(
         self,
-        id,
+        id: int,
         canvasManager,
         verticesToPlot: List[List[float]],
         verticesBefore: List[List[float]],
@@ -85,7 +85,6 @@ class ObjectPlotter:
         return sum
 
     def getBoundary(self):
-
         return self.bnd
 
     def setEnabled(self, enabled: bool):

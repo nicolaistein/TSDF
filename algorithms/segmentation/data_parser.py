@@ -1,19 +1,24 @@
-import igl
+from typing import List
 from openmesh import *
 import numpy as np
-import array
-import math
 from logger import log
 
 
 class SegmentationParser:
     """
-    faces: List of faces
-    vertices: List of vertices
-    edgeToFaces: mapping edge -> List of faces
+    Parses the mesh into the halfedge data structure
     """
 
-    def parse(self, vertices, faces, sod: bool = True):
+    def parse(
+        self, vertices: List[List[float]], faces: List[List[int]], sod: bool = True
+    ):
+        """main method that manages the parsing process
+
+        Args:
+            vertices (List[List[float]]): vertices
+            faces (List[List[int]]): faces
+            sod (bool, optional): Indicates whether SOD values need to be calculated. Defaults to True.
+        """
         self.vertices = vertices
         self.faces = faces
         log("vertex length: " + str(len(self.vertices)))
@@ -28,6 +33,7 @@ class SegmentationParser:
         log("Reading finisehd")
 
     def createMesh(self):
+        """Creates the halfedge data structure"""
         self.mesh = TriMesh()
         self.vertexHandles = []
         self.faceHandles = []
@@ -46,6 +52,10 @@ class SegmentationParser:
             )
 
     def readCustomData(self):
+        """Creates mappings to provide additional connectivity:
+        1. edge index to adjacent faces
+        2. edge index to adjacent vertices
+        """
         self.edgeToFaces = {}
         for face in self.mesh.faces():
             fid = face.idx()
@@ -65,6 +75,14 @@ class SegmentationParser:
                 self.edgeToVertices[id].append(vid)
 
     def surface_normal(self, faceID: int):
+        """Computes the normal of a face
+
+        Args:
+            faceID (int): the face
+
+        Returns:
+            List[float]: normal vector
+        """
         face = self.faces[faceID]
         p1 = self.vertices[face[0]]
         p2 = self.vertices[face[1]]
@@ -77,6 +95,7 @@ class SegmentationParser:
         return normalized_v
 
     def compute_SOD_all(self):
+        """Computes the second order difference of all edges"""
         log("computing SOD...")
         self.SOD = {}
         for index, val in self.edgeToFaces.items():
@@ -89,7 +108,7 @@ class SegmentationParser:
                 result = np.degrees(np.arccos(np.dot(n1, n2)))
             self.SOD[index] = result
 
-        log("sorting...")
+        # Sort sod values
         self.SOD = {
             k: v
             for k, v in sorted(self.SOD.items(), key=lambda item: item[1], reverse=True)
@@ -100,6 +119,3 @@ class SegmentationParser:
         file = open("sod.txt", "w")
         file.write(str(list(self.SOD.values())))
         file.close()
-
-
-#        log("Sod equals: " + str(list(self.SOD.values())))

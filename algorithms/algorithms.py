@@ -1,10 +1,18 @@
+from functools import partial
 from logger import log
 from algorithms.bff.main import BFF
 from algorithms.arap.arap import ARAP
-import time
 
 
 def getPreviousVertices(objPath: str):
+    """Extracts the vertices before the parameterization
+
+    Args:
+        objPath (str): path to mesh
+
+    Returns:
+        List[List[float]]: List of vertices
+    """
     file = open(objPath)
     vertices = []
     for line in file:
@@ -20,6 +28,14 @@ def getPreviousVertices(objPath: str):
 
 
 def getFaces(objPath: str):
+    """Extracts the faces before the parameterization
+
+    Args:
+        objPath (str): path to mesh
+
+    Returns:
+        List[List[int]]: List of faces
+    """
     file = open(objPath)
     faces = []
     for line in file:
@@ -35,21 +51,32 @@ def getFaces(objPath: str):
 
 
 def executeBFF(coneCount: int, file: str):
-    return executeAlgo(BFF(coneCount, file), False)
+    return executeAlgo(BFF(coneCount, file), True)
 
 
 def executeARAP(file: str):
     return executeAlgo(ARAP(file))
 
 
-def executeAlgo(algo, includeFaces: bool = True):
+def executeAlgo(algo: partial, replacesFaces: bool = False):
+    """executes the selected parameterization algorithm
 
+    Args:
+        algo (partial): partial of the selected algorithm
+        replacesFaces (bool, optional): True if the algorithm
+          also replaces the faces and not just the vertices. Defaults to True.
+
+    Returns:
+        List[List[float]]: vertices before flattening
+        List[List[int]]: faces before flattening
+        List[List[float]]: vertices after flattening
+        List[List[int]]: faces after flattening
+    """
     faces = getFaces(algo.objPath)
     facesBefore = getFaces(algo.objPath)
 
     # execute algorithm
-    computeStart = time.time()
-    if includeFaces:
+    if not replacesFaces:
         points = algo.execute()
     else:
         points, faces = algo.execute()
@@ -58,10 +85,7 @@ def executeAlgo(algo, includeFaces: bool = True):
             for index2, f2 in enumerate(f):
                 faces[index][index2] = f2 - 1
 
-    computeEnd = time.time()
-
     return (
-        computeEnd - computeStart,
         getPreviousVertices(algo.objPath),
         facesBefore,
         points,
