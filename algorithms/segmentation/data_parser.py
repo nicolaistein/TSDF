@@ -26,7 +26,7 @@ class SegmentationParser:
         self.createMesh()
         self.edgeCount = len(self.mesh.edges())
         log("edge count: " + str(self.edgeCount))
-        self.readCustomData()
+        self.createCustomMappings()
         if sod:
             self.compute_SOD_all()
 
@@ -51,11 +51,9 @@ class SegmentationParser:
                 )
             )
 
-    def readCustomData(self):
-        """Creates mappings to provide additional connectivity:
-        1. edge index to adjacent faces
-        2. edge index to adjacent vertices
-        """
+    def createCustomMappings(self):
+        """Creates mappings to provide additional connectivity"""
+        # Mapping 1 (edge index to adjacent faces)
         self.edgeToFaces = {}
         for face in self.mesh.faces():
             fid = face.idx()
@@ -65,6 +63,7 @@ class SegmentationParser:
                     self.edgeToFaces[id] = []
                 self.edgeToFaces[id].append(fid)
 
+        # Mapping 2 (edge index to adjacent vertices)
         self.edgeToVertices = {}
         for vertex in self.mesh.vertices():
             vid = vertex.idx()
@@ -115,7 +114,7 @@ class SegmentationParser:
         }
         log("computing SOD finished")
 
-        # For histogram
+        # Save sod distribution in file e.g. for creating histograms
         file = open("sod.txt", "w")
         file.write(str(list(self.SOD.values())))
         file.close()

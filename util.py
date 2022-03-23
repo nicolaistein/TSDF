@@ -5,6 +5,15 @@ from logger import log
 
 
 def subtract(p1: List[float], p2: List[float]):
+    """Creates a vector out of two 2 or 3 dimensional points
+
+    Args:
+        p1 (List[float]): point 1
+        p2 (List[float]): point 2
+
+    Returns:
+        List[float]: 3 dimensional vector
+    """
     x = p1[0] - p2[0]
     y = p1[1] - p2[1]
     z = p1[2] - p2[2] if len(p1) == 3 else 0
@@ -12,6 +21,16 @@ def subtract(p1: List[float], p2: List[float]):
 
 
 def triangleArea(a: List[float], b: List[float], c: List[float]):
+    """Computes the area of a triangle
+
+    Args:
+        a (List[float]): corner point 1
+        b (List[float]): corner point 2
+        c (List[float]): corner point 3
+
+    Returns:
+        float: Triangle area
+    """
     ab = subtract(a, b)
     ac = subtract(a, c)
     cross = np.cross(np.array(ab), np.array(ac))
@@ -20,15 +39,32 @@ def triangleArea(a: List[float], b: List[float], c: List[float]):
     return 0.5 * norm
 
 
-def faceToArea(face, points):
+def faceToArea(face: List[int], points: List[List[float]]):
+    """Calculates the area of a given face
+
+    Args:
+        face (List[int]): list that contains the indices of the three corner points
+        points (List[List[float]]): a list of points
+
+    Returns:
+        float: the face area
+    """
     indexX = face[0]
     indexY = face[1]
     indexZ = face[2]
     return triangleArea(points[indexX], points[indexY], points[indexZ])
 
 
-def angle_between(v1, v2):
-    """Returns the angle in radians between vectors v1 and v2"""
+def angle_between(v1: List[float], v2: List[float]):
+    """Returns the angle in radians between two vectors
+
+    Args:
+        v1 (List[float]): vector 1
+        v2 (List[float]): vector 2
+
+    Returns:
+        float: resulting angle
+    """
     norm1 = np.linalg.norm(v1)
     norm2 = np.linalg.norm(v2)
     if norm1 == 0 or norm2 == 0:
@@ -38,7 +74,7 @@ def angle_between(v1, v2):
     return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
 
 
-def isFirstBigger(val1, val2, neighboring: bool):
+def isFirstBigger(val1: float, val2: float, neighboring: bool):
     if neighboring:
         return val1 > val2
     else:
@@ -50,10 +86,21 @@ def doIntersect(
     p2: List[float],
     p3: List[float],
     p4: List[float],
-    shouldLog: bool = False,
     neighboring: bool = False,
 ):
-    """Calculates whether the line from p1 to p2 intersects with the line from p3 to p4"""
+    """Checks if two lines intersect
+
+    Args:
+        p1 (List[float]): Start point of line 1
+        p2 (List[float]): End point of line 1
+        p3 (List[float]): Start point of line 2
+        p4 (List[float]): End point of line 2
+        neighboring (bool, optional): True if the lines have one endpoint in common. Defaults to False.
+
+    Returns:
+        bool: intersection result
+    """
+
     x1 = p1[0]
     y1 = p1[1]
     x2 = p2[0]
@@ -73,46 +120,39 @@ def doIntersect(
     xVals2 = sorted([x3, x4])
     yVals2 = sorted([y3, y4])
 
+    # At least one line is vertical or horizontal
     if bottom == 0:
+
+        # Line is vertical
         if (x2 - x1) == 0 and (x4 - x3) == 0:
-            #        b1 =              yVals1[1] >= yVals2[0] and                 yVals1[1] <= yVals2[1]
             b1 = isFirstBigger(yVals1[1], yVals2[0], n) and isFirstBigger(
                 yVals2[1], yVals1[1], n
             )
-            #        b2 =              yVals1[0] >= yVals2[0] and                 yVals1[0] <= yVals2[1]
             b2 = isFirstBigger(yVals1[0], yVals2[0], n) and isFirstBigger(
                 yVals2[1], yVals1[0], n
             )
-            #        b3 =              yVals2[1] >= yVals1[0] and                 yVals2[1] <= yVals1[1]
             b3 = isFirstBigger(yVals2[1], yVals1[0], n) and isFirstBigger(
                 yVals1[1], yVals2[1], n
             )
-            #        b4 =              yVals2[0] >= yVals1[0] and                 yVals2[0] <= yVals1[1]
             b4 = isFirstBigger(yVals2[0], yVals1[0], n) and isFirstBigger(
                 yVals1[1], yVals2[0], n
             )
 
             if x1 == x3:
-                #            log("Error1 applicable")
-
                 return (b1 or b2 or b3 or b4) and x1 == x3
 
+        # Line is horizontal
         if (y4 - y3) == 0 and (y2 - y1) == 0:
             if y1 == y3:
-                #            log("Error2 applicable")
-                #            b1 =              xVals1[1] >= xVals2[0] and                 xVals1[1] <= xVals2[1]
                 b1 = isFirstBigger(xVals1[1], xVals2[0], n) and isFirstBigger(
                     xVals2[1], xVals1[1], n
                 )
-                #            b2 =              xVals1[0] >= xVals2[0] and                 xVals1[0] <= xVals2[1]
                 b2 = isFirstBigger(xVals1[0], xVals2[0], n) and isFirstBigger(
                     xVals2[1], xVals1[0], n
                 )
-                #            b3 =              xVals2[1] >= xVals1[0] and                 xVals2[1] <= xVals1[1]
                 b3 = isFirstBigger(xVals2[1], xVals1[0], n) and isFirstBigger(
                     xVals1[1], xVals2[1], n
                 )
-                #            b4 =              xVals2[0] >= xVals1[0] and                 xVals2[0] <= xVals1[1]
                 b4 = isFirstBigger(xVals2[0], xVals1[0], n) and isFirstBigger(
                     xVals1[1], xVals2[0], n
                 )
@@ -123,19 +163,15 @@ def doIntersect(
     xInter = round(xTop / bottom, 6)
     yInter = round(yTop / bottom, 6)
 
-    #    insideFirstX =             xInter >= round(xVals1[0], 6) and               xInter <= round(xVals1[1], 6)
     insideFirstX = isFirstBigger(xInter, round(xVals1[0], 6), n) and isFirstBigger(
         round(xVals1[1], 6), xInter, n
     )
-    #    insideFirstY =             yInter >= round(yVals1[0], 6) and                   yInter <= round(yVals1[1], 6)
     insideFirstY = isFirstBigger(yInter, round(yVals1[0], 6), n) and isFirstBigger(
         round(yVals1[1], 6), yInter, n
     )
-    #    insideSecX =               xInter >= round(xVals2[0], 6) and               xInter <= round(xVals2[1], 6)
     insideSecX = isFirstBigger(xInter, round(xVals2[0], 6), n) and isFirstBigger(
         round(xVals2[1], 6), xInter, n
     )
-    #    insideSecY =               yInter >= round(yVals2[0], 6) and               yInter <= round(yVals2[1], 6)
     insideSecY = isFirstBigger(yInter, round(yVals2[0], 6), n) and isFirstBigger(
         round(yVals2[1], 6), yInter, n
     )
@@ -145,6 +181,16 @@ def doIntersect(
 
 
 def getFlatTriangle(x1: List[float], x2: List[float], x3: List[float]):
+    """Flattens a single triangle
+
+    Args:
+        x1 (List[float]): corner point 1
+        x2 (List[float]): corner point 2
+        x3 (List[float]): corner point 3
+
+    Returns:
+        List[float], List[float], List[float]: corner points of flattened triangle
+    """
     vector1 = np.array(x2) - np.array(x1)
     vector2 = np.array(x3) - np.array(x1)
 

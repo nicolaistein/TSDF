@@ -1,5 +1,4 @@
 from functools import partial
-from pyclbr import Function
 from tkinter import *
 import gui.mesh3dplotter.mesh3dplotter as plotter
 from gui.button import TkinterCustomButton
@@ -16,10 +15,13 @@ from gui.menu_heading.menu_heading import MenuHeading
 import gui.menu_heading.info_texts as infotexts
 import igl
 import os
+import time
 from logger import log
 
 
 class AlgorithmMenu:
+    """The desired parameterization algorithm can be selected in this menu"""
+
     points = []
     mainFrame = None
     mode = ComputationMode.default()
@@ -95,7 +97,7 @@ class AlgorithmMenu:
             return
 
         chosen = self.v.get()
-        algoName, id = self.algorithms[chosen]
+        algoName, _ = self.algorithms[chosen]
         coneCount = 0
 
         if chosen == 0:
@@ -114,8 +116,6 @@ class AlgorithmMenu:
                 chartList.append((chartKey, folderName + "/" + file))
         else:
             chartList = [(-1, file)]
-
-        # Todo: map charts to 1-n
 
         computeStart = time.time()
         results = []
@@ -143,8 +143,9 @@ class AlgorithmMenu:
                 )
                 continue
 
-            res = self.calculateSingleFile(ch, algorithmFunc)
+            res = algorithmFunc(ch)
             results.append((key,) + res)
+            log("file: " + file + ", time: " + str(time))
         computeEnd = time.time()
 
         for shape in results:
@@ -156,20 +157,8 @@ class AlgorithmMenu:
             self.canvasManager.plot(results)
             self.compInfo.updateInfo(algoName, computeEnd - computeStart)
 
-    def calculateSingleFile(self, file, algorithm: Function):
-
-        time, pointsBefore, facesBefore, pointsAfter, facesAfter = algorithm(file)
-        log(
-            "file: "
-            + file
-            + ", time: "
-            + str(time)
-            + ", points: "
-            + str(len(pointsAfter))
-        )
-        return (pointsBefore, facesBefore, pointsAfter, facesAfter)
-
     def build(self):
+        """Renders the corresponding widget"""
         height = 200 if self.mode == ComputationMode.MANUAL else 110
         self.mainFrame = Frame(self.master, width=260, height=height, padx=20, pady=20)
         MenuHeading("Flatten", infotexts.flatten).build(self.mainFrame)
@@ -190,6 +179,7 @@ class AlgorithmMenu:
         self.mainFrame.pack(side=TOP, pady=(2, 0))
 
     def assembleAlgoChooserFrame(self):
+        """Renders the Radiobutton frame where the algorithm can be selected"""
         selectAlgoFrame = Frame(self.mainFrame)
 
         for txt, val in self.algorithms:
@@ -200,10 +190,10 @@ class AlgorithmMenu:
                 height=1,
                 wrap=None,
                 variable=self.v,
-                command=self.ShowChoice,
                 value=val,
             ).pack(anchor=W, side=LEFT)
 
+            # Needed because BFF is the only algorithm that takes other parameters as input
             if txt == "BFF":
                 Label(optionFrame, text="with").pack(side=LEFT, anchor=W)
                 self.bffConeInput = NumericText(
@@ -214,6 +204,3 @@ class AlgorithmMenu:
             optionFrame.pack(side=TOP, anchor=W)
 
         selectAlgoFrame.pack(side=TOP, anchor=W)
-
-    def ShowChoice(self):
-        pass
