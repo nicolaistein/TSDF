@@ -99,10 +99,9 @@ class Charts:
         log("Removing small charts")
         ch = self.getCharts()
         print(ch)
-        min = self.getAreaOfChart(-1) * minChartSizeFactor
 
         chartAreas = {}
-        for key, val in ch.items():
+        for key, _ in ch.items():
             area = self.getAreaOfChart(key)
             chartAreas[key] = area
 
@@ -192,7 +191,7 @@ class Charts:
             if distance > self.maxDistance:
                 self.maxDistance = distance
             handledFaces += 1
-            if distance >= seedMinFeatureDistance:
+            if distance >= getSeedMinFeatureDistance(len(self.parser.faces)):
                 self.lastExpanded[feature] = face
             newEdges.extend(
                 [
@@ -353,7 +352,7 @@ class Charts:
                 continue
 
             # --------------------------------------------------------
-            if self.parser.SOD[h] > maxSOD:
+            if self.parser.SOD[h] > sodExpansionLimit:
                 continue
             # --------------------------------------------------------
 

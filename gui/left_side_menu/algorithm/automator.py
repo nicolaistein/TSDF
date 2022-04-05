@@ -244,7 +244,7 @@ class Automator:
         methods = [executeARAP, partial(executeBFF, 0)]
         res = None
         for m in methods:
-            _, pB, fB, pA, fA = m(self.filename)
+            pB, fB, pA, fA = m(self.filename)
             (
                 fI,
                 maxfI,

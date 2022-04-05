@@ -217,10 +217,24 @@ class PatternParent:
         self.currentX = x
         self.currentY = y
 
-    def moveTo(self, x=None, y=None, z=None):
+    def moveTo(self, x: float = None, y: float = None, z: float = None):
+        """Moves to the given location without releasing material
+
+        Args:
+            x (float, optional): relative difference in x direction. Defaults to None.
+            y (float, optional): relative difference in y direction. Defaults to None.
+            z (float, optional): absolute z coordinate. Defaults to None.
+        """
         self.addCmd("G0", x, y, z, moving=True)
 
     def printTo(self, x=None, y=None, z=None):
+        """Moves to the given location while releasing material
+
+        Args:
+            x (float, optional): relative difference in x direction. Defaults to None.
+            y (float, optional): relative difference in y direction. Defaults to None.
+            z (float, optional): absolute z coordinate. Defaults to None.
+        """
         self.addCmd("G1", x, y, z, printing=True, moving=True)
 
     def clockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
@@ -234,9 +248,11 @@ class PatternParent:
         )
 
     def workHeight(self):
+        """Moves along the z-axis until work height is reached"""
         self.moveTo(z=self.workheight)
 
     def freeMoveHeight(self):
+        """Moves along the z-axis until work free move height is reached"""
         self.moveTo(z=self.freemoveHeight)
 
     def rotate(self, x: float, y: float):

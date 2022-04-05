@@ -19,7 +19,7 @@ class SegmentationAutomator(automator.Automator):
 
         if self.isBasicShape():
             log("Object is a basic shape")
-            _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
+            pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
             (
                 fI,
                 maxfI,

@@ -163,7 +163,7 @@ class PlacedPatternsMenu:
         InputFrame2 = Frame(inputParentFrame)
         self.eFactorText = self.getKeyValueFrame(InputFrame2, "E Factor", "4")
         self.fFactorText = self.getKeyValueFrame(
-            InputFrame2, "F Value", "250", padx=True
+            InputFrame2, "mm per min", "250", padx=True
         )
         InputFrame2.pack(side=TOP, anchor=W, pady=(5, 0))
 

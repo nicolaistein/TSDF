@@ -145,7 +145,7 @@ class AlgorithmMenu:
 
             res = algorithmFunc(ch)
             results.append((key,) + res)
-            log("file: " + file + ", time: " + str(time))
+            log("file: " + file)
         computeEnd = time.time()
 
         for shape in results:
