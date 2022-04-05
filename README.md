@@ -5,22 +5,23 @@
 Currently the only supported extension is .obj. Furthermore the following restrictions are given:
 - Geometry must be manifold
 - Exacly one connected figure inside the file
-- Mesh has to be triangulation
+- Mesh has to be a triangulation
 - The file must not be binary
 - No unused vertices are allowed
 
-In the manual mode the user can select a target number of segments below the 3D plotter and press "segment". This optional step divides the mesh into smaler pieces and is required if the object is closed and suggested if the object is not unwrappable without heavily cutting into the surface. Afterwards a parameterization algorithm can be selected which flattens either the whole mesh or all segments if segmentation was performed beforehand.
+In the manual mode the user can select a target number of segments below the 3D plotter and press "segment". This optional step divides the mesh into smaler pieces and is required if the object is closed and suggested if the object is not unwrappable without cutting into the surface. Afterwards a parameterization algorithm can be selected which flattens either the whole mesh or all segments if segmentation was performed beforehand.
 In the automatic mode the user just needs to press "flatten" to unwrap the object. Segmentation and algorithm selection are then done by the program.
 
 ## Placing Patterns
 
-Once the flat surfaces are visible, patterns can be placed onto them. These are available in a list which also contains visualizations for each pattern's parameters. All length units are measured in millimeters.
-- Print height: Height at which the sensors are printed
-- Move height: Height at which the nozzle can move freely along x and y axes
-- E Factor: Added to every GCode command which issues printing; tells the printer how much material to release
-- F Value: Speed of the printer
+Once the flat surfaces are visible, patterns can be placed onto them. These are available in a list which also contains visualizations for each pattern's parameters. All length units are measured in millimeters. Additionally the following global gcode variables can be configured:
+- (required) Print height: Height at which the sensors are printed
+- (required) Move height: Height at which the nozzle can move freely along the x and y axes
+- (required) E Factor: Added to every GCode command which issues printing; tells the printer how much material to release [docs](https://marlinfw.org/docs/gcode/G000-G001.html)
+- (required) mm per min: Speed of the printer in millimeters per minute
+- Pause in ms: Pause in milliseconds between each pattern
 - Overrun start and end: lengths of additional paths added to the start and end of each pattern where the printer moves through the liquid without releasing any material. Leave empty if undesired
-- Cleaning x and y: x and y location of a swamp where the nozzle will clean itself after each pattern. Leave empty if undesired
+- (coming soon) Cleaning x and y: x and y location of a swamp where the nozzle will clean itself after each pattern. Leave empty if undesired
 
 The pattern's list item background is green if the location is valid (pattern is completely inside a shape), red if not and blue if the location is currently being evaluated.
 
@@ -41,15 +42,16 @@ In [algorithms.py](algorithms/algorithms.py) all parameterization algorithms are
 ## Patterns
 Each pattern is represented by its own folder located inside the [patterns](patterns) folder. It contains an image.png and a pattern.py file. The image is displayed inside the program to visualize the parameters and pattern.py contains a class which is a subclass of the PatternParent class and programmatically draws the pattern in its gcode() method. This is done without any translation and rotation located at (0,0) using the methods below which are provided by PatternParent.
 ```
-moveTo(x=None, y=None, z=None) # linear movement
-printTo(x=None, y=None, z=None) # linear printing movement
-clockArc(x=None, y=None, i=0.0, j=0.0, arcDegrees=180) # clockwise arc
-counterClockArc(x=None, y=None, i=0.0, j=0.0, arcDegrees=180) # counter clockwise arc
-workHeight(self) # lowers head to work height
-freeMoveHeight(self) # moves nozzle up to free move height
+moveTo() # linear movement
+printTo() # linear printing movement
+clockArc() # clockwise arc
+counterClockArc() # counter clockwise arc
+workHeight() # lowers head to work height
+freeMoveHeight() # moves nozzle up to free move height
 ```
-Currently 90 and 180 degree arcs are supported.
-Already integrated patterns can serve as orientation
+All methods and their parameters are documented in detail in [PatternParent](patterns/pattern_parent.py). Currently 90 and 180 degree arcs are supported.
+
+Already integrated patterns can serve as orientation.
 
 ## Possible Future Work
 - Folder system for patterns inside the application to provide a clear overview and fast accessibility of all patterns
