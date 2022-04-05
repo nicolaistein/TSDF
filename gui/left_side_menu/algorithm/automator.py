@@ -15,11 +15,11 @@ class Automator:
     basicShapeThreshholdValue: int = 40
     basicShapeThreshholdPercentage: float = 0.95
 
-    facesThreshhold = 1800
-    facesHardThreshhold = 500
+    facesThreshhold: int = 1800
+    facesHardThreshhold: int = 500
 
-    minSODForCornerDetection = 0
-    maxConesForBFF = 500
+    minSODForCornerDetection: int = 0
+    maxConesForBFF: int = 800
 
     def __init__(
         self,
@@ -68,7 +68,7 @@ class Automator:
 
         if self.isBasicShape():
             log("Object is a basic shape")
-            _, pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
+            pB, fB, pA, fA = executeBFF(self.getOptimalConeCount(), self.filename)
             (
                 fI,
                 maxfI,
@@ -163,7 +163,7 @@ class Automator:
         return False
 
     def shouldSegment(self, pointsAfter, facesAfter):
-        log("shouldSeg faces length: " + str(len(self.faces)))
+        log("shouldSegment faces length: " + str(len(self.faces)))
 
         if self.overlaps(pointsAfter, facesAfter):
             return True
@@ -241,7 +241,10 @@ class Automator:
         return (underThresh / total) < self.basicShapeThreshholdPercentage
 
     def flatten(self):
-        methods = [executeARAP, partial(executeBFF, 0)]
+        methods = [
+            #       executeARAP,
+            partial(executeBFF, 0)
+        ]
         res = None
         for m in methods:
             pB, fB, pA, fA = m(self.filename)

@@ -1,7 +1,5 @@
-from fileinput import filename
 from tkinter import *
 from tkinter import messagebox
-from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
@@ -30,10 +28,11 @@ class ExportMenu:
     def exporObj(self):
         if len(self.canvasManager.objectPlotters) == 0:
             return
-        folder = askdirectory()
-        if not os.path.isdir(folder):
+        file = filedialog.asksaveasfile(
+            mode="w", defaultextension=".obj", filetypes=[("Object file", ".obj")]
+        )
+        if file is None:
             return
-        file = open(folder + "/shapes.obj", "w")
 
         shifts = [0]
         for pl in self.canvasManager.objectPlotters:
@@ -71,6 +70,10 @@ class ExportMenu:
         im = ImageGrab.grab(rect)
         im.save("canvas.png")
         shutil.copy("canvas.png", chosenFile.name)
+        messagebox.showinfo(
+            "Export",
+            "Successfully exported the canvas to " + chosenFile.name,
+        )
 
     def refreshView(self):
         self.objButton.delete()

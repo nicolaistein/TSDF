@@ -227,7 +227,7 @@ class PatternParent:
         """
         self.addCmd("G0", x, y, z, moving=True)
 
-    def printTo(self, x=None, y=None, z=None):
+    def printTo(self, x: float = None, y: float = None, z: float = None):
         """Moves to the given location while releasing material
 
         Args:
@@ -237,12 +237,26 @@ class PatternParent:
         """
         self.addCmd("G1", x, y, z, printing=True, moving=True)
 
-    def clockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
+    def clockArc(
+        self,
+        x: float = None,
+        y: float = None,
+        i: float = 0.0,
+        j: float = 0.0,
+        arcDegrees=180,
+    ):
         self.addCmd(
             "G02", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True
         )
 
-    def counterClockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
+    def counterClockArc(
+        self,
+        x: float = None,
+        y: float = None,
+        i: float = 0.0,
+        j: float = 0.0,
+        arcDegrees=180,
+    ):
         self.addCmd(
             "G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True
         )

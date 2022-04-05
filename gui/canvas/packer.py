@@ -73,4 +73,11 @@ def shapeToRectangle(vertices: List[List[float]]):
         if y > maxY:
             maxY = y
 
-    return (maxX - minX, maxY - minY)
+    width = maxX - minX
+    height = maxY - minY
+    if width == 0:
+        width = sys._float_info.min
+    if height == 0:
+        height = sys._float_info.min
+
+    return (width, height)

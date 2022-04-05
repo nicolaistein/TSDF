@@ -34,8 +34,7 @@ class SegmentationAutomator(automator.Automator):
 
         pointsBefore, facesBefore, pointsAfter, facesAfter = self.flatten()
         if self.shouldSegment(pointsAfter, facesAfter):
-            faceToChart, data = self.segmentAndProcess()
-            return faceToChart, data
+            return self.segmentAndProcess()
         else:
             return [1] * len(self.faces), [
                 (1, pointsBefore, facesBefore, pointsAfter, facesAfter)

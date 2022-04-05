@@ -265,7 +265,6 @@ class Charts:
                         if v != -1:
                             total.append(v)
 
-                    # Todo: HERE
                     if len(total) != 0:
                         self.featureDistances[key] = int(round(sum(total) / len(total)))
                     else:

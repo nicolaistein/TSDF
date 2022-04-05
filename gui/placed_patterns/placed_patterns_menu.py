@@ -1,6 +1,5 @@
 from tkinter import *
 from tkinter import messagebox
-from tkinter.filedialog import askdirectory
 from gui.button import TkinterCustomButton
 from gui.canvas.canvas_manager import CanvasManager
 from gui.pattern_model import PatternModel
@@ -10,6 +9,7 @@ from gui.listview import ListView
 from gui.numeric_text import NumericText
 from gui.menu_heading.menu_heading import MenuHeading
 import gui.menu_heading.info_texts as infotexts
+from tkinter import filedialog
 from logger import log
 import os
 
@@ -73,11 +73,11 @@ class PlacedPatternsMenu:
     def generateGCode(self):
         if len(self.placedPatternItems) == 0:
             return
-        filename = askdirectory()
-        log("direcory: " + str(filename))
-        if not os.path.isdir(filename):
+        file = filedialog.asksaveasfile(
+            mode="w", defaultextension=".gcode", filetypes=[("GCode file", ".gcode")]
+        )
+        if file is None:
             return
-        file = open(filename + "/result.gcode", "w")
         workHeight = self.workHeightText.getNumberInput()
         freeMoveHeight = self.freeMoveHeightText.getNumberInput()
         eFactor = self.eFactorText.getNumberInput()
