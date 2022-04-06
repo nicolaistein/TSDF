@@ -87,9 +87,6 @@ class PlottingOptionsMenu:
 
         MenuHeading("Plotting Options", infotexts.plottingOptions).build(self.content)
 
-        chooseFile = Label(self.content, text="Computation Info")
-        chooseFile.configure(font=("Helvetica", 12, "bold"))
-
         self.algorithmLabel = self.getKeyValueFrame(
             self.content, "Algorithm", self.algo
         )
@@ -122,14 +119,14 @@ class PlottingOptionsMenu:
 
             rightFrame = Frame(viewOptionFrame)
 
-            minDist, maxDist = distortion.getMinMax()
+            minDist, optimalDist, _ = distortion.getMinMax()
 
             innerTopFrame = Frame(rightFrame)
             opTitle = Label(innerTopFrame, text=distortion.toString())
             opTitle.configure(font=("Helvetica", 10, "bold"))
             opTitle.pack(side=LEFT, anchor=W)
 
-            if minDist is not None:
+            if optimalDist is not None:
                 self.distortionLabels[distortion.value] = Label(
                     innerTopFrame, text="-", fg="blue"
                 )
@@ -138,19 +135,12 @@ class PlottingOptionsMenu:
                 )
             innerTopFrame.pack(side=TOP, anchor=W)
 
-            if minDist is not None:
+            if optimalDist is not None:
                 innerBottomFrame = Frame(rightFrame)
-                minValue = round(minDist, 1)
-                Label(innerBottomFrame, text=str(minValue)).pack(side=LEFT, anchor=W)
-
-                canvas = Canvas(
-                    innerBottomFrame, width=100, height=5, bd=0, highlightthickness=0
-                )
-                canvas.pack(side=LEFT, padx=(5, 5))
-                distortion.getColormap(canvas, 100, 5)
-
-                maxValue = round(maxDist, 1)
-                Label(innerBottomFrame, text=str(maxValue)).pack(side=LEFT, anchor=W)
+                if minDist is None:
+                    self.buildTwoValue(innerBottomFrame, distortion)
+                else:
+                    self.buildThreeValue(innerBottomFrame, distortion)
                 innerBottomFrame.pack(side=TOP, anchor=NW)
 
             rightFrame.pack(side=LEFT, anchor=N)
@@ -161,3 +151,40 @@ class PlottingOptionsMenu:
 
         self.content.pack(side=LEFT)
         self.mainFrame.pack(side=TOP, pady=(2, 0), anchor=N)
+
+    def buildTwoValue(self, innerBottomFrame: Frame, distortion: PlottingOption):
+        log("BUILD TWO CALLED")
+        _, optimalDist, maxDist = distortion.getMinMax()
+        Label(innerBottomFrame, text=str(round(optimalDist, 1))).pack(
+            side=LEFT, anchor=W
+        )
+
+        canvas = Canvas(
+            innerBottomFrame, width=100, height=5, bd=0, highlightthickness=0
+        )
+        canvas.pack(side=LEFT, padx=(5, 5))
+        distortion.getColormap(canvas, 100, 5)
+        Label(innerBottomFrame, text=str(round(maxDist, 1))).pack(side=LEFT, anchor=W)
+
+    def buildThreeValue(self, innerBottomFrame: Frame, distortion: PlottingOption):
+        log("BUILD THREE CALLED")
+        minDist, optimalDist, maxDist = distortion.getMinMax()
+        Label(innerBottomFrame, text=str(round(minDist, 1))).pack(side=LEFT, anchor=W)
+
+        canvas = Canvas(
+            innerBottomFrame, width=40, height=5, bd=0, highlightthickness=0
+        )
+        canvas.pack(side=LEFT, padx=(5, 5))
+        distortion.getColormap(canvas, 40, 5, reverse=True)
+
+        Label(innerBottomFrame, text=str(round(optimalDist, 1))).pack(
+            side=LEFT, anchor=W
+        )
+
+        canvas = Canvas(
+            innerBottomFrame, width=40, height=5, bd=0, highlightthickness=0
+        )
+        canvas.pack(side=LEFT, padx=(5, 5))
+        distortion.getColormap(canvas, 40, 5)
+
+        Label(innerBottomFrame, text=str(round(maxDist, 1))).pack(side=LEFT, anchor=W)

@@ -145,10 +145,10 @@ class PlottingOptionCalculator:
         return self.distortions, self.totalDistortion
 
     def distortionToColor(self, distortion: float):
-        minD, maxD = self.option.getMinMax()
+        _, optimalD, maxD = self.option.getMinMax()
         if distortion > maxD:
             distortion = maxD
-        dist = abs(distortion - minD) / abs(maxD - minD)
+        dist = abs(distortion - optimalD) / abs(maxD - optimalD)
 
         color = self.option.getColor()
         r, g, b = color

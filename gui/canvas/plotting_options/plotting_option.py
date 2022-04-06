@@ -67,13 +67,18 @@ class PlottingOption(Enum):
         )
 
     def getMinMax(self):
+        """Returns minimal, optimal and maximal distortion. If not available None is returned
+
+        Returns:
+            Tuple(int): (minDist, optimalDist, maxDist)
+        """
         switcher = {
-            0: (None, None),
-            1: (None, None),
-            2: (0, 0.4),
-            3: (0, 0.8),
-            4: (1, 1.8),
-            5: (4, 10),
+            0: (None, None, None),
+            1: (None, None, None),
+            2: (None, 0, 0.4),
+            3: (None, 0, 0.8),
+            4: (None, 1, 1.8),
+            5: (0, 4, 10),
         }
         return switcher[self.value]
 
@@ -88,7 +93,9 @@ class PlottingOption(Enum):
         }
         return switcher[self.value]
 
-    def getColormap(self, canvas: Canvas, width: int, height: int):
+    def getColormap(
+        self, canvas: Canvas, width: int, height: int, reverse: bool = False
+    ):
         optionColor = self.getColor()
         if type(optionColor) is not tuple:
             return
@@ -112,4 +119,6 @@ class PlottingOption(Enum):
                     255 - colorFacB,
                 )
 
+                if reverse:
+                    x = width - x
                 canvas.create_oval(x, y, x, y, fill=color, width=0)
