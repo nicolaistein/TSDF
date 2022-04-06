@@ -1,13 +1,15 @@
 import PyInstaller.__main__
 import shutil
 
-oneFile: bool = True
 name: str = "TSDF"
 
 
-def copy(path: str):
-    dirName = "" if oneFile else name + "/"
-    shutil.copytree(path, "dist/" + dirName + path)
+def copyFolder(path: str):
+    shutil.copytree(path, "dist/" + path)
+
+
+def copyFile(path: str):
+    shutil.copyfile(path, "dist/" + path)
 
 
 PyInstaller.__main__.run(
@@ -15,10 +17,11 @@ PyInstaller.__main__.run(
         "main.py",
         "-n=" + name,
         "--icon=image.ico",
-        "--onefile" if oneFile else "--onedir",
+        "--onefile",
     ],
 )
 
-copy("algorithms/bff/windows")
-copy("algorithms/bff/unix")
-copy("patterns")
+copyFolder("algorithms/bff/windows")
+copyFolder("algorithms/bff/unix")
+copyFolder("patterns")
+copyFile("image.ico")
