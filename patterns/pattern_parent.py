@@ -212,7 +212,6 @@ class PatternParent:
             )
         )
 
-    # Set position in plane
     def setCurrentPosition(self, x=None, y=None):
         self.currentX = x
         self.currentY = y
@@ -245,6 +244,17 @@ class PatternParent:
         j: float = 0.0,
         arcDegrees=180,
     ):
+        """Prints an arc clockwise. The center point offset as well as the location of the
+         nozzle after printing the arc need to be defined. Again all coordinates are relative
+          to the starting point of the arc (current location).
+
+        Args:
+            x (float, optional): Relative x coordinate of the nozzle after drawing the arc. Defaults to None.
+            y (float, optional): Relative y coordinate of the nozzle after drawing the arc. Defaults to None.
+            i (float, optional): Relative offset of the center point in x direction. Defaults to 0.0.
+            j (float, optional): Relative offset of the center point in y direction. Defaults to 0.0.
+            arcDegrees (int, optional): Number of degrees. Defaults to 180.
+        """
         self.addCmd(
             "G02", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True
         )
@@ -257,6 +267,17 @@ class PatternParent:
         j: float = 0.0,
         arcDegrees=180,
     ):
+        """Prints an arc counter-clockwise. The center point offset as well as the location of the
+         nozzle after printing the arc need to be defined. Again all coordinate are relative
+          to the starting point of the arc (current location).
+
+        Args:
+            x (float, optional): Relative x coordinate of the nozzle after drawing the arc. Defaults to None.
+            y (float, optional): Relative y coordinate of the nozzle after drawing the arc. Defaults to None.
+            i (float, optional): Relative offset of the center point in x direction. Defaults to 0.0.
+            j (float, optional): Relative offset of the center point in y direction. Defaults to 0.0.
+            arcDegrees (int, optional): Number of degrees. Defaults to 180.
+        """
         self.addCmd(
             "G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True
         )

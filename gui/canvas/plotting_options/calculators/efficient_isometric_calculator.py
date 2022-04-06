@@ -23,8 +23,11 @@ class EfficientIsometricCalculator(PlottingOptionCalculator):
         else:
             dist = abs(distortion - optimalD) / abs(minD - optimalD)
 
-        color = self.option.getColor()
-        r, g, b = color
+        colors = self.option.getColor()
+        if distortion >= optimalD:
+            r, g, b = colors[0]
+        else:
+            r, g, b = colors[1]
 
         stepSizeR = (255 - r) * dist
         stepSizeG = (255 - g) * dist

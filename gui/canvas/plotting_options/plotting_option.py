@@ -89,14 +89,21 @@ class PlottingOption(Enum):
             2: (255, 0, 0),
             3: (0, 0, 255),
             4: (255, 105, 36),
-            5: (65, 30, 148),
+            5: [(65, 30, 148), (255, 0, 0)],
         }
         return switcher[self.value]
 
     def getColormap(
-        self, canvas: Canvas, width: int, height: int, reverse: bool = False
+        self,
+        canvas: Canvas,
+        width: int,
+        height: int,
+        reverse: bool = False,
+        optionColor=None,
     ):
-        optionColor = self.getColor()
+        if optionColor is None:
+            optionColor = self.getColor()
+
         if type(optionColor) is not tuple:
             return
 

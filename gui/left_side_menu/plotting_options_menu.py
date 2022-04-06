@@ -153,7 +153,6 @@ class PlottingOptionsMenu:
         self.mainFrame.pack(side=TOP, pady=(2, 0), anchor=N)
 
     def buildTwoValue(self, innerBottomFrame: Frame, distortion: PlottingOption):
-        log("BUILD TWO CALLED")
         _, optimalDist, maxDist = distortion.getMinMax()
         Label(innerBottomFrame, text=str(round(optimalDist, 1))).pack(
             side=LEFT, anchor=W
@@ -167,7 +166,6 @@ class PlottingOptionsMenu:
         Label(innerBottomFrame, text=str(round(maxDist, 1))).pack(side=LEFT, anchor=W)
 
     def buildThreeValue(self, innerBottomFrame: Frame, distortion: PlottingOption):
-        log("BUILD THREE CALLED")
         minDist, optimalDist, maxDist = distortion.getMinMax()
         Label(innerBottomFrame, text=str(round(minDist, 1))).pack(side=LEFT, anchor=W)
 
@@ -175,7 +173,9 @@ class PlottingOptionsMenu:
             innerBottomFrame, width=40, height=5, bd=0, highlightthickness=0
         )
         canvas.pack(side=LEFT, padx=(5, 5))
-        distortion.getColormap(canvas, 40, 5, reverse=True)
+        distortion.getColormap(
+            canvas, 40, 5, optionColor=distortion.getColor()[0], reverse=True
+        )
 
         Label(innerBottomFrame, text=str(round(optimalDist, 1))).pack(
             side=LEFT, anchor=W
@@ -185,6 +185,6 @@ class PlottingOptionsMenu:
             innerBottomFrame, width=40, height=5, bd=0, highlightthickness=0
         )
         canvas.pack(side=LEFT, padx=(5, 5))
-        distortion.getColormap(canvas, 40, 5)
+        distortion.getColormap(canvas, 40, 5, optionColor=distortion.getColor()[1])
 
         Label(innerBottomFrame, text=str(round(maxDist, 1))).pack(side=LEFT, anchor=W)
