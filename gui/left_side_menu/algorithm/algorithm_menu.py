@@ -5,7 +5,7 @@ from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.canvas.canvas_manager import CanvasManager
 from gui.left_side_menu.file_menu import FileMenu
-from gui.left_side_menu.computation_info import ComputationInfo
+from gui.left_side_menu.plotting_options_menu import PlottingOptionsMenu
 from gui.numeric_text import NumericText
 from algorithms.segmentation.segmentation import folder
 from gui.left_side_menu.mode.computation_mode import ComputationMode
@@ -36,7 +36,7 @@ class AlgorithmMenu:
         master: Frame,
         canvasManager: CanvasManager,
         fileMenu: FileMenu,
-        compInfo: ComputationInfo,
+        compInfo: PlottingOptionsMenu,
         plotter: plotter.Mesh3DPlotter,
     ):
         self.master = master

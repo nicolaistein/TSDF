@@ -1,5 +1,5 @@
 from tkinter import *
-from gui.left_side_menu.computation_info import ComputationInfo
+from gui.left_side_menu.plotting_options_menu import PlottingOptionsMenu
 from gui.all_patterns.all_patterns import AllPatterns
 from gui.left_side_menu.algorithm.algorithm_menu import AlgorithmMenu
 from gui.left_side_menu.measuring_tool import MeasuringTool
@@ -29,7 +29,7 @@ leftContainerParent = Frame(root)
 leftContainer = ListView(leftContainerParent, 255, 900, 0, mainColor).build()
 plotter = Mesh3DPlotter(allPatternsContainer)
 canvasManager = CanvasManager(root, canvasSize, plotter)
-computationInfo = ComputationInfo(leftContainer, canvasManager)
+computationInfo = PlottingOptionsMenu(leftContainer, canvasManager)
 measuringTool = MeasuringTool(leftContainer, canvasManager)
 fileMenu = FileMenu(leftContainer, plotter, mainColor)
 exportMenu = ExportMenu(leftContainer, canvasManager, fileMenu)

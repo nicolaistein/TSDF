@@ -9,7 +9,7 @@ import gui.menu_heading.info_texts as infotexts
 from logger import log
 
 
-class ComputationInfo:
+class PlottingOptionsMenu:
     distortionLabels = {}
     mainFrame = None
     algo = "-"
@@ -129,8 +129,6 @@ class ComputationInfo:
             opTitle.configure(font=("Helvetica", 10, "bold"))
             opTitle.pack(side=LEFT, anchor=W)
 
-            distortionValue = self.currentDistortions[distortion.value]
-            #            distText = str(round(distortionValue, 2)) if distortionValue != -1 else "-"
             if minDist is not None:
                 self.distortionLabels[distortion.value] = Label(
                     innerTopFrame, text="-", fg="blue"

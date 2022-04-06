@@ -3,7 +3,7 @@ from gui.button import TkinterCustomButton
 from algorithms.algorithms import *
 from gui.left_side_menu.analyze.analyze_menu import AnalyzeMenu
 from gui.left_side_menu.algorithm.algorithm_menu import AlgorithmMenu
-from gui.left_side_menu.computation_info import ComputationInfo
+from gui.left_side_menu.plotting_options_menu import PlottingOptionsMenu
 from gui.left_side_menu.mode.computation_mode import ComputationMode
 from gui.left_side_menu.measuring_tool import MeasuringTool
 from gui.left_side_menu.export_menu import ExportMenu
@@ -22,7 +22,7 @@ class ModeMenu:
         master: Frame,
         analyzeMenu: AnalyzeMenu,
         algoMenu: AlgorithmMenu,
-        compInfo: ComputationInfo,
+        compInfo: PlottingOptionsMenu,
         measuringTool: MeasuringTool,
         exportMenu: ExportMenu,
     ):

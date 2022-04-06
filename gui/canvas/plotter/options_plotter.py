@@ -88,38 +88,3 @@ class OptionsPlotter:
     def setEnabled(self, enabled: bool):
         self.enabled = enabled
         self.refresh()
-
-    def showAreaDistortion(self):
-        for index, face in enumerate(self.faces):
-            if index not in self.areaDistortions:
-                continue
-
-            x = list(self.verticesToPlot[face[0]])
-            y = list(self.verticesToPlot[face[1]])
-            z = list(self.verticesToPlot[face[2]])
-
-            maxDistort = 20
-            distortion = self.areaDistortions[index]
-
-            if distortion > 1:
-                distFac = distortion
-                if distFac > maxDistort:
-                    distFac = maxDistort
-                if distFac < 1:
-                    distFac = 1
-
-                distFac = distFac - 1
-                distFac = distFac / (maxDistort - 1)
-                distFac = 1 - distFac
-
-                colorFac = int(round(distFac * 255, 0))
-                color = "#%02x%02x%02x" % (255, colorFac, colorFac)
-
-            else:
-                blueFac = distortion
-                colorFac = int(round(blueFac * 255, 0))
-                color = "#%02x%02x%02x" % (colorFac, colorFac, 255)
-
-            self.distortionOnCanvas.append(
-                self.canvas.create_polygon(x, y, z, fill=color)
-            )

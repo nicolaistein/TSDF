@@ -11,7 +11,6 @@ from gui.menu_heading.menu_heading import MenuHeading
 import gui.menu_heading.info_texts as infotexts
 from tkinter import filedialog
 from logger import log
-import os
 
 
 class PlacedPatternsMenu:
