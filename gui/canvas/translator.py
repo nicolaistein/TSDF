@@ -1,3 +1,4 @@
+from typing import List
 from algorithms.bff.main import *
 import sys
 
@@ -8,13 +9,13 @@ def scale(points, targetSize):
     for point in points:
         x = point[0]
         y = point[1]
-        if(maxX < x):
+        if maxX < x:
             maxX = x
-        if(maxY < y):
+        if maxY < y:
             maxY = y
 
     scale = 1
-    if(maxX > maxY):
+    if maxX > maxY:
         scale = targetSize / maxX
     else:
         scale = targetSize / maxY
@@ -32,19 +33,35 @@ def moveToPositiveArea(points):
     for point in points:
         x = point[0]
         y = point[1]
-        if(minX > x):
+        if minX > x:
             minX = x
-        if(minY > y):
+        if minY > y:
             minY = y
 
-    if minX < 0:
-        minX *= -1
-        for point in points:
-            point[0] += minX
+    #    if minX < 0:
+    #        minX *= -1
+    #        for point in points:
+    #            point[0] += minX
 
-    if minY < 0:
-        minY *= -1
-        for point in points:
-            point[1] += minY
+    #    if minY < 0:
+    #        minY *= -1
+    #        for point in points:
+    #            point[1] += minY
+
+    minX *= -1
+    for point in points:
+        point[0] += minX
+
+    minY *= -1
+    for point in points:
+        point[1] += minY
+
+    return points
+
+
+def moveToPosition(points: List[List[float]], x: float, y: float):
+    for point in points:
+        point[0] += x
+        point[1] += y
 
     return points

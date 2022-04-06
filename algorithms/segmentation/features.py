@@ -1,147 +1,173 @@
-from data_parser import SegmentationParser
-from typing import List
+from algorithms.segmentation.data_parser import SegmentationParser
+from typing import Counter, List
 import array
-import util
-from plotter import plot
-
-prefix = "[Features] "
-
-max_string_length:int = 5
-min_feature_length:int = 15
-featureCountPercentage = 0.05
-tao = 23
-
-def log(msg:str):
-    print(prefix + msg)
+import algorithms.segmentation.util as util
+from algorithms.segmentation.plotter import plotFeatures
+from logger import log
+from algorithms.segmentation.parameters import *
 
 
 class Features:
-
-    def __init__(self, parser:SegmentationParser):
+    def __init__(self, parser: SegmentationParser):
         self.parser = parser
 
     def plotResult(self):
-        log("Plotting mesh...")
         colored = []
         for index, val in enumerate(self.marked_features):
             if val:
                 vertices = self.parser.edgeToVertices[index]
                 colored.append(vertices[0])
                 colored.append(vertices[1])
-
-        plot(self.parser.vertices, self.parser.faces, colored)
+        plotFeatures(self.parser.vertices, self.parser.faces, colored)
 
     def saveResult(self):
+        """Saves result to the file specified in the util file"""
         log("Saving features")
         edges = []
         for index, val in enumerate(self.marked_features):
-            if val: edges.append(index)
+            if val:
+                edges.append(index)
         util.saveMarkedFeatures(edges, self.parser)
 
     def computeFeatures(self):
+
         relevantFeatures = self.getInitialFeatures()
-        log("getting features finished")
+        # Just for error safety
+        if len(relevantFeatures) == 0:
+            relevantFeatures.append(0)
         log("relevant feature size: " + str(len(relevantFeatures)))
-        self.marked_features = array.array('i',(False,)*self.parser.edgeCount)
-        self.marked_feature_neighbors = array.array('i',(False,)*self.parser.edgeCount)
-        self.feature_count = 0
-        count = 0
-        for edge in relevantFeatures:
-            count += 1
-            if count % 10 == 0: log("calculated features: " + str(count))
-            self.expand_feature_curve(edge)
-
-        log("feature count: " + str(self.feature_count))
-        log("feature percentage: " + str(featureCountPercentage))
-        log("Tao: " + str(tao))
-
+        self.marked_features = array.array("i", (False,) * self.parser.edgeCount)
+        self.marked_feature_neighbors = array.array(
+            "i", (False,) * self.parser.edgeCount
+        )
+        self.detectFeatures(relevantFeatures)
         return self.marked_features
 
-    
+    def detectFeatures(self, relevantFeatures: List[int], useDFS: bool = False):
+        # DFS --------------------------------------------------------
+        if useDFS:
+            self.feature_count = 0
+            count = 0
+            for edge in relevantFeatures:
+                count += 1
+                if count % 10 == 0:
+                    log(
+                        str(round(count * 100 / len(relevantFeatures), 0))
+                        + "%% - ("
+                        + str(count)
+                        + "/"
+                        + str(len(relevantFeatures))
+                        + ")"
+                    )
+
+                self.expand_feature_curve(edge)
+            return self.marked_features
+
+        # NON DFS--------------------------------------------------------
+        else:
+            for edge in relevantFeatures:
+                self.marked_features[edge] = True
+
+            for edge in self.parser.edgeToFaces.keys():
+                if self.parser.SOD[edge] >= minSharpness:
+                    self.marked_features[edge] = True
+
+            return self.marked_features
+
     def getInitialFeatures(self):
         featureCount = int(round(len(self.parser.SOD) * featureCountPercentage))
         features = {}
         for index, (key, value) in enumerate(self.parser.SOD.items()):
-            if index >= featureCount: break
+            if index >= featureCount:
+                break
             features[key] = value
-        
-        return features.keys()
 
-    def sharpness(self, s:List[int]):
+        return list(features.keys())
+
+    def sharpness(self, s: List[int]):
         sum = 0
         for edge, _ in s:
             sum += self.parser.SOD[edge]
         return sum
 
-    def getOtherVertex(self, edge:int, vertex:int):
+    def getOtherVertex(self, edge: int, vertex: int):
         vertices = self.parser.edgeToVertices[edge]
-        return vertices[1] if vertices[0]==vertex else vertices[0]
+        return vertices[1] if vertices[0] == vertex else vertices[0]
 
-    def findEdgeString(self, edge:int, vertex:int, detected_feature:List[int], depth:int):
-        if depth >= max_string_length: return []
+    def findEdgeString(
+        self, edge: int, vertex: int, detected_feature: List[int], depth: int
+    ):
+        if depth >= max_string_length:
+            return []
 
         maxString = []
         for neighbor in self.parser.mesh.ve(self.parser.vertexHandles[vertex]):
             id = neighbor.idx()
-            if id == edge: continue
-            if self.marked_feature_neighbors[id]: continue
-            if id in detected_feature: continue
+            if id == edge:
+                continue
+            if self.marked_feature_neighbors[id]:
+                continue
+            if id in detected_feature:
+                continue
             nextVertex = self.getOtherVertex(id, vertex)
-            currentString = self.findEdgeString(id, nextVertex, detected_feature, depth+1)
-            maxString = currentString if self.sharpness(currentString) > self.sharpness(maxString) else maxString
+            currentString = self.findEdgeString(
+                id, nextVertex, detected_feature, depth + 1
+            )
+            maxString = (
+                currentString
+                if self.sharpness(currentString) > self.sharpness(maxString)
+                else maxString
+            )
 
         maxString.insert(0, (edge, vertex))
         return maxString
 
-
-    def expand_feature_curve(self, edge:int):
-    #    vector<halfedge> detected_feature
+    def expand_feature_curve(self, edge: int):
         detected_feature = []
 
         vertices = self.parser.edgeToVertices[edge]
         halfedges = [(edge, vertices[0]), (edge, vertices[1])]
-    #    for halfedge h ∈ { start, opposite(start) }
         for e, v in halfedges:
-    #        halfedge h' ← h
             currentEdge = e
             currentVertex = v
-    #        do
+
             while True:
-    #            use depth-first search to find the string S of halfedges
-    #            starting with h' and such that:
-    #            • two consecutive halfedges of S share a vertex
-    #            • the length of S is 6 than max_string_length
-    #            • sharpness(S) ←Ee∈S sharpness(e) is maximum
-    #            • no halfedge of S goes backward (relative to h')
-    #            • no halfedge of S is tagged as a feature neighbor
                 s = self.findEdgeString(currentEdge, currentVertex, detected_feature, 0)
-
-    #            print("s length: " + str(len(s)))
-    #            print("sharpness s: " + str(self.sharpness(s)))
-
-        #        append h' to detected_feature
                 detected_feature.append(currentEdge)
-        #        h' ← second item of S
-                if len(s) < 2: break
+                if len(s) <= 1:
+                    break
                 currentEdge, currentVertex = s[1]
-    #        while(sharpness(S) > max_string_length × τ)
-                if self.sharpness(s) <= max_string_length * tao: break
-    #    end // for
+                if self.sharpness(s) <= max_string_length * tao:
+                    break
 
-    #    if (length(detected_feature) > min_feature_length) then
         if len(detected_feature) > min_feature_length:
             self.feature_count += 1
-    #        log("accepted feature length: " + str(len(detected_feature)))
-    #        tag the elements of detected_feature as features
             for e in detected_feature:
                 self.marked_features[e] = True
-    #        tag the halfedges in the neighborhood of detected_feature as feature neighbors
             for e in detected_feature:
                 faces = self.parser.edgeToFaces[e]
                 for f in faces:
                     for eh in self.parser.mesh.fe(self.parser.faceHandles[f]):
                         id = eh.idx()
                         if id != e and id not in detected_feature:
-                            self.marked_feature_neighbors[id] = True
+                            self.markFeatureNeighbors(id)
 
-    #    end // if
+    def markFeatureNeighbors(self, edge: int, level: int = 0):
+        if self.marked_features[edge]:
+            return
+        self.marked_feature_neighbors[edge] = True
+
+        if level >= 1:
+            return
+
+        counter = 0
+
+        for v in self.parser.edgeToVertices[edge]:
+            for ve in self.parser.mesh.ve(self.parser.vertexHandles[v]):
+                neighborEdge = ve.idx()
+                if (
+                    neighborEdge != edge
+                    and not self.marked_feature_neighbors[neighborEdge]
+                ):
+                    self.markFeatureNeighbors(neighborEdge, level + 1)
+                    counter += 1

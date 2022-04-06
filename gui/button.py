@@ -3,42 +3,45 @@ import sys
 
 
 class TkinterCustomButton(tkinter.Frame):
-    """ tkinter custom button with border, rounded corners and hover effect
-        Arguments:  master= where to place button
-                    bg_color= background color, None is standard,
-                    fg_color= foreground color, blue is standard,
-                    hover_color= foreground color, lightblue is standard,
-                    border_color= foreground color, None is standard,
-                    border_width= border thickness, 0 is standard,
-                    command= callback function, None is standard,
-                    width= width of button, 110 is standard,
-                    height= width of button, 35 is standard,
-                    corner_radius= corner radius, 10 is standard,
-                    text_font= (<Name>, <Size>),
-                    text_color= text color, white is standard,
-                    text= text of button,
-                    hover= hover effect, True is standard,
-                    image= PIL.PhotoImage, standard is None"""
+    """tkinter custom button with border, rounded corners and hover effect
+    Arguments:  master= where to place button
+                bg_color= background color, None is standard,
+                fg_color= foreground color, blue is standard,
+                hover_color= foreground color, lightblue is standard,
+                border_color= foreground color, None is standard,
+                border_width= border thickness, 0 is standard,
+                command= callback function, None is standard,
+                width= width of button, 110 is standard,
+                height= width of button, 35 is standard,
+                corner_radius= corner radius, 10 is standard,
+                text_font= (<Name>, <Size>),
+                text_color= text color, white is standard,
+                text= text of button,
+                hover= hover effect, True is standard,
+                image= PIL.PhotoImage, standard is None"""
 
-    def __init__(self,
-                 bg_color=None,
-                 fg_color="#2874A6",
-                 hover_color="#5499C7",
-                 border_color=None,
-                 border_width=0,
-                 command=None,
-                 width=120,
-                 height=40,
-                 corner_radius=10,
-                 text_font=None,
-                 text_color="white",
-                 text="CustomButton",
-                 hover=True,
-                 image=None,
-                 *args, **kwargs):
+    def __init__(
+        self,
+        bg_color=None,
+        fg_color="#2874A6",
+        hover_color="#5499C7",
+        border_color=None,
+        border_width=0,
+        command=None,
+        width=120,
+        height=40,
+        corner_radius=10,
+        text_font=None,
+        text_color="white",
+        text="CustomButton",
+        hover=True,
+        image=None,
+        *args,
+        **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.deleted = False
-        self.cursor="hand2"
+        self.cursor = "hand2"
         if bg_color is None:
             self.bg_color = self.master.cget("bg")
         else:
@@ -51,10 +54,10 @@ class TkinterCustomButton(tkinter.Frame):
         self.width = width
         self.height = height
 
-        if corner_radius*2 > self.height:
-            self.corner_radius = self.height/2
-        elif corner_radius*2 > self.width:
-            self.corner_radius = self.width/2
+        if corner_radius * 2 > self.height:
+            self.corner_radius = self.height / 2
+        elif corner_radius * 2 > self.width:
+            self.corner_radius = self.width / 2
         else:
             self.corner_radius = corner_radius
 
@@ -73,7 +76,7 @@ class TkinterCustomButton(tkinter.Frame):
             elif "win" in sys.platform:  # Windows
                 self.text_font = ("Century Gothic", 11)
             else:
-                self.text_font = ("TkDefaultFont")
+                self.text_font = "TkDefaultFont"
         else:
             self.text_font = text_font
 
@@ -87,11 +90,13 @@ class TkinterCustomButton(tkinter.Frame):
         if sys.platform == "darwin" and self.function is not None:
             self.configure(cursor="pointinghand")
 
-        self.canvas = tkinter.Canvas(master=self,
-                                     highlightthicknes=0,
-                                     background=self.bg_color,
-                                     width=self.width,
-                                     height=self.height)
+        self.canvas = tkinter.Canvas(
+            master=self,
+            highlightthicknes=0,
+            background=self.bg_color,
+            width=self.width,
+            height=self.height,
+        )
         self.canvas.place(x=0, y=0)
 
         if self.hover is True:
@@ -122,60 +127,99 @@ class TkinterCustomButton(tkinter.Frame):
         if self.border_width > 0:
 
             if self.corner_radius > 0:
-                self.canvas_border_parts.append(self.canvas.create_oval(0,
-                                                                        0,
-                                                                        self.corner_radius * 2,
-                                                                        self.corner_radius * 2))
-                self.canvas_border_parts.append(self.canvas.create_oval(self.width - self.corner_radius * 2,
-                                                                        0,
-                                                                        self.width,
-                                                                        self.corner_radius * 2))
-                self.canvas_border_parts.append(self.canvas.create_oval(0,
-                                                                        self.height - self.corner_radius * 2,
-                                                                        self.corner_radius * 2,
-                                                                        self.height))
-                self.canvas_border_parts.append(self.canvas.create_oval(self.width - self.corner_radius * 2,
-                                                                        self.height - self.corner_radius * 2,
-                                                                        self.width,
-                                                                        self.height))
+                self.canvas_border_parts.append(
+                    self.canvas.create_oval(
+                        0, 0, self.corner_radius * 2, self.corner_radius * 2
+                    )
+                )
+                self.canvas_border_parts.append(
+                    self.canvas.create_oval(
+                        self.width - self.corner_radius * 2,
+                        0,
+                        self.width,
+                        self.corner_radius * 2,
+                    )
+                )
+                self.canvas_border_parts.append(
+                    self.canvas.create_oval(
+                        0,
+                        self.height - self.corner_radius * 2,
+                        self.corner_radius * 2,
+                        self.height,
+                    )
+                )
+                self.canvas_border_parts.append(
+                    self.canvas.create_oval(
+                        self.width - self.corner_radius * 2,
+                        self.height - self.corner_radius * 2,
+                        self.width,
+                        self.height,
+                    )
+                )
 
-            self.canvas_border_parts.append(self.canvas.create_rectangle(0,
-                                                                         self.corner_radius,
-                                                                         self.width,
-                                                                         self.height - self.corner_radius))
-            self.canvas_border_parts.append(self.canvas.create_rectangle(self.corner_radius,
-                                                                         0,
-                                                                         self.width - self.corner_radius,
-                                                                         self.height))
+            self.canvas_border_parts.append(
+                self.canvas.create_rectangle(
+                    0, self.corner_radius, self.width, self.height - self.corner_radius
+                )
+            )
+            self.canvas_border_parts.append(
+                self.canvas.create_rectangle(
+                    self.corner_radius, 0, self.width - self.corner_radius, self.height
+                )
+            )
 
         # inner button parts
 
         if self.corner_radius > 0:
-            self.canvas_fg_parts.append(self.canvas.create_oval(self.border_width,
-                                                                self.border_width,
-                                                                self.border_width + self.inner_corner_radius * 2,
-                                                                self.border_width + self.inner_corner_radius * 2))
-            self.canvas_fg_parts.append(self.canvas.create_oval(self.width - self.border_width - self.inner_corner_radius * 2,
-                                                                self.border_width,
-                                                                self.width - self.border_width,
-                                                                self.border_width + self.inner_corner_radius * 2))
-            self.canvas_fg_parts.append(self.canvas.create_oval(self.border_width,
-                                                                self.height - self.border_width - self.inner_corner_radius * 2,
-                                                                self.border_width + self.inner_corner_radius * 2,
-                                                                self.height-self.border_width))
-            self.canvas_fg_parts.append(self.canvas.create_oval(self.width - self.border_width - self.inner_corner_radius * 2,
-                                                                self.height - self.border_width - self.inner_corner_radius * 2,
-                                                                self.width - self.border_width,
-                                                                self.height - self.border_width))
+            self.canvas_fg_parts.append(
+                self.canvas.create_oval(
+                    self.border_width,
+                    self.border_width,
+                    self.border_width + self.inner_corner_radius * 2,
+                    self.border_width + self.inner_corner_radius * 2,
+                )
+            )
+            self.canvas_fg_parts.append(
+                self.canvas.create_oval(
+                    self.width - self.border_width - self.inner_corner_radius * 2,
+                    self.border_width,
+                    self.width - self.border_width,
+                    self.border_width + self.inner_corner_radius * 2,
+                )
+            )
+            self.canvas_fg_parts.append(
+                self.canvas.create_oval(
+                    self.border_width,
+                    self.height - self.border_width - self.inner_corner_radius * 2,
+                    self.border_width + self.inner_corner_radius * 2,
+                    self.height - self.border_width,
+                )
+            )
+            self.canvas_fg_parts.append(
+                self.canvas.create_oval(
+                    self.width - self.border_width - self.inner_corner_radius * 2,
+                    self.height - self.border_width - self.inner_corner_radius * 2,
+                    self.width - self.border_width,
+                    self.height - self.border_width,
+                )
+            )
 
-        self.canvas_fg_parts.append(self.canvas.create_rectangle(self.border_width + self.inner_corner_radius,
-                                                                 self.border_width,
-                                                                 self.width - self.border_width - self.inner_corner_radius,
-                                                                 self.height - self.border_width))
-        self.canvas_fg_parts.append(self.canvas.create_rectangle(self.border_width,
-                                                                 self.border_width + self.inner_corner_radius,
-                                                                 self.width - self.border_width,
-                                                                 self.height - self.inner_corner_radius - self.border_width))
+        self.canvas_fg_parts.append(
+            self.canvas.create_rectangle(
+                self.border_width + self.inner_corner_radius,
+                self.border_width,
+                self.width - self.border_width - self.inner_corner_radius,
+                self.height - self.border_width,
+            )
+        )
+        self.canvas_fg_parts.append(
+            self.canvas.create_rectangle(
+                self.border_width,
+                self.border_width + self.inner_corner_radius,
+                self.width - self.border_width,
+                self.height - self.inner_corner_radius - self.border_width,
+            )
+        )
 
         for part in self.canvas_fg_parts:
             self.canvas.itemconfig(part, fill=self.fg_color, width=0)
@@ -186,11 +230,13 @@ class TkinterCustomButton(tkinter.Frame):
         # no image given
         if self.image is None:
             # create tkinter.Label with text
-            self.text_label = tkinter.Label(master=self,
-                                            text=self.text,
-                                            font=self.text_font,
-                                            bg=self.fg_color,
-                                            fg=self.text_color)
+            self.text_label = tkinter.Label(
+                master=self,
+                text=self.text,
+                font=self.text_font,
+                bg=self.fg_color,
+                fg=self.text_color,
+            )
             self.text_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
             # bind events the the button click and hover events also to the text_label
@@ -206,13 +252,11 @@ class TkinterCustomButton(tkinter.Frame):
         # use the given image
         else:
             # create tkinter.Label with image on it
-            self.image_label = tkinter.Label(master=self,
-                                             image=self.image,
-                                             bg=self.fg_color)
+            self.image_label = tkinter.Label(
+                master=self, image=self.image, bg=self.fg_color
+            )
 
-            self.image_label.place(relx=0.5,
-                                   rely=0.5,
-                                   anchor=tkinter.CENTER)
+            self.image_label.place(relx=0.5, rely=0.5, anchor=tkinter.CENTER)
 
             # bind events the the button click and hover events also to the image_label
             if self.hover is True:
@@ -222,7 +266,9 @@ class TkinterCustomButton(tkinter.Frame):
             self.image_label.bind("<Button-1>", self.clicked)
             self.image_label.bind("<Button-1>", self.clicked)
 
-    def configure_color(self, bg_color=None, fg_color=None, hover_color=None, text_color=None):
+    def configure_color(
+        self, bg_color=None, fg_color=None, hover_color=None, text_color=None
+    ):
         if bg_color is not None:
             self.bg_color = bg_color
         else:

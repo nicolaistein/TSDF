@@ -4,36 +4,17 @@ from PIL import ImageTk, Image
 from patterns.pattern1.pattern import Pattern as Pattern1
 from patterns.pattern2.pattern import Pattern as Pattern2
 from patterns.pattern3.pattern import Pattern as Pattern3
-
-
-def parsePatternAttributes(folderName: str):
-    pattern = open(folderName + "/pattern.py", "r")
-    mapping: Mapping = {}
-    mapping["id"] = "NoID"
-    mapping["author"] = "NoAuthor"
-    mapping["params"] = ""
-    for line in pattern:
-        if(line.startswith("#")):
-            while(line.startswith("#") or line.startswith(" ")):
-                line = line[1:]
-            if(line.endswith("\n")):
-                line = line[:len(line)-1]
-            split = line.split("=")
-            if(len(split) == 2):
-                mapping[split[0]] = split[1]
-        else:
-            break
-    return mapping
+from logger import log
 
 
 class PatternModel:
     def __init__(self, folderName: str):
         self.folderName = folderName
-        self.attributes = parsePatternAttributes(folderName)
+        self.attributes = self.parsePatternAttributes()
         self.img = Image.open(folderName + "/image.png")
         self.name = ""
         self.id = self.attributes["id"]
-        if(self.attributes["id"] == "NoID"):
+        if self.attributes["id"] == "NoID":
             raise "Pattern " + self.name + " does not have an ID"
         self.location = {}
         self.x = 0.0
@@ -43,24 +24,48 @@ class PatternModel:
         for x in [i for i in self.attributes["params"].split(",") if i]:
             self.params[x] = "0.0"
 
-    def getGcode(self):
-        print("# Pattern " + self.name + " generate gcode")
-        print("# x: " + str(self.x) + ", y: " + str(self.y))
-        print("# rotation: " + str(self.rotation) + " degrees")
+    def getGcode(
+        self,
+        workHeight: float = 0,
+        freeMoveHeight: float = 1,
+        eFactor: float = 0,
+        eFactorStart: float = 0,
+        fFactor: float = 0,
+        overrunStart: float = 0,
+        overrunEnd: float = 0,
+        printOverrun: float = 0,
+        pause: float = 0,
+        cleaningX: float = None,
+        cleaningY: float = None,
+    ):
         values = {}
         for key, val in self.params.items():
             values[key] = float(val)
 
-        print("folder: " + self.folderName)
-        
         if self.folderName.endswith("pattern1"):
-            result, commands = Pattern1(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+            patternCalc = Pattern1
         if self.folderName.endswith("pattern2"):
-            result, commands = Pattern2(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+            patternCalc = Pattern2
         if self.folderName.endswith("pattern3"):
-            result, commands = Pattern3(values, 2.8, 30, self.x, self.y, self.rotation).gcode()
+            patternCalc = Pattern3
 
-        return result, commands
+        return patternCalc(
+            values,
+            workHeight,
+            freeMoveHeight,
+            eFactor,
+            eFactorStart,
+            fFactor,
+            overrunStart,
+            overrunEnd,
+            printOverrun,
+            self.x,
+            self.y,
+            self.rotation,
+            pause,
+            cleaningX,
+            cleaningY,
+        ).gcode()
 
     def setName(self, newName: str):
         self.name = newName if newName else "NoName"
@@ -73,10 +78,29 @@ class PatternModel:
         self.params.update(mapping)
 
     def print(self):
-        print("Pattern " + self.name)
-        print("Params: " + str(self.params))
-        print("Location" + self.getPosition())
-        print("Rotation: " + str(self.rotation))
+        log("Pattern " + self.name)
+        log("Params: " + str(self.params))
+        log("Location" + self.getPosition())
+        log("Rotation: " + str(self.rotation))
 
     def getPosition(self):
         return str(self.x) + ", " + str(self.y)
+
+    def parsePatternAttributes(self):
+        pattern = open(self.folderName + "/pattern.py", "r")
+        mapping: Mapping = {}
+        mapping["id"] = "NoID"
+        mapping["author"] = "NoAuthor"
+        mapping["params"] = ""
+        for line in pattern:
+            if line.startswith("#"):
+                while line.startswith("#") or line.startswith(" "):
+                    line = line[1:]
+                if line.endswith("\n"):
+                    line = line[: len(line) - 1]
+                split = line.split("=")
+                if len(split) == 2:
+                    mapping[split[0]] = split[1]
+            else:
+                break
+        return mapping

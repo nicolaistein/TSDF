@@ -1,16 +1,23 @@
+from functools import partial
+from logger import log
 from algorithms.bff.main import BFF
 from algorithms.arap.arap import ARAP
-from algorithms.lscm.lscm import LSCM
-import time
-import os
-import igl
 
-def getPreviousVertices(objPath:str):
+
+def getPreviousVertices(objPath: str):
+    """Extracts the vertices before the parameterization
+
+    Args:
+        objPath (str): path to mesh
+
+    Returns:
+        List[List[float]]: List of vertices
+    """
     file = open(objPath)
     vertices = []
     for line in file:
         if line.startswith("v "):
-            while "  " in line: 
+            while "  " in line:
                 line = line.replace("  ", " ")
             split = line.split(" ")
             x1 = float(split[1])
@@ -19,39 +26,68 @@ def getPreviousVertices(objPath:str):
             vertices.append([x1, x2, x3])
     return vertices
 
-def getFaces(objPath:str):
+
+def getFaces(objPath: str):
+    """Extracts the faces before the parameterization
+
+    Args:
+        objPath (str): path to mesh
+
+    Returns:
+        List[List[int]]: List of faces
+    """
     file = open(objPath)
     faces = []
     for line in file:
         if line.startswith("f"):
-            while "  " in line: 
+            while "  " in line:
                 line = line.replace("  ", " ")
             split = line.split(" ")
-            x1 = int(split[1].split("/")[0])
-            x2 = int(split[2].split("/")[0])
-            x3 = int(split[3].split("/")[0])
+            x1 = int(split[1].split("/")[0]) - 1
+            x2 = int(split[2].split("/")[0]) - 1
+            x3 = int(split[3].split("/")[0]) - 1
             faces.append([x1, x2, x3])
     return faces
 
-def executeBFF(file: str, coneCount: int):
-    return executeAlgo(BFF(coneCount, file), False)
 
-def executeLSCM(file: str):
-    return executeAlgo(LSCM(file))
+def executeBFF(coneCount: int, file: str):
+    return executeAlgo(BFF(coneCount, file), True)
+
 
 def executeARAP(file: str):
     return executeAlgo(ARAP(file))
 
-def executeAlgo(algo, includeFaces:bool=True):
 
+def executeAlgo(algo: partial, replacesFaces: bool = False):
+    """executes the selected parameterization algorithm
+
+    Args:
+        algo (partial): partial of the selected algorithm
+        replacesFaces (bool, optional): True if the algorithm
+          also replaces the faces and not just the vertices. Defaults to True.
+
+    Returns:
+        List[List[float]]: vertices before flattening
+        List[List[int]]: faces before flattening
+        List[List[float]]: vertices after flattening
+        List[List[int]]: faces after flattening
+    """
     faces = getFaces(algo.objPath)
     facesBefore = getFaces(algo.objPath)
+
     # execute algorithm
-    computeStart = time.time()
-    if includeFaces:
+    if not replacesFaces:
         points = algo.execute()
     else:
         points, faces = algo.execute()
-    computeEnd = time.time()
 
-    return computeEnd-computeStart, points, getPreviousVertices(algo.objPath), faces, facesBefore
+        for index, f in enumerate(faces):
+            for index2, f2 in enumerate(f):
+                faces[index][index2] = f2 - 1
+
+    return (
+        getPreviousVertices(algo.objPath),
+        facesBefore,
+        points,
+        faces,
+    )

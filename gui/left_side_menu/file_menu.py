@@ -1,54 +1,89 @@
-from ctypes import pointer, string_at
 from tkinter import *
 from tkinter.filedialog import askopenfilename
 from gui.button import TkinterCustomButton
-from gui.canvas.canvas_manager import CanvasManager
+from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
+from gui.menu_heading.menu_heading import MenuHeading
+import gui.menu_heading.info_texts as infotexts
 import igl
 import os
 
 
 class FileMenu:
-    path = ""
     triangleCount = 0
+    triangles = []
+    v = []
+    currentObject = ""
+    currentChart = ""
 
-    def __init__(self, master: Frame):
+    def __init__(self, master: Frame, plotter: Mesh3DPlotter, mainColor: str):
+        self.mainColor = mainColor
+        self.plotter = plotter
+        plotter.notifyFileMenu = self.onChartSelect
         self.mainFrame = Frame(master)
-        self.content = Frame(self.mainFrame, width=220,
-                             height=180, padx=20, pady=20)
+        self.content = Frame(self.mainFrame, width=260, height=200, padx=20, pady=20)
 
-    def selectFile(self):
-        filename = askopenfilename(
-            filetypes=[("Object files", ".obj")])
+    def onChartSelect(self, chart: int):
+        if chart == -1:
+            self.currentChart = ""
+        else:
+            self.currentChart = (
+                os.getcwd() + "/algorithms/segmentation/result/" + str(chart) + ".obj"
+            )
+        self.refreshInfo()
 
-        if os.path.isfile(filename):
-            self.path = filename
-            self.fileNameLabel.configure(text=filename.split("/")[-1])
-            self.verticesLabel.configure(text="Reading...")
-            self.facesLabel.configure(text="Reading...")
+    def refreshInfo(self):
+        filename = self.currentObject.split("/")[-1]
+        fileText = filename if filename else "-"
 
-            v, self.triangles = igl.read_triangle_mesh(os.path.join(os.getcwd(), filename))
-            self.verticesLabel.configure(text=str(len(v)))
-            self.facesLabel.configure(text=str(len(self.triangles)))
+        chart = self.currentChart.split("/")[-1]
+        chart = chart.split(".")[0]
+        chartText = "#" + str(chart) if chart else "-"
 
-    def getKeyValueFrame(self, parent: Frame, key: str, valueLength: float = 100):
+        if self.currentObject:
+            self.v, self.triangles = igl.read_triangle_mesh(
+                os.path.join(
+                    os.getcwd(),
+                    self.currentChart if self.currentChart else self.currentObject,
+                )
+            )
+
+        for child in self.list.winfo_children():
+            child.destroy()
+
+        self.getKeyValueFrame(self.list, "Name", fileText)
+        self.getKeyValueFrame(self.list, "Vertices", str(len(self.v)))
+        self.getKeyValueFrame(self.list, "Faces", str(len(self.triangles)))
+
+    def onSelectFile(self):
+        obj = askopenfilename(filetypes=[("Object files", ".obj")])
+
+        if os.path.isfile(obj):
+            self.currentObject = obj
+            self.currentChart = ""
+            self.refreshInfo()
+            self.plotter.plotFile(self.v, self.triangles)
+
+    def getPath(self):
+        return self.currentChart if self.currentChart else self.currentObject
+
+    def getKeyValueFrame(self, parent: Frame, key: str, value: str):
         keyValFrame = Frame(parent)
-        keyLabel = Label(keyValFrame, text=key, width=8,
-                         anchor=W, justify=LEFT, wraplength=70)
+        keyLabel = Label(
+            keyValFrame, text=key, width=8, anchor=W, justify=LEFT, wraplength=70
+        )
         keyLabel.configure(font=("Helvetica", 10, "bold"))
         keyLabel.pack(side=LEFT)
-        valLabel = Label(keyValFrame, text="-", wraplength=valueLength)
+        valLabel = Label(keyValFrame, text=value, wraplength=140)
         valLabel.pack(side=LEFT)
 
         keyValFrame.pack(side="top", anchor="w")
         return valLabel
 
-
     def build(self):
-        self.content.pack_propagate(0)
+        self.content.pack_propagate(False)
 
-        title = Label(self.content, text="Select")
-        title.configure(font=("Helvetica", 12, "bold"))
-        title.pack(fill=BOTH, side=TOP, pady=(0, 10))
+        MenuHeading("Select File", infotexts.selectFile).build(self.content)
+        #        title = Label(self.content, text="Select File")
 
         fileSelectionFrame = Frame(self.content)
         chooseFrame = Frame(fileSelectionFrame)
@@ -57,16 +92,23 @@ class FileMenu:
         chooseFile.configure(font=("Helvetica", 10, "bold"))
         chooseFile.pack(fill=BOTH, side=LEFT)
 
-        button = TkinterCustomButton(master=chooseFrame, text="Select",
-                command=self.selectFile, corner_radius=60, height=25, width=80)
+        button = TkinterCustomButton(
+            master=chooseFrame,
+            text="Select",
+            command=self.onSelectFile,
+            corner_radius=60,
+            height=25,
+            width=80,
+        )
         button.pack(side=LEFT, padx=5)
         chooseFrame.pack(side=TOP, pady=(0, 10))
 
-        self.fileNameLabel = self.getKeyValueFrame(fileSelectionFrame, "Name")
-        self.verticesLabel = self.getKeyValueFrame(fileSelectionFrame, "Vertices")
-        self.facesLabel = self.getKeyValueFrame(fileSelectionFrame, "Faces")
+        infoFrame = Frame(fileSelectionFrame)
+        self.list = infoFrame
+        self.refreshInfo()
 
+        infoFrame.pack(side=TOP, anchor=W)
         fileSelectionFrame.pack(side=TOP, anchor=W)
 
-        self.content.pack(side="top")
-        self.mainFrame.pack(side="top", anchor=N)
+        self.content.pack(side=TOP)
+        self.mainFrame.pack(side=TOP, anchor=N)

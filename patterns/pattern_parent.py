@@ -1,47 +1,92 @@
-from typing import Mapping
+from typing import List, Mapping
 import abc
-import math 
+import math
 import numpy as np
 from patterns.gcode_cmd import GCodeCmd
-
-
-
+from util import subtract
+from logger import log
 
 
 class PatternParent:
-    def __init__(self, values: Mapping, workHeight:float, freeMoveHeight:float, 
-                startX: float, startY: float, rotation:float):
+    def __init__(
+        self,
+        values: Mapping,
+        workHeight: float,
+        freeMoveHeight: float,
+        eFactor: float,
+        eFactorStart: float,
+        fValue: float,
+        overrunStart: float,
+        overrunEnd: float,
+        printOverrun: float,
+        startX: float,
+        startY: float,
+        rotation: float,
+        pause: float = 0,
+        cleaningX: float = None,
+        cleaningY: float = None,
+    ):
         self.values = values
         self.workheight = workHeight
         self.freemoveHeight = freeMoveHeight
+        self.eFactor = eFactor
+        self.fValue = fValue
         self.startX = startX
         self.startY = startY
+        self.overrunStart = overrunStart
+        self.overrunEnd = overrunEnd
+        self.printOverrun = printOverrun
+        self.pause = pause
+        self.cleaningX = cleaningX
+        self.cleaningY = cleaningY
         self.currentX = 0
         self.currentY = 0
+        self.currentE = eFactorStart
 
         rotation = -1 * rotation * math.pi / 180
-        self.rotationMatrix =   np.array(   [[math.cos(rotation), math.sin(rotation) * -1], 
-                                            [math.sin(rotation), math.cos(rotation)]])
+        self.rotationMatrix = np.array(
+            [
+                [math.cos(rotation), math.sin(rotation) * -1],
+                [math.sin(rotation), math.cos(rotation)],
+            ]
+        )
         self.reset()
 
     def getCmdParam(self, label: str, val: float):
         return " " + label + str(round(val, 2)) if val is not None else ""
 
+    def getResult(self):
+        res = ""
+        for cmd in self.commands:
+            cmdString, e = cmd.toGCode(self.eFactor, self.currentE, self.fValue)
+            res += cmdString + "\n"
+            self.currentE = e
+
+        return res
+
     def reset(self):
-        self.result = ""
+        self.result = []
         self.commands = []
 
-    def add(self, cmd: str):
-        self.result += cmd + "\n"
+    def addCmd(
+        self,
+        prefix: str,
+        x: float = None,
+        y: float = None,
+        z: float = None,
+        i: float = None,
+        j: float = None,
+        p: int = None,
+        arcDegrees: int = None,
+        printing: bool = False,
+        moving: bool = False,
+    ):
 
-    def addCmd(self, prefix: str, x:float=None, y:float=None, z:float=None,
-     i:float=None, j:float=None, arcDegrees:int=None):
-
-        #x and y are both needed for rotation (even if one of them does not change)
+        # x and y are both needed for rotation (even if one of them does not change)
         x = x if not x is None else self.currentX
         y = y if not y is None else self.currentY
 
-        #Save current location
+        # Save current location
         previousX, previousY = self.rotate(self.currentX, self.currentY)
         previousX += self.startX
         previousY += self.startY
@@ -54,8 +99,8 @@ class PatternParent:
         xRot, yRot = self.rotate(x, y)
         xRot += self.startX
         yRot += self.startY
-        
-        #Rotate i and j (relative offset of the circle center)
+
+        # Rotate i and j (relative offset of the circle center)
         if i is not None and j is not None:
             iAbs = x + i
             jAbs = y + j
@@ -68,50 +113,195 @@ class PatternParent:
             i = iAbsNew - xRot
             j = jAbsNew - yRot
 
-        cmd: str = ""
-        cmd += self.getCmdParam("X", xRot)
-        cmd += self.getCmdParam("Y", yRot)
-        cmd += self.getCmdParam("Z", z)
-        cmd += self.getCmdParam("I", i)
-        cmd += self.getCmdParam("J", j)
-        if(cmd):
-            self.add(prefix + cmd)
-            self.commands.append(GCodeCmd(prefix, x=xRot, y=yRot, z=z, i=i, j=j,
-                arcDegrees=arcDegrees, previousX=previousX, previousY=previousY))
+        # Overrun start
+        if printing and len(self.commands) != 0 and self.commands[-1].z is not None:
+            if (
+                self.commands[-1].z == self.workheight
+                and self.overrunStart + self.printOverrun != 0
+            ):
+                startVector = subtract([xRot, yRot], [previousX, previousY])
+                norm = np.linalg.norm(startVector)
+                if norm != 0:
+                    vec = startVector / norm
 
-    #Set position in plane
+                    back = vec * (self.overrunStart + self.printOverrun)
+                    forward1 = vec * self.printOverrun
+
+                    self.commands.insert(
+                        -1,
+                        GCodeCmd(
+                            "G0",
+                            x=previousX - back[0],
+                            y=previousY - back[1],
+                            previousX=previousX,
+                            previousY=previousY,
+                            isOverrun=False,
+                            moving=True,
+                        ),
+                    )
+
+                    self.commands.append(
+                        GCodeCmd(
+                            "G0",
+                            x=previousX - forward1[0],
+                            y=previousY - forward1[1],
+                            previousX=previousX - back[0],
+                            previousY=previousY - back[1],
+                            isOverrun=True,
+                            moving=True,
+                        )
+                    )
+
+                    self.commands.append(
+                        GCodeCmd(
+                            "G1",
+                            x=previousX,
+                            y=previousY,
+                            previousX=previousX - forward1[0],
+                            previousY=previousY - forward1[1],
+                            isOverrun=True,
+                            moving=True,
+                            printing=True,
+                        )
+                    )
+
+                    self.commands[-3].x -= back[0]
+                    self.commands[-3].y -= back[1]
+                    del self.commands[-5]
+
+        # Overrun end
+        if z is not None and len(self.commands) != 0:
+            if z == self.freemoveHeight and self.overrunEnd != 0:
+                oldCmd = self.commands[-1]
+                endVector = subtract(
+                    [oldCmd.previousX, oldCmd.previousY], [oldCmd.x, oldCmd.y]
+                )
+                norm = np.linalg.norm(endVector)
+                if norm != 0:
+                    vec = (endVector / norm) * self.overrunEnd
+                    self.commands.append(
+                        GCodeCmd(
+                            "G0",
+                            x=previousX - vec[0],
+                            y=previousY - vec[1],
+                            previousX=previousX,
+                            previousY=previousY,
+                            isOverrun=True,
+                            moving=True,
+                        )
+                    )
+                    xRot -= vec[0]
+                    yRot -= vec[1]
+                    previousX -= vec[0]
+                    previousY -= vec[1]
+
+        self.commands.append(
+            GCodeCmd(
+                prefix,
+                x=xRot,
+                y=yRot,
+                z=z,
+                i=i,
+                j=j,
+                p=p,
+                arcDegrees=arcDegrees,
+                previousX=previousX,
+                previousY=previousY,
+                printing=printing,
+                moving=moving,
+            )
+        )
+
     def setCurrentPosition(self, x=None, y=None):
         self.currentX = x
         self.currentY = y
 
-    def moveTo(self, x=None, y=None, z=None):
-        self.addCmd("G0", x, y, z)
+    def moveTo(self, x: float = None, y: float = None, z: float = None):
+        """Moves to the given location without releasing material
 
-    def printTo(self, x=None, y=None, z=None):
-        self.addCmd("G1", x, y, z)
+        Args:
+            x (float, optional): relative difference in x direction. Defaults to None.
+            y (float, optional): relative difference in y direction. Defaults to None.
+            z (float, optional): absolute z coordinate. Defaults to None.
+        """
+        self.addCmd("G0", x, y, z, moving=True)
 
-    def clockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
-        self.addCmd("G02", x, y, i=i, j=j, arcDegrees=arcDegrees)
+    def printTo(self, x: float = None, y: float = None, z: float = None):
+        """Moves to the given location while releasing material
 
-    def counterClockArc(self, x=None, y=None, i=0.0, j=0.0, arcDegrees=180):
-        self.addCmd("G03", x, y, i=i, j=j, arcDegrees=arcDegrees)
+        Args:
+            x (float, optional): relative difference in x direction. Defaults to None.
+            y (float, optional): relative difference in y direction. Defaults to None.
+            z (float, optional): absolute z coordinate. Defaults to None.
+        """
+        self.addCmd("G1", x, y, z, printing=True, moving=True)
 
-    def relativeMode(self):
-        self.add("G91")
+    def clockArc(
+        self,
+        x: float = None,
+        y: float = None,
+        i: float = 0.0,
+        j: float = 0.0,
+        arcDegrees=180,
+    ):
+        """Prints an arc clockwise. The center point offset as well as the location of the
+         nozzle after printing the arc need to be defined. Again all coordinates are relative
+          to the starting point of the arc (current location).
 
-    def absoluteMode(self):
-        self.add("G90")
+        Args:
+            x (float, optional): Relative x coordinate of the nozzle after drawing the arc. Defaults to None.
+            y (float, optional): Relative y coordinate of the nozzle after drawing the arc. Defaults to None.
+            i (float, optional): Relative offset of the center point in x direction. Defaults to 0.0.
+            j (float, optional): Relative offset of the center point in y direction. Defaults to 0.0.
+            arcDegrees (int, optional): Number of degrees. Defaults to 180.
+        """
+        self.addCmd(
+            "G02", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True
+        )
+
+    def counterClockArc(
+        self,
+        x: float = None,
+        y: float = None,
+        i: float = 0.0,
+        j: float = 0.0,
+        arcDegrees=180,
+    ):
+        """Prints an arc counter-clockwise. The center point offset as well as the location of the
+         nozzle after printing the arc need to be defined. Again all coordinate are relative
+          to the starting point of the arc (current location).
+
+        Args:
+            x (float, optional): Relative x coordinate of the nozzle after drawing the arc. Defaults to None.
+            y (float, optional): Relative y coordinate of the nozzle after drawing the arc. Defaults to None.
+            i (float, optional): Relative offset of the center point in x direction. Defaults to 0.0.
+            j (float, optional): Relative offset of the center point in y direction. Defaults to 0.0.
+            arcDegrees (int, optional): Number of degrees. Defaults to 180.
+        """
+        self.addCmd(
+            "G03", x, y, i=i, j=j, arcDegrees=arcDegrees, printing=True, moving=True
+        )
 
     def workHeight(self):
+        """Moves along the z-axis until work height is reached"""
         self.moveTo(z=self.workheight)
 
     def freeMoveHeight(self):
+        """Moves along the z-axis until work free move height is reached"""
         self.moveTo(z=self.freemoveHeight)
 
-    def rotate(self, x:float, y:float):
+    def rotate(self, x: float, y: float):
         result = self.rotationMatrix.dot(np.array([x, y]))
         return result[0], result[1]
 
+    def onFinish(self):
+        if self.pause != 0:
+            self.addCmd("G4", p=self.pause)
+
+        if self.cleaningX is not None and self.cleaningY is not None:
+            self.commands.append(
+                GCodeCmd("G0", x=self.cleaningX, y=self.cleaningY, moving=True)
+            )
 
     @abc.abstractmethod
     def gcode(self, startX: float, startY: float, workHeight: float):
