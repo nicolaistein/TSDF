@@ -13,7 +13,7 @@ Currently the only supported extension is .obj. Furthermore the following restri
 - No unused vertices are allowed
 
 In the manual mode the user can select a target number of segments below the 3D plotter and press "segment". This optional step divides the mesh into smaler pieces and is required if the object is closed and suggested if the object is not unwrappable without cutting into the surface. Afterwards a parameterization algorithm can be selected which flattens either the whole mesh or all segments if segmentation was performed beforehand.
-In the automatic mode the user just needs to press "flatten" to unwrap the object. Segmentation and algorithm selection are then done by the program.
+In the automatic mode the user just needs to press "flatten" to unwrap the object. Segmentation and algorithm selection are then done by the program. The resulting smaller objects from either manual segmentation or the automatic mode are saved in a folder with a similar name.
 
 ## Placing Patterns
 
