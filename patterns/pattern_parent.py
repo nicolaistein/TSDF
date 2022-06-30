@@ -314,13 +314,7 @@ class PatternParent:
         """Generates the gcode of the pattern"""
         
     def drawPlatformStart(self):
-        """Draws a platform on the left side
-
-        Args:
-            n (int, optional): Number of units (One unit is 2 lines). Defaults to 3.
-            width (float, optional): width of one unit(Total width of the platform is width*n). Defaults to 0.8.
-            length (float, optional): Length of the platform. Defaults to 5.
-        """
+        """Draws a platform on the left side"""
 
         if self.platformLines == 0 or self.platformLength == 0 or self.platformWidth == 0:
             self.workHeight()
@@ -341,14 +335,7 @@ class PatternParent:
 
 
     def drawPlatformEnd(self):
-        """Draws a platform on the left side
-
-        Args:
-            currentY (float): Currenty position on the y axis.
-            n (int, optional): Number of units (One unit is 2 lines). Defaults to 3.
-            width (float, optional): width of one unit(Total width of the platform is width*n). Defaults to 0.8.
-            length (float, optional): Length of the platform. Defaults to 5.
-        """
+        """Draws a platform on the left side"""
 
         if self.platformLines == 0 or self.platformLength == 0 or self.platformWidth == 0:
             return
