@@ -253,7 +253,6 @@ class PlacedPatternsItem:
         topContent = Frame(self.container, bg=self.color)
         self.toRefresh.append(topContent)
 
-        #    container.pack_propagate(0)
         importantValues = {}
         importantValues["name"] = self.pattern.name
         importantValues["id"] = self.pattern.id

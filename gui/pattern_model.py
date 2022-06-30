@@ -30,13 +30,13 @@ class PatternModel:
         freeMoveHeight: float = 1,
         eFactor: float = 0,
         eFactorStart: float = 0,
-        fFactor: float = 0,
+        fFactorLine: float = 0,
+        fFactorArc: float = 0,
         overrunStart: float = 0,
         overrunEnd: float = 0,
         printOverrun: float = 0,
         pause: float = 0,
-        cleaningX: float = None,
-        cleaningY: float = None,
+        retract: float = 0,
     ):
         values = {}
         for key, val in self.params.items():
@@ -55,7 +55,8 @@ class PatternModel:
             freeMoveHeight,
             eFactor,
             eFactorStart,
-            fFactor,
+            fFactorLine,
+            fFactorArc,
             overrunStart,
             overrunEnd,
             printOverrun,
@@ -63,8 +64,7 @@ class PatternModel:
             self.y,
             self.rotation,
             pause,
-            cleaningX,
-            cleaningY,
+            retract
         ).gcode()
 
     def setName(self, newName: str):

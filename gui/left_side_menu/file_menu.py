@@ -83,7 +83,6 @@ class FileMenu:
         self.content.pack_propagate(False)
 
         MenuHeading("Select File", infotexts.selectFile).build(self.content)
-        #        title = Label(self.content, text="Select File")
 
         fileSelectionFrame = Frame(self.content)
         chooseFrame = Frame(fileSelectionFrame)

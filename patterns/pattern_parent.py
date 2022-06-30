@@ -15,7 +15,8 @@ class PatternParent:
         freeMoveHeight: float,
         eFactor: float,
         eFactorStart: float,
-        fValue: float,
+        fValueLine: float,
+        fValueArc: float,
         overrunStart: float,
         overrunEnd: float,
         printOverrun: float,
@@ -23,25 +24,24 @@ class PatternParent:
         startY: float,
         rotation: float,
         pause: float = 0,
-        cleaningX: float = None,
-        cleaningY: float = None,
+        retract: float = 0
     ):
         self.values = values
         self.workheight = workHeight
         self.freemoveHeight = freeMoveHeight
         self.eFactor = eFactor
-        self.fValue = fValue
+        self.fValueLine = fValueLine
+        self.fValueArc = fValueArc
         self.startX = startX
         self.startY = startY
         self.overrunStart = overrunStart
         self.overrunEnd = overrunEnd
         self.printOverrun = printOverrun
         self.pause = pause
-        self.cleaningX = cleaningX
-        self.cleaningY = cleaningY
         self.currentX = 0
         self.currentY = 0
         self.currentE = eFactorStart
+        self.retract = retract
 
         rotation = -1 * rotation * math.pi / 180
         self.rotationMatrix = np.array(
@@ -58,7 +58,8 @@ class PatternParent:
     def getResult(self):
         res = ""
         for cmd in self.commands:
-            cmdString, e = cmd.toGCode(self.eFactor, self.currentE, self.fValue)
+            fval = self.fValueArc if cmd.prefix == "G02" or cmd.prefix == "G03" else self.fValueLine 
+            cmdString, e = cmd.toGCode(self.eFactor, self.currentE, fval)
             res += cmdString + "\n"
             self.currentE = e
 
@@ -76,6 +77,7 @@ class PatternParent:
         z: float = None,
         i: float = None,
         j: float = None,
+        e:float = None,
         p: int = None,
         arcDegrees: int = None,
         printing: bool = False,
@@ -203,6 +205,7 @@ class PatternParent:
                 z=z,
                 i=i,
                 j=j,
+                e=e,
                 p=p,
                 arcDegrees=arcDegrees,
                 previousX=previousX,
@@ -224,9 +227,9 @@ class PatternParent:
             y (float, optional): relative difference in y direction. Defaults to None.
             z (float, optional): absolute z coordinate. Defaults to None.
         """
-        self.addCmd("G0", x, y, z, moving=True)
+        self.addCmd("G0", x, y, z,  moving=True)
 
-    def printTo(self, x: float = None, y: float = None, z: float = None):
+    def printTo(self, x: float = None, y: float = None, z: float = None, e: float = None):
         """Moves to the given location while releasing material
 
         Args:
@@ -234,7 +237,7 @@ class PatternParent:
             y (float, optional): relative difference in y direction. Defaults to None.
             z (float, optional): absolute z coordinate. Defaults to None.
         """
-        self.addCmd("G1", x, y, z, printing=True, moving=True)
+        self.addCmd("G1", x, y, z, e=e, printing=True, moving=True)
 
     def clockArc(
         self,
@@ -288,7 +291,10 @@ class PatternParent:
 
     def freeMoveHeight(self):
         """Moves along the z-axis until work free move height is reached"""
-        self.moveTo(z=self.freemoveHeight)
+        if self.retract is not None and self.retract != 0:
+            self.printTo(z=self.freemoveHeight, e=self.retract)
+        else:
+            self.moveTo(z=self.freemoveHeight)
 
     def rotate(self, x: float, y: float):
         result = self.rotationMatrix.dot(np.array([x, y]))
@@ -297,11 +303,6 @@ class PatternParent:
     def onFinish(self):
         if self.pause != 0:
             self.addCmd("G4", p=self.pause)
-
-        if self.cleaningX is not None and self.cleaningY is not None:
-            self.commands.append(
-                GCodeCmd("G0", x=self.cleaningX, y=self.cleaningY, moving=True)
-            )
 
     @abc.abstractmethod
     def gcode(self, startX: float, startY: float, workHeight: float):

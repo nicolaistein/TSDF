@@ -69,18 +69,21 @@ class GCodeCmd:
             cmd += self.getCmdParam("I", self.i)
             cmd += self.getCmdParam("J", self.j)
         cmd += self.getCmdParam("P", self.p)
-        if self.printing:
-            distance = self.getDistance(
-                prevX=self.previousX,
-                prevY=self.previousY,
-                x=self.x,
-                y=self.y,
-                i=self.i,
-                j=self.j,
-                arcDegrees=self.arcDegrees,
-            )
 
-            currentE -= distance * eFactor
+        if self.printing:
+            if self.e is None:
+                distance = self.getDistance(
+                    prevX=self.previousX,
+                    prevY=self.previousY,
+                    x=self.x,
+                    y=self.y,
+                    i=self.i,
+                    j=self.j,
+                    arcDegrees=self.arcDegrees,
+                )
+                self.e = distance * eFactor
+
+            currentE -= self.e
             cmd += self.getCmdParam("E", currentE)
 
         if self.moving:

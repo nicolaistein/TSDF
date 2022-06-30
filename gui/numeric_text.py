@@ -34,7 +34,7 @@ class NumericText:
         pass
 
     def onKeyPress(self, event):
-        allowed = "1234567890"
+        allowed = "-1234567890"
         if self.floatingPoint:
             allowed += "."
         if not event.char in allowed:
