@@ -19,7 +19,7 @@ class Pattern(PatternParent):
         self.reset()
 
         self.moveTo(y=(b2 - b1) / 2)
-        self.workHeight()
+        self.drawPlatformStart()
 
         self.printTo(x=l1 - rBottom)
 
@@ -54,6 +54,7 @@ class Pattern(PatternParent):
         )
         self.printTo(x=0)
 
+        self.drawPlatformEnd()
         self.freeMoveHeight()
 
         self.onFinish()

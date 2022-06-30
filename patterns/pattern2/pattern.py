@@ -19,7 +19,7 @@ class Pattern(PatternParent):
         self.reset()
 
         self.moveTo(y=(b2 - b1) / 2)
-        self.workHeight()
+        self.drawPlatformStart()
 
         self.printTo(x=l1 - rBottom)
         self.clockArc(x=l1, y=(b2 - b1) / 2 - rBottom, j=rBottom * -1, arcDegrees=90)
@@ -44,6 +44,10 @@ class Pattern(PatternParent):
             x=l1 - rBottom, y=(b2 - b1) / 2 + b1, i=rBottom * -1, arcDegrees=90
         )
         self.printTo(x=0)
+
+
+        self.drawPlatformEnd()
+
         self.freeMoveHeight()
 
         self.onFinish()

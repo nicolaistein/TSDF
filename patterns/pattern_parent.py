@@ -317,17 +317,19 @@ class PatternParent:
             length (float, optional): Length of the platform. Defaults to 5.
         """
 
-        self.moveTo(y=width*n*2)
+        y = self.currentY
+
+        self.moveTo(y=y + width*n*2)
         self.workHeight()
 
         for num in range(2*n, 0, -2):
             self.printTo(x=length)
-            self.printTo(y=width*(num-1))
+            self.printTo(y=y + width*(num-1))
             self.printTo(x=0)
-            self.printTo(y=width*(num-2))
+            self.printTo(y=y + width*(num-2))
 
 
-    def drawPlatformEnd(self, n:int=int(3), width:float=0.8, length:float=5):
+    def drawPlatformEnd(self, n:int=3, width:float=0.8, length:float=5):
         """Draws a platform on the left side
 
         Args:
