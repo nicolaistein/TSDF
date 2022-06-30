@@ -307,4 +307,40 @@ class PatternParent:
     @abc.abstractmethod
     def gcode(self, startX: float, startY: float, workHeight: float):
         """Generates the gcode of the pattern"""
-        return
+        
+    def drawPlatformStart(self, n:int=3, width:float=0.8, length:float=5):
+        """Draws a platform on the left side
+
+        Args:
+            n (int, optional): Number of units (One unit is 2 lines). Defaults to 3.
+            width (float, optional): width of one unit(Total width of the platform is width*n). Defaults to 0.8.
+            length (float, optional): Length of the platform. Defaults to 5.
+        """
+
+        self.moveTo(y=width*n*2)
+        self.workHeight()
+
+        for num in range(2*n, 0, -2):
+            self.printTo(x=length)
+            self.printTo(y=width*(num-1))
+            self.printTo(x=0)
+            self.printTo(y=width*(num-2))
+
+
+    def drawPlatformEnd(self, n:int=int(3), width:float=0.8, length:float=5):
+        """Draws a platform on the left side
+
+        Args:
+            currentY (float): Currenty position on the y axis.
+            n (int, optional): Number of units (One unit is 2 lines). Defaults to 3.
+            width (float, optional): width of one unit(Total width of the platform is width*n). Defaults to 0.8.
+            length (float, optional): Length of the platform. Defaults to 5.
+        """
+
+        y = self.currentY
+
+        for num in range(0, 2*n, 2):
+            self.printTo(y=y-width*(num+1))
+            self.printTo(x=length)
+            self.printTo(y=y-width*(num+2))
+            self.printTo(x=0)
