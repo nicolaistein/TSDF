@@ -87,6 +87,10 @@ class PlacedPatternsMenu:
         pause = self.pauseText.getNumberInput()
         retract = self.retractText.getNumberInput()
         extrude = self.extrudeText.getNumberInput()
+        
+        platformLength = self.platformLengthText.getNumberInput()
+        platformWidth = self.platformWidthText.getNumberInput()
+        platformLines = self.platformLinesText.getNumberInput()
 
         file.write("G90\n")
         file.write("G28 X Y\n")
@@ -111,7 +115,10 @@ class PlacedPatternsMenu:
                 overrunEnd = overrunEnd,
                 printOverrun = printOverrun,
                 pause = pause,
-                retract = retract
+                retract = retract,
+                platformLength = platformLength,
+                platformWidth = platformWidth,
+                platformLines = platformLines
             )
             currentE = e
             file.write(result)
@@ -167,12 +174,12 @@ class PlacedPatternsMenu:
 
         MenuHeading("Placed Patterns", infotexts.palcedPatterns).build(self.content)
 
-        self.innerContent = ListView(self.content, 310, 510).build()
+        self.innerContent = ListView(self.content, 310, 480).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=327, height=310, pady=20)
+        generationFrame = Frame(self.mainFrame, width=327, height=340, pady=20)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
 
@@ -191,8 +198,11 @@ class PlacedPatternsMenu:
         self.retractText, self.extrudeText = self.buildParamLine(
             inputParentFrame, "Retract", "0", "Extrude", "0")
         
-        self.eFactorText, _ = self.buildParamLine(
-            inputParentFrame, "E Factor", "4")
+        self.eFactorText, self.platformLinesText = self.buildParamLine(
+            inputParentFrame, "E Factor", "4", "Plaform lines", "0")
+
+        self.platformWidthText, self.platformLengthText = self.buildParamLine(
+            inputParentFrame, "Platform width", "0", "Platform length", "0")
 
         inputParentFrame.pack(side=TOP, padx=(20, 20))
 

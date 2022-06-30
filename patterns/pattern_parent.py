@@ -6,7 +6,6 @@ from patterns.gcode_cmd import GCodeCmd
 from util import subtract
 from logger import log
 
-
 class PatternParent:
     def __init__(
         self,
@@ -24,7 +23,10 @@ class PatternParent:
         startY: float,
         rotation: float,
         pause: float = 0,
-        retract: float = 0
+        retract: float = 0,
+        platformLength: float = 0,
+        platformWidth: float = 0,
+        platformLines: float = 0
     ):
         self.values = values
         self.workheight = workHeight
@@ -42,6 +44,9 @@ class PatternParent:
         self.currentY = 0
         self.currentE = eFactorStart
         self.retract = retract
+        self.platformLength = platformLength
+        self.platformWidth = platformWidth
+        self.platformLines = int(platformLines)
 
         rotation = -1 * rotation * math.pi / 180
         self.rotationMatrix = np.array(
@@ -308,7 +313,7 @@ class PatternParent:
     def gcode(self, startX: float, startY: float, workHeight: float):
         """Generates the gcode of the pattern"""
         
-    def drawPlatformStart(self, n:int=3, width:float=0.8, length:float=5):
+    def drawPlatformStart(self):
         """Draws a platform on the left side
 
         Args:
@@ -317,19 +322,25 @@ class PatternParent:
             length (float, optional): Length of the platform. Defaults to 5.
         """
 
-        y = self.currentY
+        if self.platformLines == 0 or self.platformLength == 0 or self.platformWidth == 0:
+            self.workHeight()
+            return
 
-        self.moveTo(y=y + width*n*2)
+        width = self.platformWidth / self.platformLines 
+        y = self.currentY
+        x = self.currentX
+
+        self.moveTo(y=y + width*self.platformLines)
         self.workHeight()
 
-        for num in range(2*n, 0, -2):
-            self.printTo(x=length)
+        for num in range(self.platformLines, 0, -2):
+            self.printTo(x=x + self.platformLength)
             self.printTo(y=y + width*(num-1))
-            self.printTo(x=0)
+            self.printTo(x=x)
             self.printTo(y=y + width*(num-2))
 
 
-    def drawPlatformEnd(self, n:int=3, width:float=0.8, length:float=5):
+    def drawPlatformEnd(self):
         """Draws a platform on the left side
 
         Args:
@@ -339,10 +350,15 @@ class PatternParent:
             length (float, optional): Length of the platform. Defaults to 5.
         """
 
-        y = self.currentY
+        if self.platformLines == 0 or self.platformLength == 0 or self.platformWidth == 0:
+            return
 
-        for num in range(0, 2*n, 2):
+        width = self.platformWidth / self.platformLines 
+        y = self.currentY
+        x = self.currentX
+
+        for num in range(0, self.platformLines, 2):
             self.printTo(y=y-width*(num+1))
-            self.printTo(x=length)
+            self.printTo(x=x + self.platformLength)
             self.printTo(y=y-width*(num+2))
-            self.printTo(x=0)
+            self.printTo(x=x)

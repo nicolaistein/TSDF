@@ -37,6 +37,9 @@ class PatternModel:
         printOverrun: float = 0,
         pause: float = 0,
         retract: float = 0,
+        platformLength: float = 0,
+        platformWidth: float = 0,
+        platformLines: float = 0
     ):
         values = {}
         for key, val in self.params.items():
@@ -50,21 +53,24 @@ class PatternModel:
             patternCalc = Pattern3
 
         return patternCalc(
-            values,
-            workHeight,
-            freeMoveHeight,
-            eFactor,
-            eFactorStart,
-            fFactorLine,
-            fFactorArc,
-            overrunStart,
-            overrunEnd,
-            printOverrun,
-            self.x,
-            self.y,
-            self.rotation,
-            pause,
-            retract
+            values = values,
+            workHeight = workHeight,
+            freeMoveHeight = freeMoveHeight,
+            eFactor = eFactor,
+            eFactorStart = eFactorStart,
+            fValueLine = fFactorLine,
+            fValueArc = fFactorArc,
+            overrunStart = overrunStart,
+            overrunEnd = overrunEnd,
+            printOverrun = printOverrun,
+            startX = self.x,
+            startY = self.y,
+            rotation = self.rotation,
+            pause = pause,
+            retract = retract,
+            platformLength = platformLength,
+            platformWidth = platformWidth,
+            platformLines = platformLines
         ).gcode()
 
     def setName(self, newName: str):
