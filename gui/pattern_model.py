@@ -39,7 +39,9 @@ class PatternModel:
         retract: float = 0,
         platformLength: float = 0,
         platformWidth: float = 0,
-        platformLines: float = 0
+        platformLines: float = 0,
+        offsetX: float = 0,
+        offsetY: float = 0
     ):
         values = {}
         for key, val in self.params.items():
@@ -63,14 +65,14 @@ class PatternModel:
             overrunStart = overrunStart,
             overrunEnd = overrunEnd,
             printOverrun = printOverrun,
-            startX = self.x,
-            startY = self.y,
+            startX = self.x + offsetX,
+            startY = self.y + offsetY,
             rotation = self.rotation,
             pause = pause,
             retract = retract,
             platformLength = platformLength,
             platformWidth = platformWidth,
-            platformLines = platformLines
+            platformLines = platformLines,
         ).gcode()
 
     def setName(self, newName: str):

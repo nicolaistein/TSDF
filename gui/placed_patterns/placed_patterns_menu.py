@@ -64,11 +64,6 @@ class PlacedPatternsMenu:
         pat.build()
         pat.checkBoundaries()
 
-    def getOverruns(self):
-        overrunStart = self.overrunStartText.getNumberInput()
-        overrunEnd = self.overrunEndText.getNumberInput()
-        printOverrun = self.printOverrunStartText.getNumberInput()
-        return overrunStart, overrunEnd, printOverrun
 
     def generateGCode(self):
         if len(self.placedPatternItems) == 0:
@@ -83,7 +78,11 @@ class PlacedPatternsMenu:
         eFactor = self.eFactorText.getNumberInput()
         fFactorLine = self.fFactorLineText.getNumberInput()
         fFactorArc = self.fFactorArcText.getNumberInput()
-        overrunStart, overrunEnd, printOverrun = self.getOverruns()
+
+        overrunStart = self.overrunStartText.getNumberInput()
+        overrunEnd = self.overrunEndText.getNumberInput()
+        printOverrun = self.printOverrunStartText.getNumberInput()
+
         pause = self.pauseText.getNumberInput()
         retract = self.retractText.getNumberInput()
         extrude = self.extrudeText.getNumberInput()
@@ -91,6 +90,9 @@ class PlacedPatternsMenu:
         platformLength = self.platformLengthText.getNumberInput()
         platformWidth = self.platformWidthText.getNumberInput()
         platformLines = self.platformLinesText.getNumberInput()
+        
+        offsetX = self.offsetXText.getNumberInput()
+        offsetY = self.offsetYText.getNumberInput()
 
         file.write("G90\n")
         file.write("G28 X Y\n")
@@ -118,7 +120,9 @@ class PlacedPatternsMenu:
                 retract = retract,
                 platformLength = platformLength,
                 platformWidth = platformWidth,
-                platformLines = platformLines
+                platformLines = platformLines,
+                offsetX = offsetX,
+                offsetY = offsetY
             )
             currentE = e
             file.write(result)
@@ -174,12 +178,12 @@ class PlacedPatternsMenu:
 
         MenuHeading("Placed Patterns", infotexts.palcedPatterns).build(self.content)
 
-        self.innerContent = ListView(self.content, 310, 480).build()
+        self.innerContent = ListView(self.content, 310, 470).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=327, height=340, pady=20)
+        generationFrame = Frame(self.mainFrame, width=327, height=350, pady=0)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
 
@@ -203,6 +207,9 @@ class PlacedPatternsMenu:
 
         self.platformWidthText, self.platformLengthText = self.buildParamLine(
             inputParentFrame, "Platform width", "0", "Platform length", "0")
+
+        self.offsetXText, self.offsetYText = self.buildParamLine(
+            inputParentFrame, "Offset x", "0", "Offset y", "0")
 
         inputParentFrame.pack(side=TOP, padx=(20, 20))
 
