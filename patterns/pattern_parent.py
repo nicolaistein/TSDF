@@ -320,6 +320,9 @@ class PatternParent:
             self.workHeight()
             return
 
+        if self.platformLines % 2 != 0:
+            self.platformLines += 1
+
         width = self.platformWidth / self.platformLines 
         y = self.currentY
         x = self.currentX
@@ -339,6 +342,9 @@ class PatternParent:
 
         if self.platformLines == 0 or self.platformLength == 0 or self.platformWidth == 0:
             return
+            
+        if self.platformLines % 2 != 0:
+            self.platformLines += 1
 
         width = self.platformWidth / self.platformLines 
         y = self.currentY
