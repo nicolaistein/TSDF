@@ -84,8 +84,8 @@ class PlacedPatternsMenu:
         printOverrun = self.printOverrunStartText.getNumberInput()
 
         pause = self.pauseText.getNumberInput()
-        retract = self.retractText.getNumberInput()
-        extrude = self.extrudeText.getNumberInput()
+        retract = self.retractText.getNumberInput() * -1
+        extrude = self.extrudeText.getNumberInput() * -1
         
         platformLength = self.platformLengthText.getNumberInput()
         platformWidth = self.platformWidthText.getNumberInput()
