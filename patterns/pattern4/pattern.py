@@ -17,15 +17,6 @@ class Pattern(PatternParent):
         b2 = self.b2 = self.values["b2"]
         x = self.x = self.values["x"]
         n = self.n = int(self.values["n"])
-        self.vectorLength = 0.5
-
-        rotation = 3  
-        self.vectorRotationMatrix = np.array(
-            [
-                [math.cos(rotation), math.sin(rotation) * -1],
-                [math.sin(rotation), math.cos(rotation)],
-            ]
-        )
 
         self.reset()
         # Move to start point
@@ -76,7 +67,10 @@ class Pattern(PatternParent):
                 posX = l1+((widthCount+1)*x)
                 log("PosX: " + str(posX))
 
-                self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
+                if i==1:
+                    self.counterClockArc(x=posX, y=b2/2+b1/2, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
+                else:
+                    self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
 
 
     #    self.counterClockArc(y=r * 2, j=r)
@@ -88,7 +82,7 @@ class Pattern(PatternParent):
     #    self.counterClockArc(y=r * 6, j=r)
 
 
-        self.printTo(y=self.b2/2 + self.b1/2)
+    #    self.printTo(y=self.b2/2 + self.b1/2)
         self.printTo(x=0)
         self.drawPlatformEnd()
         self.freeMoveHeight()
@@ -96,10 +90,3 @@ class Pattern(PatternParent):
 
         return self.getResult(), self.commands, self.currentE
 
-    def print(self):
-        self.currentLocation = [self.l1, self.b2/2 - self.b1/2]
-        self.currentVector = [0, -1]
-
-        while(True):
-            self.currentLocation -= self.currentVector * self.vectorLength
-            self.printTo(x=self.currentLocation[0], y=self.currentLocation[1])
