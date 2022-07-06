@@ -25,29 +25,27 @@ class Pattern(PatternParent):
         self.drawPlatformStart()
         self.printTo(x=self.l1)
 
-        self.counterClockArc(x=l1+l2, y=b2/2-b1/2, i=l2/2, j=b1/2, arcDegrees=180)
+        self.counterClockArc(x=l1+l2, y=b2/2, i=l2/2, j=b1/2, arcDegrees=180)
         self.printTo(x=self.currentX-x)
-        self.clockArc(x=l1+x, y=b2/2, i=(l2-2*x)/-2, j=b1/2, arcDegrees=180)
+        self.clockArc(x=l1+x, y=b2/2, i=(l2-2*x)/-2, arcDegrees=180)
         
-    #    self.printTo(y=b2/2+b1/2)
 
         top = l1+l2-2*x
 
-#       j = b1/-2
         j = 0
 
-        log("\nNEW DRAWING PROCESS =======================================\n")
+    #    log("\nNEW DRAWING PROCESS =======================================\n")
 
         for i in range(0, n):
-            log("Forwards i: " + str(i))
+    #        log("Forwards i: " + str(i))
             widthCount = i+1 if i+1 >= 0 else 0
             if i % 2 == 0:
                 posX = top-(widthCount*x)
-                log("PosX: " + str(posX))
+    #            log("PosX: " + str(posX))
                 self.clockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/2, j=j, arcDegrees=180)
             else:
                 posX = l1+((widthCount+1)*x)
-                log("PosX: " + str(posX))
+    #            log("PosX: " + str(posX))
                 self.clockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
 
         if n % 2 == 0:
@@ -56,16 +54,16 @@ class Pattern(PatternParent):
             self.printTo(x=self.currentX+x)
 
         for i in range(n, 0, -1):
-            log("Backwards i: " + str(i))
+    #        log("Backwards i: " + str(i))
             widthCount = i-2 if i-2 >= 0 else 0
             if i % 2 == 0:
                 posX = top-(widthCount*x)
-                log("PosX: " + str(posX))
+    #            log("PosX: " + str(posX))
                 self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/2, j=j, arcDegrees=180)
             else:
                 if i==1: widthCount -= 1
                 posX = l1+((widthCount+1)*x)
-                log("PosX: " + str(posX))
+    #            log("PosX: " + str(posX))
 
                 if i==1:
                     self.counterClockArc(x=posX, y=b2/2+b1/2, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
@@ -73,16 +71,6 @@ class Pattern(PatternParent):
                     self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
 
 
-    #    self.counterClockArc(y=r * 2, j=r)
-    #    self.printTo(x=l1 - l2 + r)
-
-    #    self.clockArc(y=r * 4, j=r)
-    #    self.printTo(x=l1 - r)
-
-    #    self.counterClockArc(y=r * 6, j=r)
-
-
-    #    self.printTo(y=self.b2/2 + self.b1/2)
         self.printTo(x=0)
         self.drawPlatformEnd()
         self.freeMoveHeight()
