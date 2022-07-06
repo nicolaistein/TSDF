@@ -36,9 +36,9 @@ class Pattern(PatternParent):
 
         self.counterClockArc(x=l1+l2, y=b2/2-b1/2, i=l2/2, j=b1/2, arcDegrees=180)
         self.printTo(x=self.currentX-x)
-        self.clockArc(x=l1+x, y=b2/2-b1/2, i=(l2-2*x)/-2, j=b1/2, arcDegrees=180)
+        self.clockArc(x=l1+x, y=b2/2, i=(l2-2*x)/-2, j=b1/2, arcDegrees=180)
         
-        self.printTo(y=b2/2+b1/2)
+    #    self.printTo(y=b2/2+b1/2)
 
         top = l1+l2-2*x
 
@@ -49,13 +49,13 @@ class Pattern(PatternParent):
 
         for i in range(0, n):
             log("Forwards i: " + str(i))
-            widthCount = 2*i+1 if 2*i+1 >= 0 else 0
+            widthCount = i+1 if i+1 >= 0 else 0
             if i % 2 == 0:
                 posX = top-(widthCount*x)
                 log("PosX: " + str(posX))
                 self.clockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/2, j=j, arcDegrees=180)
             else:
-                posX = l1+(widthCount*x)
+                posX = l1+((widthCount+1)*x)
                 log("PosX: " + str(posX))
                 self.clockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
 
@@ -68,12 +68,14 @@ class Pattern(PatternParent):
             log("Backwards i: " + str(i))
             widthCount = i-2 if i-2 >= 0 else 0
             if i % 2 == 0:
-                posX = top-(2*widthCount*x)
+                posX = top-(widthCount*x)
                 log("PosX: " + str(posX))
                 self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/2, j=j, arcDegrees=180)
             else:
-                posX = l1+(2*widthCount*x)
+                if i==1: widthCount -= 1
+                posX = l1+((widthCount+1)*x)
                 log("PosX: " + str(posX))
+
                 self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
 
 
