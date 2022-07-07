@@ -327,14 +327,14 @@ class PatternParent:
         y = self.currentY
         x = self.currentX
 
-        self.moveTo(y=y + width*self.platformLines)
+        self.moveTo(y=y - width*self.platformLines)
         self.workHeight()
 
         for num in range(self.platformLines, 0, -2):
             self.printTo(x=x + self.platformLength)
-            self.printTo(y=y + width*(num-1))
+            self.printTo(y=y - width*(num-1))
             self.printTo(x=x)
-            self.printTo(y=y + width*(num-2))
+            self.printTo(y=y - width*(num-2))
 
 
     def drawPlatformEnd(self):
@@ -351,7 +351,7 @@ class PatternParent:
         x = self.currentX
 
         for num in range(0, self.platformLines, 2):
-            self.printTo(y=y-width*(num+1))
+            self.printTo(y=y+width*(num+1))
             self.printTo(x=x + self.platformLength)
-            self.printTo(y=y-width*(num+2))
+            self.printTo(y=y+width*(num+2))
             self.printTo(x=x)
