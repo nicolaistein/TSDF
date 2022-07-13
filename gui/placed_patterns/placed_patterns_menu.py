@@ -87,6 +87,7 @@ class PlacedPatternsMenu:
         retract = self.retractText.getNumberInput() * -1
         extrude = self.extrudeText.getNumberInput() * -1
         
+        platformSpeed = self.platformSpeedText.getNumberInput()
         platformLength = self.platformLengthText.getNumberInput()
         platformWidth = self.platformWidthText.getNumberInput()
         platformLines = self.platformLinesText.getNumberInput()
@@ -122,7 +123,8 @@ class PlacedPatternsMenu:
                 platformWidth = platformWidth,
                 platformLines = platformLines,
                 offsetX = offsetX,
-                offsetY = offsetY
+                offsetY = offsetY,
+                platformSpeed = platformSpeed
             )
             currentE = e
             file.write(result)
@@ -178,12 +180,12 @@ class PlacedPatternsMenu:
 
         MenuHeading("Placed Patterns", infotexts.palcedPatterns).build(self.content)
 
-        self.innerContent = ListView(self.content, 310, 470).build()
+        self.innerContent = ListView(self.content, 310, 450).build()
 
         self.placedPatternItems.clear()
         self.content.pack(side=TOP, anchor=N)
 
-        generationFrame = Frame(self.mainFrame, width=327, height=350, pady=0)
+        generationFrame = Frame(self.mainFrame, width=327, height=370, pady=0)
         generationFrame.pack_propagate(0)
         inputParentFrame = Frame(generationFrame)
 
@@ -202,14 +204,17 @@ class PlacedPatternsMenu:
         self.retractText, self.extrudeText = self.buildParamLine(
             inputParentFrame, "Retract", "0", "Extrude", "0")
         
-        self.eFactorText, self.platformLinesText = self.buildParamLine(
-            inputParentFrame, "E Factor", "4", "Plaform lines", "0")
+        self.platformSpeedText, self.platformLinesText = self.buildParamLine(
+            inputParentFrame, "mm/min (PF)", "200", "Plaform lines", "0")
 
         self.platformWidthText, self.platformLengthText = self.buildParamLine(
             inputParentFrame, "Platform width", "0", "Platform length", "0")
 
         self.offsetXText, self.offsetYText = self.buildParamLine(
             inputParentFrame, "Offset x", "0", "Offset y", "0")
+        
+        self.eFactorText, _ = self.buildParamLine(
+            inputParentFrame, "E Factor", "4")
 
         inputParentFrame.pack(side=TOP, padx=(20, 20))
 

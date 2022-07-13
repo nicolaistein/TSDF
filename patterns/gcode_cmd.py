@@ -61,6 +61,9 @@ class GCodeCmd:
             return (2 * math.pi * radius) * (arcDegrees / 360)
 
     def toGCode(self, eFactor, currentE, fValue):
+        if self.f != None:
+            fValue = self.f
+
         cmd = self.prefix
         if self.moving:
             cmd += self.getCmdParam("X", self.x)

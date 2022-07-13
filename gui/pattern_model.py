@@ -42,7 +42,8 @@ class PatternModel:
         platformWidth: float = 0,
         platformLines: float = 0,
         offsetX: float = 0,
-        offsetY: float = 0
+        offsetY: float = 0,
+        platformSpeed: float = 0
     ):
         values = {}
         for key, val in self.params.items():
@@ -76,6 +77,7 @@ class PatternModel:
             platformLength = platformLength,
             platformWidth = platformWidth,
             platformLines = platformLines,
+            platformSpeed = platformSpeed
         ).gcode()
 
     def setName(self, newName: str):

@@ -26,7 +26,8 @@ class PatternParent:
         retract: float = 0,
         platformLength: float = 0,
         platformWidth: float = 0,
-        platformLines: float = 0
+        platformLines: float = 0,
+        platformSpeed: float = 0
     ):
         self.values = values
         self.workheight = workHeight
@@ -47,6 +48,7 @@ class PatternParent:
         self.platformLength = platformLength
         self.platformWidth = platformWidth
         self.platformLines = int(platformLines)
+        self.platformSpeed = platformSpeed
 
         rotation = -1 * rotation * math.pi / 180
         self.rotationMatrix = np.array(
@@ -83,6 +85,7 @@ class PatternParent:
         i: float = None,
         j: float = None,
         e:float = None,
+        f:float = None,
         p: int = None,
         arcDegrees: int = None,
         printing: bool = False,
@@ -211,6 +214,7 @@ class PatternParent:
                 i=i,
                 j=j,
                 e=e,
+                f=f,
                 p=p,
                 arcDegrees=arcDegrees,
                 previousX=previousX,
@@ -234,7 +238,7 @@ class PatternParent:
         """
         self.addCmd("G0", x, y, z,  moving=True)
 
-    def printTo(self, x: float = None, y: float = None, z: float = None, e: float = None):
+    def printTo(self, x: float = None, y: float = None, z: float = None, e: float = None, f: float = None):
         """Moves to the given location while releasing material
 
         Args:
@@ -242,7 +246,7 @@ class PatternParent:
             y (float, optional): relative difference in y direction. Defaults to None.
             z (float, optional): absolute z coordinate. Defaults to None.
         """
-        self.addCmd("G1", x, y, z, e=e, printing=True, moving=True)
+        self.addCmd("G1", x, y, z, e=e, f=f, printing=True, moving=True)
 
     def clockArc(
         self,
@@ -331,10 +335,10 @@ class PatternParent:
         self.workHeight()
 
         for num in range(self.platformLines, 0, -2):
-            self.printTo(x=x + self.platformLength)
-            self.printTo(y=y - width*(num-1))
-            self.printTo(x=x)
-            self.printTo(y=y - width*(num-2))
+            self.printTo(x=x + self.platformLength, f=self.platformSpeed)
+            self.printTo(y=y - width*(num-1), f=self.platformSpeed)
+            self.printTo(x=x, f=self.platformSpeed)
+            self.printTo(y=y - width*(num-2), f=self.platformSpeed)
 
 
     def drawPlatformEnd(self):
@@ -351,7 +355,7 @@ class PatternParent:
         x = self.currentX
 
         for num in range(0, self.platformLines, 2):
-            self.printTo(y=y+width*(num+1))
-            self.printTo(x=x + self.platformLength)
-            self.printTo(y=y+width*(num+2))
-            self.printTo(x=x)
+            self.printTo(y=y+width*(num+1), f=self.platformSpeed)
+            self.printTo(x=x + self.platformLength, f=self.platformSpeed)
+            self.printTo(y=y+width*(num+2), f=self.platformSpeed)
+            self.printTo(x=x, f=self.platformSpeed)
