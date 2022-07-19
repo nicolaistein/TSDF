@@ -4,8 +4,11 @@ from gui.button import TkinterCustomButton
 from gui.mesh3dplotter.mesh3dplotter import Mesh3DPlotter
 from gui.menu_heading.menu_heading import MenuHeading
 import gui.menu_heading.info_texts as infotexts
+from gui.canvas.canvas_manager import CanvasManager
 import igl
 import os
+
+from logger import log
 
 
 class FileMenu:
@@ -15,9 +18,10 @@ class FileMenu:
     currentObject = ""
     currentChart = ""
 
-    def __init__(self, master: Frame, plotter: Mesh3DPlotter, mainColor: str):
+    def __init__(self, master: Frame, canvasManager: CanvasManager, plotter: Mesh3DPlotter, mainColor: str):
         self.mainColor = mainColor
         self.plotter = plotter
+        self.canvasManager = canvasManager
         plotter.notifyFileMenu = self.onChartSelect
         self.mainFrame = Frame(master)
         self.content = Frame(self.mainFrame, width=260, height=200, padx=20, pady=20)
@@ -62,6 +66,18 @@ class FileMenu:
             self.currentChart = ""
             self.refreshInfo()
             self.plotter.plotFile(self.v, self.triangles)
+            if len(self.v) == 0: return
+            initialZ = self.v[0][2]
+            for vec in self.v:
+                if abs(vec[2]-initialZ) > 1e-10: 
+                    log("Object is not flat | vec[2]: " + str(vec[2]) + ", initialZ: " + str(initialZ))
+                    return
+            log("Object is flat! Plotting...")
+            verticesAfter = []
+            for v in self.v:
+                verticesAfter.append([v[0], v[1]])
+            self.canvasManager.plot([(-1, self.v, self.triangles, verticesAfter, self.triangles)])
+
 
     def getPath(self):
         return self.currentChart if self.currentChart else self.currentObject
