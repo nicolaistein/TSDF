@@ -16,13 +16,13 @@ class Pattern(PatternParent):
         self.reset()
         # Move to start point
         self.moveTo()
-        self.moveTo(y=s/2 - b/2)
+        #self.moveTo(y=s/2 - b/2)
         self.drawPlatformStart()
         self.printTo(x=l)
 
-        self.counterClockArc(x=l+s, y=s/2, i=s/2, j=b/2, arcDegrees=180)
+        self.counterClockArc(x=l+s, y=b/2, i=s/2, j=b/2, arcDegrees=180)
         self.printTo(x=self.currentX-x)
-        self.clockArc(x=l+x, y=s/2, i=(s-2*x)/-2, arcDegrees=180)
+        self.clockArc(x=l+x, y=b/2, i=(s-2*x)/-2, arcDegrees=180)
         
 
         top = l+s-2*x
@@ -52,7 +52,7 @@ class Pattern(PatternParent):
                 posX = l+((widthCount+1)*x)
 
                 if i==1:
-                    self.counterClockArc(x=posX, y=s/2+b/2, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
+                    self.counterClockArc(x=posX, y=b, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
                 else:
                     self.counterClockArc(x=posX, y=self.currentY, i=abs(posX-self.currentX)/-2, j=j, arcDegrees=180)
 

@@ -15,33 +15,36 @@ class Pattern(PatternParent):
         r = b2 / 6
         printingBetweenArcsNeeded = 4 * r + b1 < b2
         rBottom = r if printingBetweenArcsNeeded else (b2 - b1) / 4
+        
+        bottom = -(b2-b1)/2
+        top = (b2-b1)/2 + b1
 
         self.reset()
+        self.moveTo()
 
-        self.moveTo(y=(b2 - b1) / 2)
         self.drawPlatformStart()
 
         self.printTo(x=l1 - rBottom)
-        self.clockArc(x=l1, y=(b2 - b1) / 2 - rBottom, j=rBottom * -1, arcDegrees=90)
+        self.clockArc(x=l1, y=-rBottom, j=rBottom * -1, arcDegrees=90)
         if printingBetweenArcsNeeded:
-            self.printTo(y=rBottom)
-        self.counterClockArc(x=l1 + rBottom, y=0, i=rBottom, arcDegrees=90)
+            self.printTo(y= bottom + rBottom)
+        self.counterClockArc(x=l1 + rBottom, y=bottom, i=rBottom, arcDegrees=90)
 
         self.printTo(x=l1 + l2 - r)
-        self.counterClockArc(y=r * 2, j=r)
+        self.counterClockArc(y=bottom + r*2, j=r)
         self.printTo(x=l1 + l2 - l3 + r)
 
-        self.clockArc(y=r * 4, j=r)
+        self.clockArc(y=bottom + r*4, j=r)
         self.printTo(x=l1 + l2 - r)
 
-        self.counterClockArc(y=r * 6, j=r)
+        self.counterClockArc(y=bottom + r*6, j=r)
         self.printTo(x=l1 + rBottom)
 
-        self.counterClockArc(x=l1, y=b2 - rBottom, j=rBottom * -1, arcDegrees=90)
+        self.counterClockArc(x=l1, y=top - rBottom, j=rBottom * -1, arcDegrees=90)
         if printingBetweenArcsNeeded:
-            self.printTo(y=(b2 - b1) / 2 + b1 + rBottom)
+            self.printTo(y=b1 + rBottom)
         self.clockArc(
-            x=l1 - rBottom, y=(b2 - b1) / 2 + b1, i=rBottom * -1, arcDegrees=90
+            x=l1 - rBottom, y=b1, i=rBottom * -1, arcDegrees=90
         )
         self.printTo(x=0)
 
