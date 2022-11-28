@@ -115,8 +115,8 @@ class FileMenu:
             height=25,
             width=80,
         )
-        button.pack(side=LEFT, padx=5)
-        chooseFrame.pack(side=TOP, pady=(0, 10))
+        button.pack(side=LEFT, padx=(0, 5))
+        chooseFrame.pack(side=TOP, anchor=W, pady=(0, 10))
 
         infoFrame = Frame(fileSelectionFrame)
         self.list = infoFrame

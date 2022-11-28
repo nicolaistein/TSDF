@@ -48,7 +48,7 @@ class ObjectPlotter:
         )
 
     def createLine(self, x1, x2):
-        self.objectsOnCanvas.append(self.canvas.create_line(x1[0], x1[1], x2[0], x2[1]))
+        self.objectsOnCanvas.append(self.canvas.create_line(x1[0], x1[1], x2[0], x2[1], fill="#828282"))
 
     def getDistortions(self, wholeObject: bool = False):
         return self.optionsPlotter.getDistortions(wholeObject)
@@ -57,19 +57,29 @@ class ObjectPlotter:
         if not self.enabled:
             return
         if self.plotEdges:
-            for face in self.faces:
 
-                x = list(self.points[face[0]])
-                y = list(self.points[face[1]])
-                z = list(self.points[face[2]])
+    #        print("Boundary loop")
+    #        print(self.bnd)
+            for face in self.faces:
+                x = face[0]
+                y = face[1]
+                z = face[2]
+
+                pX = list(self.points[x])
+                pY = list(self.points[y])
+                pZ = list(self.points[z])
+
+    #            print("x: " + str(x) + ", y: " + str(y) + "z: " + str(z))
 
                 # Edges
-                if self.plotEdges:
-                    self.createLine(x, y)
-                    self.createLine(y, z)
-                    self.createLine(z, x)
+                if x in self.bnd and y in self.bnd:
+                    self.createLine(pX, pY)
+                if y in self.bnd and z in self.bnd:
+                    self.createLine(pY, pZ)
+                if x in self.bnd and z in self.bnd:
+                    self.createLine(pZ, pX)
 
-        else:
+  #      else:
             for point in self.points:
                 x = point[0]
                 y = point[1]

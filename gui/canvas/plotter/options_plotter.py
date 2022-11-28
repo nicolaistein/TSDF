@@ -60,6 +60,7 @@ class OptionsPlotter:
         self.show()
 
     def show(self):
+        return
         if self.currentOption not in self.calculators:
             return
         calculator = self.calculators[self.currentOption]

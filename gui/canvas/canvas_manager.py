@@ -27,6 +27,7 @@ class CanvasManager:
             self.canvasFrame,
             height=self.size,
             width=self.size,
+            background="#ffffff",
             bd=0,
             highlightthickness=0,
         )
@@ -212,6 +213,7 @@ class CanvasManager:
             op.setEnabled(True if chart == -1 else op.id == chart)
 
     def refreshRulers(self):
+#        return
         for point in self.rulers:
             self.canvas.delete(point)
         self.rulers.clear()
@@ -236,7 +238,7 @@ class CanvasManager:
             anchor="sw",
             fill="blue",
             font=("Purisa", 10),
-            text=str(self.ymax),
+            text=str(self.ymax) + " mm",
         )
         l6 = self.canvas.create_text(
             bottomRight + 5,
@@ -244,7 +246,7 @@ class CanvasManager:
             anchor="sw",
             fill="blue",
             font=("Purisa", 10),
-            text=str(self.xmax),
+            text=str(self.xmax) + " mm",
         )
 
         self.rulers = [l1, l2, l3, l4, l5, l6]
